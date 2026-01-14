@@ -23,6 +23,37 @@
       margin: auto;
       font-size: 1.1rem;
     }
+    .teddy-helper {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.teddy-helper button {
+  font-size: 1.2rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  border: none;
+  background: #4a90e2;
+  color: white;
+  cursor: pointer;
+}
+
+.teddy-helper button:hover {
+  background: #357ab8;
+}
+
+#hint {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #444;
+}
+
   </style>
 </head>
 <body>
@@ -34,9 +65,11 @@
     This adventure game is being built with love while we learn web development.
     Come back soon for math adventures!
   </p>
-<button onclick="teddyHint()">🐶 Ask Teddy</button>
+<div class="teddy-helper">
+  <button onclick="teddyHint()">🐶 Ask Teddy</button>
+  <p id="hint"></p>
+</div>
 
-<p id="hint"></p>
 
 <script>
   const hints = [
