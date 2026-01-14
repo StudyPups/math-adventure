@@ -34,6 +34,23 @@
     This adventure game is being built with love while we learn web development.
     Come back soon for math adventures!
   </p>
+<button onclick="teddyHint()">🐶 Ask Teddy</button>
+
+<p id="hint"></p>
+
+<script>
+  const hints = [
+    "Let’s slow down 🐾 What do you already know?",
+    "What is the question asking you to find?",
+    "Can you break this into smaller steps?",
+    "You’re doing great — try the next step on your own!"
+  ];
+
+  function teddyHint() {
+    const randomHint = hints[Math.floor(Math.random() * hints.length)];
+    document.getElementById("hint").textContent = randomHint;
+  }
+</script>
 
 </body>
 </html>
