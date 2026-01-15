@@ -1,5 +1,3 @@
-<!-- deploy test -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +9,7 @@
 
 <body>
   <div id="scene" class="scene scene-1">
-    
+
     <!-- TEDDY -->
     <img
       src="teddy.png"
@@ -23,5 +21,35 @@
     <!-- STORY BOX -->
     <div class="story-box">
       <p id="story-text"><strong>I think he wants me to follow him…</strong></p>
-      <button id="followBtn" onclick="goToForest()">Follow Teddy</button>
+      <button id="followBtn" class="primary-btn" type="button">Follow Teddy</button>
     </div>
+
+  </div>
+
+  <script>
+    const followBtn = document.getElementById("followBtn");
+    const scene = document.getElementById("scene");
+    const teddy = document.getElementById("teddy");
+
+    followBtn.addEventListener("click", goToForest);
+
+    function goToForest() {
+      // prevent double-clicks
+      followBtn.disabled = true;
+
+      // swap background to scene 2
+      scene.classList.remove("scene-1");
+      scene.classList.add("scene-2");
+
+      // optional: Teddy runs off to the right a bit
+      teddy.classList.remove("run-in");
+      teddy.classList.add("run-out");
+
+      // after a short moment, go to patterns
+      setTimeout(() => {
+        window.location.href = "patterns.html";
+      }, 1200);
+    }
+  </script>
+</body>
+</html>
