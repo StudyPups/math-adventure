@@ -1,236 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyPups Adventure</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>StudyPups – The Adventure Begins</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="welcome-page">
-    <div class="game-container">
-        <!-- Stage 1: Meeting Teddy -->
-        <div id="stage1" class="stage active">
-            <div class="scene-description">
-                <p class="narration">You're walking down a dirt path towards a little village. A castle shimmers in the distance...</p>
-            </div>
-            <div class="character-container">
-                <div class="teddy-intro">🐕</div>
-                <div class="speech-bubble">
-                    <p>"WOOF WOOF! 🎾"</p>
-                    <p class="small-text">*Teddy barks excitedly and wags his tail*</p>
-                </div>
-            </div>
-            <div class="narration-box">
-                <p>I think he wants me to follow him...</p>
-            </div>
-            <button class="game-button" onclick="goToStage(2)">Follow Teddy</button>
-        </div>
 
-        <!-- Stage 2: Finding the Tangled Fairy -->
-        <div id="stage2" class="stage">
-            <div class="scene-description">
-                <p class="narration">You follow Teddy into the forest. He's standing next to a tangle of magical vines, barking and wagging his tail!</p>
-            </div>
-            <div class="vine-puzzle">
-                <div class="fairy-trapped">🧚‍♀️</div>
-                <p class="help-text">Click on the vines to untangle them!</p>
-                <div id="pattern-area"></div>
-            </div>
-        </div>
+<body>
+  <div id="scene" class="scene scene-1">
+    
+    <!-- TEDDY -->
+    <img
+      src="teddy.png"
+      alt="Teddy the StudyPup"
+      id="teddy"
+      class="teddy run-in"
+    />
 
-        <!-- Stage 3: Fairy's Thank You -->
-        <div id="stage3" class="stage">
-            <div class="character-container">
-                <div class="fairy-free">🧚‍♀️✨</div>
-                <div class="speech-bubble princess-speech">
-                    <p>"Thank you SO much for rescuing me! I wasn't paying attention and got tangled in those pattern vines!"</p>
-                    <p>"Lucky you came along when you did! You're a natural with patterns!"</p>
-                    <p>"Oh no! I've lost the StudyPups! They must have run off to play while I was tangled up."</p>
-                    <p>"I see you've met Teddy! You make a great team! Do you think you could help me find the rest of the StudyPups?"</p>
-                    <p>"You can take Teddy with you - he can help you sniff them out!"</p>
-                </div>
-            </div>
-            <button class="game-button accept-button" onclick="goToStage(4)">Yes! Of course I'll help!</button>
-        </div>
-
-        <!-- Stage 4: Getting the Gem -->
-        <div id="stage4" class="stage">
-            <div class="character-container">
-                <div class="fairy-free">🧚‍♀️</div>
-                <div class="speech-bubble princess-speech">
-                    <p>"Oh! Thank you! I know with your help we can get them rounded up in no time!"</p>
-                    <p>"Here, let me give you this magical gem 💎 - if you click on it, you can understand what Teddy is saying!"</p>
-                    <p>"When it's shining brightly, it's got full energy, but using it will make the energy drop, and it will take time to recover, so use it wisely!"</p>
-                    <p class="highlight">"Try clicking on it now!"</p>
-                </div>
-            </div>
-            <div class="gem-container">
-                <button class="gem active" id="tutorial-gem" onclick="activateGemTutorial()">
-                    💎
-                    <div class="gem-glow"></div>
-                </button>
-            </div>
-        </div>
-
-        <!-- Stage 5: Teddy Talks! -->
-        <div id="stage5" class="stage">
-            <div class="character-container">
-                <div class="teddy-happy">🐕✨</div>
-                <div class="speech-bubble teddy-speech">
-                    <p>"Hi Loli! I'm SO happy to be your Adventure Assistant!"</p>
-                    <p>"We're going to have the BEST time finding all the StudyPups together! I can't wait!"</p>
-                    <p class="small-text">*spins in an excited circle*</p>
-                </div>
-            </div>
-            <button class="game-button" onclick="goToStage(6)">Yay! Me too!</button>
-        </div>
-
-        <!-- Stage 6: Final Instructions -->
-        <div id="stage6" class="stage">
-            <div class="character-container">
-                <div class="fairy-free">🧚‍♀️</div>
-                <div class="speech-bubble princess-speech">
-                    <p>"Wonderful! You've already got the hang of it!"</p>
-                    <p>"I'll head back to the castle now. Once you've collected all the StudyPups, come meet me there!"</p>
-                    <p>"I can't wait to introduce you to everyone! Good luck on your adventure! ✨"</p>
-                </div>
-            </div>
-            <button class="game-button start-adventure" onclick="startAdventure()">Start the Adventure!</button>
-        </div>
+    <!-- STORY BOX -->
+    <div class="story-box">
+      <p id="story-text"><strong>I think he wants me to follow him…</strong></p>
+      <button id="followBtn" onclick="goToForest()">Follow Teddy</button>
     </div>
-
-    <script>
-        let currentStage = 1;
-        let patternsCompleted = 0;
-        const totalPatterns = 5;
-
-        // Tutorial patterns - simple and visual
-        const tutorialPatterns = [
-            { sequence: ['⭐', '⭐⭐', '⭐⭐⭐'], answer: '⭐⭐⭐⭐', hint: 'Each step adds one more star!' },
-            { sequence: ['♥', '♥♥', '♥♥♥'], answer: '♥♥♥♥', hint: 'The hearts grow by one each time!' },
-            { sequence: ['🌙', '🌙🌙', '🌙🌙🌙'], answer: '🌙🌙🌙🌙', hint: 'One more moon appears each step!' },
-            { sequence: ['🔵', '🔵🔵', '🔵🔵🔵'], answer: '🔵🔵🔵🔵', hint: 'Keep adding one blue circle!' },
-            { sequence: ['✨', '✨✨', '✨✨✨'], answer: '✨✨✨✨', hint: 'The sparkles increase by one!' }
-        ];
-
-        function goToStage(stageNumber) {
-            document.getElementById(`stage${currentStage}`).classList.remove('active');
-            currentStage = stageNumber;
-            document.getElementById(`stage${currentStage}`).classList.add('active');
-
-            // If moving to stage 2, load the pattern puzzle
-            if (stageNumber === 2) {
-                loadNextPattern();
-            }
-        }
-
-        function loadNextPattern() {
-            if (patternsCompleted >= totalPatterns) {
-                // All patterns done! Move to thank you stage
-                goToStage(3);
-                return;
-            }
-
-            const pattern = tutorialPatterns[patternsCompleted];
-            const patternArea = document.getElementById('pattern-area');
-            
-            patternArea.innerHTML = `
-                <div class="pattern-display">
-                    ${pattern.sequence.map(item => `<div class="pattern-item">${item}</div>`).join('')}
-                    <div class="pattern-item answer-slot" id="answer-slot">?</div>
-                </div>
-                <div class="pattern-options">
-                    ${createOptions(pattern)}
-                </div>
-                <div class="vines-remaining">Vines remaining: ${totalPatterns - patternsCompleted}</div>
-            `;
-        }
-
-        function createOptions(pattern) {
-            // Create the correct answer and some wrong options
-            const symbol = pattern.answer[0];
-            const correctCount = pattern.answer.length;
-            
-            let options = [
-                { text: pattern.answer, correct: true },
-                { text: symbol.repeat(correctCount - 1), correct: false },
-                { text: symbol.repeat(correctCount + 1), correct: false }
-            ];
-            
-            // Shuffle options
-            options.sort(() => Math.random() - 0.5);
-            
-            return options.map(opt => 
-                `<button class="pattern-option" onclick="checkPattern('${opt.text}', ${opt.correct})">${opt.text}</button>`
-            ).join('');
-        }
-
-        function checkPattern(answer, isCorrect) {
-            const answerSlot = document.getElementById('answer-slot');
-            
-            if (isCorrect) {
-                answerSlot.textContent = answer;
-                answerSlot.classList.add('correct');
-                
-                // Teddy celebrates!
-                showCelebration();
-                
-                patternsCompleted++;
-                
-                setTimeout(() => {
-                    loadNextPattern();
-                }, 1500);
-            } else {
-                answerSlot.classList.add('shake');
-                setTimeout(() => answerSlot.classList.remove('shake'), 500);
-            }
-        }
-
-        function showCelebration() {
-            const patternArea = document.getElementById('pattern-area');
-            const celebration = document.createElement('div');
-            celebration.className = 'celebration';
-            celebration.innerHTML = '🐕 <span class="celebrate-text">*Teddy jumps and barks happily!*</span> ✨';
-            patternArea.appendChild(celebration);
-            
-            setTimeout(() => celebration.remove(), 1500);
-        }
-
-        function activateGemTutorial() {
-            const gem = document.getElementById('tutorial-gem');
-            gem.classList.remove('active');
-            gem.classList.add('used');
-            
-            setTimeout(() => {
-                goToStage(5);
-            }, 500);
-        }
-
-        function startAdventure() {
-            // Save that tutorial is complete
-            localStorage.setItem('tutorialComplete', 'true');
-            // Navigate to the pattern practice page
-            window.location.href = 'patterns.html';
-        }
-
-        // Initialize
-        window.onload = function() {
-            // Check if tutorial already completed
-            if (localStorage.getItem('tutorialComplete') === 'true') {
-                showSkipOption();
-            }
-        };
-
-        function showSkipOption() {
-            const stage1 = document.getElementById('stage1');
-            const skipButton = document.createElement('button');
-            skipButton.className = 'game-button-secondary';
-            skipButton.textContent = 'Skip Tutorial';
-            skipButton.onclick = function() {
-                window.location.href = 'patterns.html';
-            };
-            stage1.appendChild(skipButton);
-        }
-    </script>
-</body>
-</html>
