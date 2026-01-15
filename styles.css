@@ -8,16 +8,10 @@ body {
   font-family: "Trebuchet MS", sans-serif;
 }
 
-/* SCENES */
-.scene {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
-}
-/* FULLSCREEN SCENE BACKGROUND */
+/* =========================
+   OPENING SCENE (index.html)
+   ========================= */
+
 .scene {
   position: relative;
   width: 100vw;
@@ -27,83 +21,19 @@ body {
   background-position: center;
 }
 
-/* Background images */
 .scene-1 { background-image: url("scene1.png"); }
 .scene-2 { background-image: url("scene2.png"); }
 
-/* TEDDY positioning (adjust these tomorrow!) */
+/* Teddy starts off-screen, runs in, then waits */
 .teddy {
   position: absolute;
-  left: 50%;
-  bottom: 12%;
-  transform: translateX(-50%);
+  bottom: 10%;
+  left: -40%;
   width: min(320px, 55vw);
   height: auto;
-  z-index: 2; /* behind story box */
+  z-index: 2;          /* behind story box */
   pointer-events: none;
-}
-
-/* STORY BOX on top */
-.story-box {
-  position: absolute;
-  left: 50%;
-  bottom: 6%;
-  transform: translateX(-50%);
-  width: min(520px, 92vw);
-  z-index: 5; /* above Teddy */
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(6px);
-  border-radius: 18px;
-  padding: 18px 18px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-}
-
-/* Button */
-.primary-btn {
-  margin-top: 12px;
-  padding: 12px 22px;
-  border-radius: 14px;
-  border: 2px solid rgba(0,0,0,0.25);
-  background: #2ea44f;
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-}
-.primary-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Simple Teddy motion */
-@keyframes runIn {
-  from { transform: translateX(-120%) scale(0.95); opacity: 0; }
-  to   { transform: translateX(-50%) scale(1); opacity: 1; }
-}
-.run-in { animation: runIn 900ms ease-out; }
-
-@keyframes runOut {
-  from { transform: translateX(-50%); opacity: 1; }
-  to   { transform: translateX(40vw); opacity: 0.1; }
-}
-.run-out { animation: runOut 900ms ease-in forwards; }
-
-
-.scene-1 {
-  background-image: url("scene1.png");
-}
-
-.scene-2 {
-  background-image: url("scene2.png");
-}
-
-/* TEDDY */
-.teddy {
-  position: absolute;
-  bottom: 60px;
-  left: -200px;
-  width: 220px;
-  transition: all 1.5s ease;
+  transition: left 900ms ease, transform 900ms ease, opacity 900ms ease;
 }
 
 .teddy.run-in {
@@ -115,24 +45,31 @@ body {
   animation: tailWag 1.2s infinite;
 }
 
-@keyframes tailWag {
-  0% { transform: rotate(0deg); }
-  50% { transform: rotate(3deg); }
-  100% { transform: rotate(0deg); }
+.teddy.run-out {
+  left: 120%;
+  opacity: 0.2;
 }
 
-/* STORY BOX */
+/* Subtle wag */
+@keyframes tailWag {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+
+/* Story box always on top */
 .story-box {
   position: absolute;
-  bottom: 30px;
   left: 50%;
+  bottom: 6%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  padding: 20px 26px;
+  width: min(520px, 92vw);
+  z-index: 5; /* above Teddy */
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
   border-radius: 18px;
-  max-width: 420px;
+  padding: 18px;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
 }
 
 .story-box p {
@@ -140,16 +77,21 @@ body {
   margin-bottom: 16px;
 }
 
-.story-box button {
+/* Button class used in my updated index.html */
+.primary-btn {
+  margin-top: 0;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: 2px solid rgba(0,0,0,0.25);
   background: #4CAF50;
   color: white;
-  border: none;
-  border-radius: 14px;
-  padding: 12px 20px;
-  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.story-box button:hover {
-  background: #43a047;
+.primary-btn:hover { background: #43a047; }
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
