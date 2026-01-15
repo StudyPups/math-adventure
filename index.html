@@ -30,6 +30,7 @@
     const followBtn = document.getElementById("followBtn");
     const scene = document.getElementById("scene");
     const teddy = document.getElementById("teddy");
+    const storyText = document.getElementById("story-text");
 
     followBtn.addEventListener("click", goToForest);
 
@@ -41,14 +42,17 @@
       scene.classList.remove("scene-1");
       scene.classList.add("scene-2");
 
-      // optional: Teddy runs off to the right a bit
+      // Teddy runs to the forest
       teddy.classList.remove("run-in");
       teddy.classList.add("run-out");
 
-      // after a short moment, go to patterns
+      // Update story text
+      storyText.innerHTML = "<strong>Let's see what Teddy found...</strong>";
+
+      // after animation, go to patterns
       setTimeout(() => {
         window.location.href = "patterns.html";
-      }, 1200);
+      }, 1500);
     }
   </script>
 </body>
