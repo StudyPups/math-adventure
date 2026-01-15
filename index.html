@@ -1,90 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>StudyPups 🐶</title>
+  <meta charset="UTF-8" />
+  <title>StudyPups: The Adventure Begins</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
-      font-family: system-ui, sans-serif;
+      margin: 0;
+      font-family: "Trebuchet MS", sans-serif;
+    }
+
+    .scene {
+      width: 100vw;
+      height: 100vh;
+      background-image: url("forest-scene.png");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .story-box {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      max-width: 500px;
       text-align: center;
-      padding: 2rem;
-      background: #f9fbff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
     }
-    h1 {
-      color: #4a90e2;
+
+    .story-box p {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
     }
-    .pup {
-      font-size: 4rem;
-      margin: 1rem;
+
+    .story-box button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      cursor: pointer;
     }
-    .note {
-      color: #555;
-      max-width: 420px;
-      margin: auto;
-      font-size: 1.1rem;
+
+    .story-box button:hover {
+      background: #43a047;
     }
-    .teddy-helper {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  max-width: 360px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.teddy-helper button {
-  font-size: 1.2rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 999px;
-  border: none;
-  background: #4a90e2;
-  color: white;
-  cursor: pointer;
-}
-
-.teddy-helper button:hover {
-  background: #357ab8;
-}
-
-#hint {
-  margin-top: 1rem;
-  font-size: 1.1rem;
-  color: #444;
-}
-
   </style>
 </head>
+
 <body>
-
-  <div class="pup">🐶🐾</div>
-  <h1>StudyPups</h1>
-  <p class="note">
-    Welcome to StudyPups!  
-    This adventure game is being built with love while we learn web development.
-    Come back soon for math adventures!
-  </p>
-<div class="teddy-helper">
-  <button onclick="teddyHint()">🐶 Ask Teddy</button>
-  <p id="hint"></p>
-</div>
-
-
-<script>
-  const hints = [
-    "Let’s slow down 🐾 What do you already know?",
-    "What is the question asking you to find?",
-    "Can you break this into smaller steps?",
-    "You’re doing great — try the next step on your own!"
-  ];
-
-  function teddyHint() {
-    const randomHint = hints[Math.floor(Math.random() * hints.length)];
-    document.getElementById("hint").textContent = randomHint;
-  }
-</script>
-
-</body>
-</html>
-
+  <div class="scene">
+    <div class="story-box
