@@ -17,6 +17,77 @@ body {
   background-position: center;
   overflow: hidden;
 }
+/* FULLSCREEN SCENE BACKGROUND */
+.scene {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Background images */
+.scene-1 { background-image: url("scene1.png"); }
+.scene-2 { background-image: url("scene2.png"); }
+
+/* TEDDY positioning (adjust these tomorrow!) */
+.teddy {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  width: min(320px, 55vw);
+  height: auto;
+  z-index: 2; /* behind story box */
+  pointer-events: none;
+}
+
+/* STORY BOX on top */
+.story-box {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: min(520px, 92vw);
+  z-index: 5; /* above Teddy */
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  border-radius: 18px;
+  padding: 18px 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+/* Button */
+.primary-btn {
+  margin-top: 12px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: 2px solid rgba(0,0,0,0.25);
+  background: #2ea44f;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Simple Teddy motion */
+@keyframes runIn {
+  from { transform: translateX(-120%) scale(0.95); opacity: 0; }
+  to   { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+.run-in { animation: runIn 900ms ease-out; }
+
+@keyframes runOut {
+  from { transform: translateX(-50%); opacity: 1; }
+  to   { transform: translateX(40vw); opacity: 0.1; }
+}
+.run-out { animation: runOut 900ms ease-in forwards; }
+
 
 .scene-1 {
   background-image: url("scene1.png");
