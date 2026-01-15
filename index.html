@@ -217,9 +217,20 @@
         window.onload = function() {
             // Check if tutorial already completed
             if (localStorage.getItem('tutorialComplete') === 'true') {
-                // Could add a "skip tutorial" option here later
+                showSkipOption();
             }
         };
+
+        function showSkipOption() {
+            const stage1 = document.getElementById('stage1');
+            const skipButton = document.createElement('button');
+            skipButton.className = 'game-button-secondary';
+            skipButton.textContent = 'Skip Tutorial';
+            skipButton.onclick = function() {
+                window.location.href = 'patterns.html';
+            };
+            stage1.appendChild(skipButton);
+        }
     </script>
 </body>
 </html>
