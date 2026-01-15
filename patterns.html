@@ -6,14 +6,25 @@
     <title>Pattern Practice - StudyPups</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="practice-page">
+<body class="practice-page forest-background">
     <div class="game-header">
         <button class="home-button" onclick="window.location.href='index.html'" title="Back to Start">🏠</button>
         
         <div class="goal-tracker">
             <h3>Mission: Find the StudyPups!</h3>
-            <div class="pups-found">
-                <span id="pups-count">0</span> / 6 StudyPups Found
+            <div class="studypups-collection">
+                <div class="pup-slot locked" data-pup="0">
+                    <div class="pup-silhouette">🐕</div>
+                    <div class="pup-name">???</div>
+                </div>
+                <div class="pup-slot locked" data-pup="1">
+                    <div class="pup-silhouette">🐕</div>
+                    <div class="pup-name">???</div>
+                </div>
+                <div class="pup-slot locked" data-pup="2">
+                    <div class="pup-silhouette">🐕</div>
+                    <div class="pup-name">???</div>
+                </div>
             </div>
         </div>
         
@@ -192,11 +203,11 @@
         let gemCooldown = false;
         let hintsWithoutAttempt = 0;
 
-        // Pups to collect (one every 3 questions for now)
+        // Pups to collect (one every 5 questions)
         const studyPups = [
             { name: "Patches", type: "PatternPup", skill: "Number Patterns", emoji: "🐕‍🦺" },
-            { name: "Digit", type: "NumPup", skill: "Algebra", emoji: "🐕" },
-            { name: "Sequoia", type: "SequencePup", skill: "Sequences", emoji: "🦮" }
+            { name: "Digit", type: "NumPup", skill: "Algebra", emoji: "🦮" },
+            { name: "Sequoia", type: "SequencePup", skill: "Sequences", emoji: "🐕" }
         ];
 
         function loadQuestion() {
@@ -342,8 +353,16 @@
                 You can call on me anytime you need help with those! 🎉
             `;
             
+            // Unlock the pup slot in the collection
+            const pupSlot = document.querySelector(`.pup-slot[data-pup="${pupsFound}"]`);
+            if (pupSlot) {
+                pupSlot.classList.remove('locked');
+                pupSlot.classList.add('unlocked');
+                pupSlot.querySelector('.pup-silhouette').textContent = pup.emoji;
+                pupSlot.querySelector('.pup-name').textContent = pup.name;
+            }
+            
             pupsFound++;
-            document.getElementById('pups-count').textContent = pupsFound;
             document.getElementById('celebration-modal').classList.add('show');
         }
 
