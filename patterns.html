@@ -29,20 +29,20 @@
         </div>
         
         <div class="gem-container">
-            <button class="gem active" id="hint-gem" onclick="useHint()">
+            <button class="gem active" id="hint-gem" onclick="showHintMenu()">
                 💎
-                <div class="gem-energy-bar">
-                    <div class="gem-energy-fill" id="gem-energy"></div>
-                </div>
             </button>
-            <div class="gem-label">Teddy Hints</div>
+            <div class="gem-energy-bar">
+                <div class="gem-energy-fill" id="gem-energy"></div>
+            </div>
+            <div class="gem-label" id="gem-status">100%</div>
         </div>
     </div>
 
     <div class="practice-container">
         <!-- Question Area -->
         <div class="question-area">
-            <div class="question-number">Question <span id="current-q">1</span> of <span id="total-q">15</span></div>
+            <div class="question-number">Question <span id="current-q">1</span> of <span id="total-q">25</span></div>
             <div class="question-text" id="question-text"></div>
             <div class="answer-options" id="answer-options"></div>
             <div class="feedback" id="feedback"></div>
@@ -54,6 +54,32 @@
             <div class="teddy-dialogue" id="teddy-dialogue">
                 <p>Let's find those StudyPups! Click on an answer when you're ready!</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Hint Menu Modal -->
+    <div class="modal" id="hint-menu-modal">
+        <div class="modal-content hint-menu">
+            <h2>🐕 Ask Teddy for Help!</h2>
+            <p>Choose how much help you need:</p>
+            <div class="hint-options">
+                <button class="hint-option-btn level-1" onclick="useHint(1)">
+                    <div class="hint-level">🟢 Level 1</div>
+                    <div class="hint-description">"Think about..."</div>
+                    <div class="hint-cost">Uses 10% gem 💎</div>
+                </button>
+                <button class="hint-option-btn level-2" onclick="useHint(2)">
+                    <div class="hint-level">🟡 Level 2</div>
+                    <div class="hint-description">"Try this..."</div>
+                    <div class="hint-cost">Uses 20% gem 💎</div>
+                </button>
+                <button class="hint-option-btn level-3" onclick="useHint(3)">
+                    <div class="hint-level">🟠 Level 3</div>
+                    <div class="hint-description">"Here's how..."</div>
+                    <div class="hint-cost">Uses 35% gem 💎</div>
+                </button>
+            </div>
+            <button class="game-button-secondary" onclick="closeHintMenu()">Never mind, I'll try again!</button>
         </div>
     </div>
 
@@ -86,131 +112,316 @@
     </div>
 
     <script>
-        // Year 6 Pattern & Algebra Questions (NAPLAN style)
+        // Extended Year 6 Pattern & Algebra Questions (25 questions!)
         const questions = [
+            // Original 15 questions
             {
                 question: "What is the next number in this pattern?\n3, 6, 9, 12, __",
                 options: ["13", "14", "15", "16"],
                 correct: 2,
-                hint: "Look at how much the numbers go up each time. From 3 to 6 is +3, from 6 to 9 is +3. The pattern adds 3 each time!",
+                hints: [
+                    "Look at how much the numbers go up each time.",
+                    "From 3 to 6 is +3, from 6 to 9 is +3. The pattern adds 3 each time!",
+                    "12 + 3 = 15"
+                ],
                 topic: "Number Patterns"
             },
             {
                 question: "Complete the pattern:\n2, 4, 8, 16, __",
                 options: ["20", "24", "32", "18"],
                 correct: 2,
-                hint: "This pattern is doubling! 2×2=4, 4×2=8, 8×2=16. What's 16×2?",
+                hints: [
+                    "This pattern is growing very fast! What operation makes numbers grow quickly?",
+                    "This pattern is doubling! 2×2=4, 4×2=8, 8×2=16.",
+                    "What's 16×2? That's 32!"
+                ],
                 topic: "Multiplication Patterns"
             },
             {
                 question: "What number is missing?\n5, 10, __, 20, 25",
                 options: ["12", "15", "17", "18"],
                 correct: 1,
-                hint: "These numbers are counting by 5s! Start at 5, add 5 to get 10, add 5 again to get...",
+                hints: [
+                    "These numbers are counting by a certain amount each time.",
+                    "These numbers are counting by 5s! Start at 5, add 5 to get 10, add 5 again to get...",
+                    "10 + 5 = 15"
+                ],
                 topic: "Skip Counting"
             },
             {
                 question: "A pattern starts at 100 and decreases by 7 each time.\nWhat are the first four numbers?",
                 options: ["100, 93, 86, 79", "100, 97, 94, 91", "100, 90, 80, 70", "100, 95, 90, 85"],
                 correct: 0,
-                hint: "Start at 100. Decrease means subtract! 100-7=93, 93-7=86, 86-7=79. The pattern goes down by 7!",
+                hints: [
+                    "Decrease means the numbers are getting smaller. What operation makes numbers smaller?",
+                    "Start at 100. Decrease means subtract! 100-7=93, 93-7=86, 86-7=79.",
+                    "The pattern goes down by 7 each time: 100, 93, 86, 79"
+                ],
                 topic: "Decreasing Patterns"
             },
             {
                 question: "If the rule is 'multiply by 3', what comes next?\n2, 6, 18, __",
                 options: ["21", "36", "54", "24"],
                 correct: 2,
-                hint: "The rule says multiply by 3! So 2×3=6, 6×3=18, and 18×3=?",
+                hints: [
+                    "The rule says 'multiply by 3'. What does multiply mean?",
+                    "The rule says multiply by 3! So 2×3=6, 6×3=18, and 18×3=?",
+                    "18 × 3 = 54"
+                ],
                 topic: "Multiplication Rules"
             },
             {
                 question: "Complete the pattern:\n1, 4, 9, 16, __\n(These are square numbers)",
                 options: ["20", "25", "24", "32"],
                 correct: 1,
-                hint: "Square numbers mean you multiply a number by itself! 1×1=1, 2×2=4, 3×3=9, 4×4=16. What's 5×5?",
+                hints: [
+                    "Square numbers mean you multiply a number by itself!",
+                    "1×1=1, 2×2=4, 3×3=9, 4×4=16. What's the next one?",
+                    "What's 5×5? That's 25!"
+                ],
                 topic: "Square Numbers"
             },
             {
                 question: "What is the rule for this pattern?\n50, 45, 40, 35, 30",
                 options: ["Add 5", "Subtract 5", "Add 10", "Subtract 10"],
                 correct: 1,
-                hint: "Look at what happens from one number to the next. Does 50 go UP or DOWN to get to 45? By how much?",
+                hints: [
+                    "Are the numbers getting bigger or smaller?",
+                    "Look at what happens from one number to the next. Does 50 go UP or DOWN to get to 45? By how much?",
+                    "50 - 5 = 45, then 45 - 5 = 40. The rule is Subtract 5!"
+                ],
                 topic: "Pattern Rules"
             },
             {
                 question: "If n = 7, what is the value of 3n + 2?",
                 options: ["21", "23", "12", "17"],
                 correct: 1,
-                hint: "n means 7, so replace n with 7! That makes 3×7 + 2. Do the multiplication first: 3×7=21, then add 2!",
+                hints: [
+                    "The letter n is a placeholder. Replace n with the number 7.",
+                    "n means 7, so replace n with 7! That makes 3×7 + 2. Do the multiplication first.",
+                    "3×7=21, then add 2. So 21+2=23!"
+                ],
                 topic: "Simple Algebra"
             },
             {
                 question: "The 5th term in a pattern is 23.\nThe 6th term is 28.\nWhat is the 7th term?",
                 options: ["30", "31", "33", "35"],
                 correct: 2,
-                hint: "From 23 to 28, we added 5. If the pattern keeps going the same way, what do we add to 28?",
+                hints: [
+                    "Look at what changes from the 5th term to the 6th term.",
+                    "From 23 to 28, we added 5. If the pattern keeps going the same way...",
+                    "28 + 5 = 33"
+                ],
                 topic: "Finding Terms"
             },
             {
                 question: "Which number completes both patterns?\nPattern A: 3, 6, 9, __\nPattern B: 4, 8, __, 16",
                 options: ["10", "11", "12", "13"],
                 correct: 2,
-                hint: "Pattern A counts by 3s (next is 12), Pattern B counts by 4s (next is 12). Both patterns need the same number!",
+                hints: [
+                    "Solve each pattern separately, then see which answer fits both!",
+                    "Pattern A counts by 3s (next is 12), Pattern B counts by 4s (next is 12).",
+                    "Both patterns need 12!"
+                ],
                 topic: "Multiple Patterns"
             },
             {
                 question: "A sequence follows the rule: Start at 5, then add 3 each time.\nWhat is the 6th number in the sequence?",
                 options: ["18", "20", "23", "17"],
                 correct: 1,
-                hint: "Let's count: 1st=5, 2nd=8, 3rd=11, 4th=14, 5th=17, 6th=? Keep adding 3!",
+                hints: [
+                    "Start at 5 and keep adding 3 to find each new number.",
+                    "Let's count: 1st=5, 2nd=8, 3rd=11, 4th=14, 5th=17, 6th=?",
+                    "17 + 3 = 20"
+                ],
                 topic: "Sequence Rules"
             },
             {
                 question: "What comes next in this pattern?\n1, 3, 7, 15, __",
                 options: ["23", "30", "31", "16"],
                 correct: 2,
-                hint: "Look at the gaps! 1 to 3 (+2), 3 to 7 (+4), 7 to 15 (+8). The gap doubles each time! What's double of 8?",
+                hints: [
+                    "Look at how much is added each time. Is it the same amount?",
+                    "Look at the gaps! 1 to 3 (+2), 3 to 7 (+4), 7 to 15 (+8). The gap doubles each time!",
+                    "If the gap doubles: +2, +4, +8, then next is +16. So 15+16=31"
+                ],
                 topic: "Growing Differences"
             },
             {
                 question: "If today is Day 1 and I save $2,\nDay 2 I save $4, Day 3 I save $8...\nHow much will I save on Day 5?",
                 options: ["$10", "$16", "$32", "$20"],
                 correct: 2,
-                hint: "The savings double each day! Day 1=$2, Day 2=$4, Day 3=$8, Day 4=$16, Day 5=?",
+                hints: [
+                    "Look at how the savings change each day.",
+                    "The savings double each day! Day 1=$2, Day 2=$4, Day 3=$8, Day 4=$16...",
+                    "Day 4 = $16, so Day 5 = $16 × 2 = $32"
+                ],
                 topic: "Real-world Patterns"
             },
             {
                 question: "In the pattern 100, 90, 81, 73, 66...\nWhat is happening each time?",
                 options: ["Subtracting 10", "Subtracting by increasing amounts", "Dividing by 2", "Subtracting 9"],
                 correct: 1,
-                hint: "Check each gap: 100-90=10, 90-81=9, 81-73=8, 73-66=7. The amount we subtract decreases by 1 each time!",
+                hints: [
+                    "Check the difference between each pair of numbers.",
+                    "Check each gap: 100-90=10, 90-81=9, 81-73=8, 73-66=7.",
+                    "The amount we subtract decreases by 1 each time! (10, 9, 8, 7...)"
+                ],
                 topic: "Complex Patterns"
             },
             {
                 question: "If the rule is n + 5 = 12, what is n?",
                 options: ["7", "17", "5", "6"],
                 correct: 0,
-                hint: "n + 5 = 12 means 'what number plus 5 equals 12?' Try: 7+5=12. So n=7!",
+                hints: [
+                    "n is the mystery number. What number plus 5 equals 12?",
+                    "n + 5 = 12 means 'what number plus 5 equals 12?'",
+                    "Try: 7+5=12. So n=7!"
+                ],
                 topic: "Solving for n"
+            },
+            // NEW QUESTIONS 16-25
+            {
+                question: "What's the missing number?\n72, 63, 54, __, 36",
+                options: ["45", "48", "42", "50"],
+                correct: 0,
+                hints: [
+                    "Are the numbers going up or down?",
+                    "The pattern subtracts 9 each time: 72-9=63, 63-9=54...",
+                    "54 - 9 = 45"
+                ],
+                topic: "Decreasing Patterns"
+            },
+            {
+                question: "Continue the pattern:\n0.5, 1.0, 1.5, 2.0, __",
+                options: ["2.2", "2.5", "3.0", "2.1"],
+                correct: 1,
+                hints: [
+                    "These are decimal numbers. Look at what's being added each time.",
+                    "The pattern adds 0.5 each time (half).",
+                    "2.0 + 0.5 = 2.5"
+                ],
+                topic: "Decimal Patterns"
+            },
+            {
+                question: "Which pattern rule fits?\n8, 16, 32, 64",
+                options: ["Add 8", "Multiply by 2", "Add 16", "Multiply by 4"],
+                correct: 1,
+                hints: [
+                    "The numbers are growing very quickly!",
+                    "Check: 8×2=16, 16×2=32, 32×2=64",
+                    "Each number is multiplied by 2!"
+                ],
+                topic: "Pattern Rules"
+            },
+            {
+                question: "What comes before?\n__, 24, 32, 40, 48",
+                options: ["12", "16", "18", "20"],
+                correct: 1,
+                hints: [
+                    "Find the pattern first, then work backwards.",
+                    "The pattern adds 8 each time. What's 8 less than 24?",
+                    "24 - 8 = 16"
+                ],
+                topic: "Working Backwards"
+            },
+            {
+                question: "If 2x = 18, what is x?",
+                options: ["9", "16", "20", "36"],
+                correct: 0,
+                hints: [
+                    "2x means 2 times x. What number times 2 equals 18?",
+                    "Think: 2 × ? = 18. You can divide to find x.",
+                    "18 ÷ 2 = 9, so x = 9"
+                ],
+                topic: "Simple Algebra"
+            },
+            {
+                question: "Complete the pattern:\n1, 1, 2, 3, 5, 8, __\n(Each number is the sum of the two before it)",
+                options: ["11", "13", "15", "10"],
+                correct: 1,
+                hints: [
+                    "Look at how each number relates to the two before it.",
+                    "Add the last two numbers: 5 + 8 = ?",
+                    "5 + 8 = 13 (This is called the Fibonacci sequence!)"
+                ],
+                topic: "Special Patterns"
+            },
+            {
+                question: "What's the rule?\n20, 17, 14, 11, 8",
+                options: ["Subtract 3", "Subtract 4", "Add 3", "Subtract 2"],
+                correct: 0,
+                hints: [
+                    "Check what happens between each number.",
+                    "20-17=3, 17-14=3, 14-11=3",
+                    "The rule is Subtract 3!"
+                ],
+                topic: "Pattern Rules"
+            },
+            {
+                question: "If the pattern continues, what's the 10th number?\n2, 4, 6, 8, 10...",
+                options: ["18", "20", "22", "12"],
+                correct: 1,
+                hints: [
+                    "This pattern counts by 2s (even numbers).",
+                    "Keep counting: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20",
+                    "The 10th even number is 20!"
+                ],
+                topic: "Extending Patterns"
+            },
+            {
+                question: "What number fits the pattern?\n5, 15, __, 35, 40",
+                options: ["20", "25", "30", "22"],
+                correct: 1,
+                hints: [
+                    "Look at the numbers you can see. What's the difference?",
+                    "From 15 to 35 is +20, but there's a number in between. The pattern might add 10, then 5...",
+                    "Actually, check: 5+10=15, 15+10=25, 25+10=35, 35+5=40. The answer is 25!"
+                ],
+                topic: "Mixed Patterns"
+            },
+            {
+                question: "Continue: 81, 27, 9, __",
+                options: ["3", "6", "1", "0"],
+                correct: 0,
+                hints: [
+                    "The numbers are getting much smaller. What operation does that?",
+                    "Each number is divided by 3: 81÷3=27, 27÷3=9",
+                    "9 ÷ 3 = 3"
+                ],
+                topic: "Division Patterns"
             }
         ];
 
         // Game state
         let currentQuestion = 0;
         let pupsFound = 0;
-        let consecutiveHints = 0;
         let gemEnergy = 100;
-        let gemCooldown = false;
-        let hintsWithoutAttempt = 0;
+        let hintsUsedThisQuestion = 0;
+        let questionsWithoutHint = 0;
+        let currentHintLevel = 0;
 
-        // Pups to collect (one every 5 questions)
+        // Pups to collect
         const studyPups = [
-            { name: "Patches", type: "PatternPup", skill: "Number Patterns", emoji: "🐕‍🦺" },
-            { name: "Digit", type: "NumPup", skill: "Algebra", emoji: "🦮" },
-            { name: "Sequoia", type: "SequencePup", skill: "Sequences", emoji: "🐕" }
+            { name: "Patches", type: "PatternPup", skill: "Number Patterns", emoji: "🐕‍🦺", unlockAt: 8 },
+            { name: "Digit", type: "NumPup", skill: "Algebra", emoji: "🦮", unlockAt: 16 },
+            { name: "Sequoia", type: "SequencePup", skill: "Sequences", emoji: "🐕", unlockAt: 25 }
         ];
 
+        // Gem auto-regeneration
+        setInterval(() => {
+            if (gemEnergy < 100) {
+                gemEnergy = Math.min(100, gemEnergy + 0.5); // 5% every 10 seconds
+                updateGemDisplay();
+            }
+        }, 1000);
+
         function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                showCompletion();
+                return;
+            }
+
             const q = questions[currentQuestion];
             document.getElementById('current-q').textContent = currentQuestion + 1;
             document.getElementById('total-q').textContent = questions.length;
@@ -223,8 +434,54 @@
             document.getElementById('answer-options').innerHTML = optionsHtml;
             document.getElementById('feedback').innerHTML = '';
             
-            // Reset Teddy's dialogue
+            hintsUsedThisQuestion = 0;
+            currentHintLevel = 0;
+            
             document.getElementById('teddy-dialogue').innerHTML = '<p>You can do this! Click an answer when you\'re ready! 🎾</p>';
+        }
+
+        function showHintMenu() {
+            if (gemEnergy < 10) {
+                document.getElementById('teddy-dialogue').innerHTML = '<p>The gem is recharging! It fills up automatically - just wait a moment... ⏳</p>';
+                return;
+            }
+            document.getElementById('hint-menu-modal').classList.add('show');
+        }
+
+        function closeHintMenu() {
+            document.getElementById('hint-menu-modal').classList.remove('show');
+        }
+
+        function useHint(level) {
+            const costs = [0, 10, 20, 35]; // Level 0 (unused), 1, 2, 3
+            const cost = costs[level];
+            
+            if (gemEnergy < cost) {
+                document.getElementById('teddy-dialogue').innerHTML = '<p>Not enough gem energy for that level! Try a lower level hint or wait for it to recharge. ⏳</p>';
+                closeHintMenu();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            const hintText = q.hints[level - 1];
+            
+            gemEnergy -= cost;
+            updateGemDisplay();
+            hintsUsedThisQuestion++;
+            currentHintLevel = level;
+            
+            const levelEmojis = ['', '🟢', '🟡', '🟠'];
+            document.getElementById('teddy-dialogue').innerHTML = 
+                `<p><strong>${levelEmojis[level]} Teddy's Hint (Level ${level}):</strong><br>${hintText}</p>`;
+            
+            closeHintMenu();
+            
+            // Suggest break after 5 hints total on one question
+            if (hintsUsedThisQuestion >= 5) {
+                setTimeout(() => {
+                    document.getElementById('break-modal').classList.add('show');
+                }, 1000);
+            }
         }
 
         function checkAnswer(selected) {
@@ -232,30 +489,43 @@
             const feedback = document.getElementById('feedback');
             const options = document.querySelectorAll('.answer-option');
             
-            // Reset hint tracking since they attempted
-            hintsWithoutAttempt = 0;
-            
-            // Disable all options
             options.forEach(opt => opt.disabled = true);
             
             if (selected === q.correct) {
-                // Correct!
                 options[selected].classList.add('correct');
                 feedback.innerHTML = '<div class="correct-feedback">✨ Correct! Well done! ✨</div>';
                 document.getElementById('teddy-dialogue').innerHTML = '<p>YES! That\'s it! You\'re amazing! Let\'s keep going! 🎉</p>';
                 
-                // Check if they've earned a pup
-                if ((currentQuestion + 1) % 5 === 0 && pupsFound < studyPups.length) {
-                    setTimeout(() => foundPup(), 1500);
+                // Success bonus: +15% if no hints used
+                if (hintsUsedThisQuestion === 0) {
+                    gemEnergy = Math.min(100, gemEnergy + 15);
+                    questionsWithoutHint++;
+                    setTimeout(() => {
+                        document.getElementById('teddy-dialogue').innerHTML = '<p>Wow! You solved it without any hints! +15% gem energy bonus! 💎✨</p>';
+                    }, 1500);
+                } else {
+                    // Ensure at least 50% gem after completing question
+                    gemEnergy = Math.max(50, gemEnergy);
+                }
+                
+                updateGemDisplay();
+                
+                // Check for pup unlock
+                const pupToUnlock = studyPups.find(p => p.unlockAt === currentQuestion + 1 && pupsFound < studyPups.length);
+                if (pupToUnlock) {
+                    setTimeout(() => foundPup(pupToUnlock), 1500);
                 } else {
                     setTimeout(nextQuestion, 2000);
                 }
             } else {
-                // Incorrect
                 options[selected].classList.add('incorrect');
                 options[q.correct].classList.add('correct');
                 feedback.innerHTML = '<div class="incorrect-feedback">Not quite! Have another look at the correct answer.</div>';
                 document.getElementById('teddy-dialogue').innerHTML = '<p>That\'s okay! Mistakes help us learn! The correct answer is highlighted. 🐕</p>';
+                
+                // Still ensure at least 50% gem
+                gemEnergy = Math.max(50, gemEnergy);
+                updateGemDisplay();
                 
                 setTimeout(nextQuestion, 3000);
             }
@@ -263,78 +533,29 @@
 
         function nextQuestion() {
             currentQuestion++;
-            if (currentQuestion < questions.length) {
-                loadQuestion();
-            } else {
-                // All questions done!
-                showCompletion();
-            }
+            loadQuestion();
         }
 
-        function useHint() {
-            if (gemCooldown) {
-                document.getElementById('teddy-dialogue').innerHTML = '<p>The gem needs a bit more time to recharge! Give it a moment... ⏳</p>';
-                return;
-            }
-
-            const q = questions[currentQuestion];
-            document.getElementById('teddy-dialogue').innerHTML = `<p><strong>Teddy's Hint:</strong> ${q.hint}</p>`;
-            
-            // Track hints without attempts
-            hintsWithoutAttempt++;
-            if (hintsWithoutAttempt >= 3) {
-                suggestBreak();
-                hintsWithoutAttempt = 0;
-            }
-            
-            // Use gem energy
-            gemEnergy -= 33;
-            updateGemEnergy();
-            
-            if (gemEnergy <= 0) {
-                startGemCooldown();
-            }
-        }
-
-        function updateGemEnergy() {
+        function updateGemDisplay() {
             const energyFill = document.getElementById('gem-energy');
             energyFill.style.width = gemEnergy + '%';
+            document.getElementById('gem-status').textContent = Math.round(gemEnergy) + '%';
             
             const gem = document.getElementById('hint-gem');
-            if (gemEnergy <= 0) {
-                gem.classList.remove('active');
-                gem.classList.add('recharging');
-            } else {
+            if (gemEnergy >= 35) {
                 gem.classList.add('active');
                 gem.classList.remove('recharging');
+            } else if (gemEnergy >= 10) {
+                gem.classList.add('active');
+                gem.classList.remove('recharging');
+            } else {
+                gem.classList.remove('active');
+                gem.classList.add('recharging');
             }
-        }
-
-        function startGemCooldown() {
-            gemCooldown = true;
-            let rechargTime = 20; // 20 seconds
-            
-            const interval = setInterval(() => {
-                rechargTime--;
-                gemEnergy = Math.min(100, gemEnergy + 5);
-                updateGemEnergy();
-                
-                if (rechargTime <= 0) {
-                    clearInterval(interval);
-                    gemCooldown = false;
-                    gemEnergy = 100;
-                    updateGemEnergy();
-                }
-            }, 1000);
-        }
-
-        function suggestBreak() {
-            document.getElementById('break-modal').classList.add('show');
         }
 
         function takeBreak() {
             document.getElementById('break-modal').classList.remove('show');
-            // Could add a timer here if you want a mandatory break
             document.getElementById('teddy-dialogue').innerHTML = '<p>Good choice! Take your time - I\'ll be here when you get back! 🐕</p>';
         }
 
@@ -343,8 +564,8 @@
             document.getElementById('teddy-dialogue').innerHTML = '<p>Okay! You\'ve got this! But let me know if you need a break! 🎾</p>';
         }
 
-        function foundPup() {
-            const pup = studyPups[pupsFound];
+        function foundPup(pup) {
+            const pupIndex = studyPups.indexOf(pup);
             document.getElementById('pup-avatar').textContent = pup.emoji;
             document.getElementById('pup-greeting').textContent = `You found ${pup.name}!`;
             document.getElementById('pup-intro').innerHTML = `
@@ -353,8 +574,7 @@
                 You can call on me anytime you need help with those! 🎉
             `;
             
-            // Unlock the pup slot in the collection
-            const pupSlot = document.querySelector(`.pup-slot[data-pup="${pupsFound}"]`);
+            const pupSlot = document.querySelector(`.pup-slot[data-pup="${pupIndex}"]`);
             if (pupSlot) {
                 pupSlot.classList.remove('locked');
                 pupSlot.classList.add('unlocked');
@@ -376,8 +596,9 @@
                 <div class="completion-screen">
                     <h1>Amazing Work! 🎉</h1>
                     <div class="teddy-big">🐕✨</div>
-                    <p>You completed all the pattern practice!</p>
-                    <p>StudyPups found: ${pupsFound}</p>
+                    <p>You completed all ${questions.length} pattern practice questions!</p>
+                    <p><strong>StudyPups found: ${pupsFound}/${studyPups.length}</strong></p>
+                    <p><strong>Questions solved without hints: ${questionsWithoutHint}</strong></p>
                     <p class="coming-soon">More adventures coming soon!</p>
                     <button class="game-button" onclick="location.reload()">Practice Again</button>
                     <button class="game-button-secondary" onclick="window.location.href='index.html'">Back to Start</button>
@@ -388,7 +609,7 @@
         // Initialize
         window.onload = function() {
             loadQuestion();
-            updateGemEnergy();
+            updateGemDisplay();
         };
     </script>
 </body>
