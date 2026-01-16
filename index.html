@@ -74,15 +74,9 @@
       floatingText.style.opacity = "0";
       buttonContainer.style.opacity = "0";
       
-      // after animation, go to tutorial (or patterns if skipping tutorial)
+      // after animation, always go to tutorial
       setTimeout(() => {
-        // Check if they've done the tutorial before
-        const tutorialDone = localStorage.getItem('studypups-tutorial-complete');
-        if (tutorialDone) {
-          window.location.href = "patterns.html";
-        } else {
-          window.location.href = "tutorial.html";
-        }
+        window.location.href = "tutorial.html";
       }, 1500);
     }
   </script>
