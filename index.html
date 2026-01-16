@@ -49,9 +49,15 @@
       // Update story text
       storyText.innerHTML = "<strong>Let's see what Teddy found...</strong>";
 
-      // after animation, go to patterns
+      // after animation, go to tutorial (or patterns if skipping tutorial)
       setTimeout(() => {
-        window.location.href = "patterns.html";
+        // Check if they've done the tutorial before
+        const tutorialDone = localStorage.getItem('studypups-tutorial-complete');
+        if (tutorialDone) {
+          window.location.href = "patterns.html";
+        } else {
+          window.location.href = "tutorial.html";
+        }
       }, 1500);
     }
   </script>
