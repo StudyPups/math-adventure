@@ -1,86 +1,110 @@
+[README.md](https://github.com/user-attachments/files/24656894/README.md)
 # 🐾 StudyPups: Math Adventure
 
-StudyPups is a child-friendly, story-based math learning game designed to make practice feel like an adventure instead of a worksheet.
+**A story-based math learning game designed to make practice feel like an adventure.**
 
-This project is being built step-by-step as a learning journey, with a focus on:
-- Engagement through story and characters
-- Gentle guidance and encouragement
-- Curriculum-aligned math practice (starting with patterns)
-
-🌈 Built with love for my daughter — and potentially for other kids too.
+Built with love for kids who learn differently — especially those with ADHD who need engagement, encouragement, and a friend who believes in them.
 
 ---
 
-## 🎮 Live Demo
+## 🎮 Play Now
 
-👉 https://studypups.github.io/math-adventure/
+👉 **[Play StudyPups](https://studypups.github.io/math-adventure/)**
 
 ---
 
 ## ✨ Current Features
 
-- Story-based opening scene with background art
-- Teddy the StudyPup appears and guides the player
-- Scene transitions (path → forest)
-- Simple interactive pattern practice
-- Immediate feedback and encouragement
+### Phase 1: Pattern & Algebra Practice
+- 🌳 **Beautiful story-based opening** with scene transitions
+- 🐕 **Teddy the StudyPup** - your encouraging companion
+- 💎 **Magic gem hint system** with progressive hints
+- 🎯 **15 NAPLAN-style pattern questions** (Year 6 Australian curriculum)
+- 🐕‍🦺 **Collect 3 StudyPups**: Patches, Digit, and Sequoia
+- 🎉 **Break suggestions** when hints are used frequently
+- ✨ **Immediate feedback** with encouragement
 
 ---
 
-## 🧩 Project Structure
-math-adventure/
-│
-├── index.html # Opening story + scene transitions
-├── patterns.html # Pattern practice game
-├── styles.css # Shared styles and animations
-├── README.md # Project overview (this file)
-│
-├── scene1.png # Path to the castle (opening scene)
-├── scene2.png # Forest scene
-├── teddy.png # Teddy character image
-│
-└── backups/ (optional, manual)
+## 🎯 Learning Philosophy
 
-> ⚠️ Images are currently stored in the root while learning GitHub.
-> Folder cleanup will happen later once the structure is stable.
+**StudyPups is designed around how ADHD brains work:**
+
+✅ **Emotional connection** - Teddy provides constant encouragement  
+✅ **Immediate rewards** - No waiting for test results  
+✅ **Novel presentation** - Story-based, not worksheet #47  
+✅ **External structure** - Game guides learning naturally  
+✅ **Safe mistakes** - Every wrong answer is a learning opportunity  
 
 ---
 
-## 🛠️ Tech Stack
+## 🧩 Tech Stack
 
-- HTML
-- CSS
-- Vanilla JavaScript
-- GitHub Pages for hosting
+- Pure HTML, CSS, and Vanilla JavaScript
+- No frameworks or dependencies
+- Hosted on GitHub Pages
+- Mobile-responsive design
 
-(No frameworks yet — intentionally simple while learning.)
-
----
-
-## 🚧 Work in Progress / Planned Features
-
-- Animated foreground elements (falling leaves, vines)
-- Fairy rescue tutorial scene
-- Collectable StudyPups for different math topics
-- Teacher/parent-created question sets via codes
-- Progress tracking and gentle learning analytics
-- Mobile-first polish
+*Built intentionally simple while learning to code.*
 
 ---
 
-## 🌱 Philosophy
+## 🚧 Coming Next
 
-This project prioritizes:
-- Emotional safety while learning
-- Curiosity over pressure
-- Confidence-building through play
+**Phase 2: Full Year 6 Curriculum**
+- More math topics (fractions, geometry, measurement)
+- More StudyPups to collect
+- Kingdom map navigation
+- NPC characters who need help
 
-Mistakes are part of the game — and part of the build.
+**Phase 3+**
+- Character customization
+- Parent progress tracking
+- Teacher accounts
+- Adaptive difficulty
+
+See [Roadmap & Future Features](https://github.com/StudyPups/math-adventure/blob/main/ROADMAP.md) for the full vision.
 
 ---
 
-## 🧠 Notes to Future Me
+## 🌱 Development Journey
 
-- Don’t rush folder structure — working code first
-- Backups are okay while learning
-- One magical scene at a time is enough
+This project is being built in public as a learning journey:
+- First coding project for the developer
+- Iterating based on real user feedback (starting with one amazing 10-year-old)
+- Documenting lessons learned
+- Building sustainably (no burnout!)
+
+**Progress > Perfection** 🌟
+
+---
+
+## 💬 Feedback Welcome
+
+Found a bug? Have a suggestion? Want to share how StudyPups helped your child?
+
+Feel free to:
+- Open an [Issue](https://github.com/StudyPups/math-adventure/issues)
+- Start a [Discussion](https://github.com/StudyPups/math-adventure/discussions)
+- Share your story!
+
+---
+
+## 📜 License
+
+This project is currently unlicensed while in early development. 
+
+Educational use is encouraged! If you want to use StudyPups in your classroom or adapt it for your needs, please reach out.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with guidance from Claude (Anthropic) and inspiration from:
+- Every parent who's watched homework become a nightly battle
+- Every kid who thinks they're "bad at math" (you're not!)
+- Every teacher who goes the extra mile for students who learn differently
+
+---
+
+**Made with 💜 for kids who need math to feel like an adventure, not a chore.**
