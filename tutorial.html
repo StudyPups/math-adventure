@@ -19,6 +19,7 @@
                 </p>
             </div>
             <button class="primary-btn" onclick="startTutorial()">I'll help you! 🌟</button>
+            <button class="game-button-secondary" onclick="skipTutorial()">Skip Tutorial</button>
         </div>
 
         <!-- Tutorial Game Area (hidden initially) -->
@@ -140,6 +141,10 @@ What comes next?`,
             loadTutorialQuestion();
         }
 
+        function skipTutorial() {
+            window.location.href = 'patterns.html';
+        }
+
         function loadTutorialQuestion() {
             const q = tutorialQuestions[currentPuzzle];
             document.getElementById('puzzle-num').textContent = currentPuzzle + 1;
@@ -209,11 +214,10 @@ What comes next?`,
         }
 
         function showGemReward() {
-            localStorage.setItem('studypups-tutorial-complete', 'true');
             document.getElementById('tutorial-game').style.display = 'none';
             document.getElementById('gem-reward').style.display = 'flex';
             
-            // Animate gem appearing after a moment - need artwork of gem
+            // Animate gem appearing after a moment
             setTimeout(() => {
                 document.querySelector('.gem-gift').classList.add('appear');
             }, 1000);
