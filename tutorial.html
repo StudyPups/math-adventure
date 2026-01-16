@@ -14,9 +14,8 @@
             <div class="fairy-avatar">🧚‍♀️</div>
             <div class="story-dialogue">
                 <p id="story-text">
-                    <strong>Oh no!</strong> I'm tangled in these vines!<br>
-                    Can you help me by solving these pattern puzzles?<br>
-                    Each correct answer will break one vine!
+                    <strong>Help!</strong> I'm trapped in these magical vines!<br>
+                    Can you break them by solving their patterns?
                 </p>
             </div>
             <button class="primary-btn" onclick="startTutorial()">I'll help you! 🌟</button>
@@ -25,7 +24,7 @@
         <!-- Tutorial Game Area (hidden initially) -->
         <div class="tutorial-game" id="tutorial-game" style="display: none;">
             
-            <div class="vine-visual" id="vine-visual">
+            <div class="vine-visual">
                 <div class="fairy-trapped">🧚‍♀️</div>
                 <div class="vines-container">
                     <div class="vine active" data-vine="1">🌿</div>
@@ -34,27 +33,12 @@
                     <div class="vine active" data-vine="4">🌿</div>
                     <div class="vine active" data-vine="5">🌿</div>
                 </div>
-                <div class="vines-remaining" id="vines-remaining">5 vines left!</div>
+                <div class="vines-remaining" id="vines-remaining">5 pattern vines!</div>
             </div>
 
             <div class="tutorial-question-area">
-                <div class="tutorial-helper">
-                    <div class="teddy-small">🐕</div>
-                    <div class="helper-text" id="helper-text">
-                        <p>Welcome! I'm Teddy! If you get stuck, click the 💎 gem to ask me for help!</p>
-                    </div>
-                </div>
-
-                <div class="gem-tutorial">
-                    <button class="gem active" id="tutorial-gem" onclick="showTutorialHint()">💎</button>
-                    <div class="gem-energy-bar">
-                        <div class="gem-energy-fill" id="tutorial-gem-energy"></div>
-                    </div>
-                    <div class="gem-label">Ask Teddy!</div>
-                </div>
-
                 <div class="question-card">
-                    <div class="question-number">Puzzle <span id="puzzle-num">1</span> of 5</div>
+                    <div class="question-number">Pattern Vine <span id="puzzle-num">1</span> of 5</div>
                     <div class="question-text" id="tutorial-question"></div>
                     <div class="answer-options" id="tutorial-options"></div>
                     <div class="feedback" id="tutorial-feedback"></div>
@@ -62,84 +46,93 @@
             </div>
         </div>
 
-        <!-- Completion -->
-        <div class="tutorial-complete" id="tutorial-complete" style="display: none;">
+        <!-- Fairy Gives Gem! -->
+        <div class="gem-reward" id="gem-reward" style="display: none;">
             <div class="fairy-free">🧚‍♀️✨</div>
-            <h1>You Did It!</h1>
-            <p>Thank you for saving me! Now you know how to play!</p>
-            <div class="tutorial-tips">
-                <h3>Remember:</h3>
-                <ul>
-                    <li>💎 Click the gem when you need help</li>
-                    <li>🐕 Teddy will give you hints</li>
-                    <li>✨ The gem refills automatically</li>
-                    <li>🎯 Solve questions to find StudyPups!</li>
-                </ul>
+            <h1>Thank You!</h1>
+            <p class="reward-text">You saved me! Let me give you something special...</p>
+            
+            <div class="gem-gift">
+                <div class="gem-big">💎</div>
+                <div class="gem-glow"></div>
             </div>
-            <button class="game-button" onclick="window.location.href='patterns.html'">Start the Real Adventure! 🌟</button>
-            <button class="game-button-secondary" onclick="window.location.href='index.html'">Back to Start</button>
+            
+            <p class="reward-text">This is a <strong>Magical Hint Gem</strong>!</p>
+            <p>With it, you can understand what Teddy says, and he can help you whenever you're stuck!</p>
+            
+            <div class="teddy-appears">
+                <div class="teddy-big">🐕</div>
+                <p><strong>WOOF!</strong> (Hi! I'm Teddy! I'm here to help you on your adventure!)</p>
+            </div>
+            
+            <button class="game-button" onclick="window.location.href='patterns.html'">Start the Adventure! 🌟</button>
         </div>
     </div>
 
     <script>
-        // Simple tutorial questions
+        // Tutorial questions with embedded teaching
         const tutorialQuestions = [
             {
-                question: "Let's start easy! What comes next?\n2, 4, 6, 8, __",
+                question: `Oh! It looks like something got caught inside these pattern vines! The only way to break them is to complete the patterns on them!
+
+Let me look at the first one...
+
+Hmm, I can see this pattern! The number of dots is going up by one each time!
+• •• ••• •••• ____
+
+How many dots come next?`,
+                options: ["3 dots", "4 dots", "5 dots", "6 dots"],
+                correct: 2,
+                explanation: "Pattern rule: dots + 1"
+            },
+            {
+                question: `Great! One vine down! Let's try the next one...
+
+This vine has numbers on it, and they're counting by 2s!
+2, 4, 6, 8, ____
+
+What number comes next?`,
                 options: ["9", "10", "11", "12"],
                 correct: 1,
-                hints: [
-                    "Look at how much each number goes up by!",
-                    "The pattern adds 2 each time: 2, 4 (+2), 6 (+2), 8 (+2)...",
-                    "8 + 2 = 10"
-                ]
+                explanation: "Pattern rule: number + 2"
             },
             {
-                question: "Great! Now try this:\n5, 10, 15, 20, __",
-                options: ["22", "25", "30", "24"],
-                correct: 1,
-                hints: [
-                    "These are counting by 5s!",
-                    "5, 10 (+5), 15 (+5), 20 (+5)...",
-                    "20 + 5 = 25"
-                ]
+                question: `You're doing amazing! This next vine is tricky...
+
+Look! The stars are doubling each time!
+⭐ ⭐⭐ ⭐⭐⭐⭐ ____
+
+How many stars come next?`,
+                options: ["5 stars", "6 stars", "7 stars", "8 stars"],
+                correct: 3,
+                explanation: "Pattern rule: stars × 2"
             },
             {
-                question: "You're doing great! What's missing?\n10, 20, __, 40, 50",
-                options: ["25", "30", "35", "32"],
-                correct: 1,
-                hints: [
-                    "This pattern counts by 10s.",
-                    "10, 20 (+10), then add 10 again...",
-                    "20 + 10 = 30"
-                ]
-            },
-            {
-                question: "Almost there! Complete this:\n1, 2, 4, 8, __",
-                options: ["10", "12", "16", "14"],
+                question: `Almost there! Just two more vines!
+
+This vine is counting by 5s - like counting fingers!
+5, 10, 15, 20, ____
+
+What number comes next?`,
+                options: ["22", "24", "25", "30"],
                 correct: 2,
-                hints: [
-                    "This pattern is doubling (multiplying by 2)!",
-                    "1×2=2, 2×2=4, 4×2=8...",
-                    "8 × 2 = 16"
-                ]
+                explanation: "Pattern rule: number + 5"
             },
             {
-                question: "Last one! You've got this:\n3, 6, 9, 12, __",
-                options: ["13", "14", "15", "16"],
-                correct: 2,
-                hints: [
-                    "This pattern adds 3 each time!",
-                    "3, 6 (+3), 9 (+3), 12 (+3)...",
-                    "12 + 3 = 15"
-                ]
+                question: `Last vine! You've got this!
+
+This pattern goes: heart, star, heart, star, heart, ____
+❤️ ⭐ ❤️ ⭐ ❤️ ____
+
+What comes next?`,
+                options: ["❤️ Heart", "⭐ Star", "💎 Gem", "🌿 Vine"],
+                correct: 1,
+                explanation: "Pattern rule: repeating hearts and stars"
             }
         ];
 
         let currentPuzzle = 0;
-        let gemEnergy = 100;
         let vinesRemaining = 5;
-        let currentHintLevel = 0;
 
         function startTutorial() {
             document.getElementById('story-panel').style.display = 'none';
@@ -158,27 +151,6 @@
             
             document.getElementById('tutorial-options').innerHTML = optionsHtml;
             document.getElementById('tutorial-feedback').innerHTML = '';
-            currentHintLevel = 0;
-            
-            updateGemDisplay();
-        }
-
-        function showTutorialHint() {
-            if (gemEnergy < 20) {
-                document.getElementById('helper-text').innerHTML = 
-                    '<p>The gem is recharging! Watch it fill back up automatically... ⏳</p>';
-                return;
-            }
-
-            const q = tutorialQuestions[currentPuzzle];
-            const hint = q.hints[Math.min(currentHintLevel, q.hints.length - 1)];
-            
-            gemEnergy -= 20;
-            updateGemDisplay();
-            currentHintLevel++;
-            
-            document.getElementById('helper-text').innerHTML = 
-                `<p><strong>Teddy's Hint:</strong><br>${hint}</p>`;
         }
 
         function checkTutorialAnswer(selected) {
@@ -190,30 +162,24 @@
             
             if (selected === q.correct) {
                 options[selected].classList.add('correct');
-                feedback.innerHTML = '<div class="correct-feedback">✨ Perfect! One vine breaks free! ✨</div>';
-                document.getElementById('helper-text').innerHTML = '<p>Great job! You\'re a natural! 🎉</p>';
+                feedback.innerHTML = `<div class="correct-feedback">✨ Yes! ${q.explanation} ✨</div>`;
                 
-                // Break a vine
+                // Break a vine with celebration
                 breakVine();
-                
-                // Restore some gem energy
-                gemEnergy = Math.min(100, gemEnergy + 20);
-                updateGemDisplay();
                 
                 setTimeout(() => {
                     currentPuzzle++;
                     if (currentPuzzle < tutorialQuestions.length) {
                         loadTutorialQuestion();
                     } else {
-                        completeTutorial();
+                        showGemReward();
                     }
                 }, 2000);
                 
             } else {
                 options[selected].classList.add('incorrect');
                 options[q.correct].classList.add('correct');
-                feedback.innerHTML = '<div class="incorrect-feedback">Not quite! Try looking at the pattern again.</div>';
-                document.getElementById('helper-text').innerHTML = '<p>That\'s okay! Try clicking the 💎 gem if you need a hint!</p>';
+                feedback.innerHTML = '<div class="incorrect-feedback">Not quite! Try again! You can do this!</div>';
                 
                 setTimeout(() => {
                     // Reset for retry
@@ -233,38 +199,30 @@
                 vines[0].classList.add('broken');
                 vines[0].textContent = '✨';
                 vinesRemaining--;
-                document.getElementById('vines-remaining').textContent = 
-                    vinesRemaining > 0 ? `${vinesRemaining} vines left!` : 'All vines broken!';
+                
+                if (vinesRemaining > 0) {
+                    document.getElementById('vines-remaining').textContent = `${vinesRemaining} vines left!`;
+                } else {
+                    document.getElementById('vines-remaining').innerHTML = '<strong>All vines broken! 🎉</strong>';
+                }
             }
         }
 
-        function completeTutorial() {
+        function showGemReward() {
             localStorage.setItem('studypups-tutorial-complete', 'true');
             document.getElementById('tutorial-game').style.display = 'none';
-            document.getElementById('tutorial-complete').style.display = 'flex';
-        }
-
-        function updateGemDisplay() {
-            const energyFill = document.getElementById('tutorial-gem-energy');
-            energyFill.style.width = gemEnergy + '%';
+            document.getElementById('gem-reward').style.display = 'flex';
             
-            const gem = document.getElementById('tutorial-gem');
-            if (gemEnergy >= 20) {
-                gem.classList.add('active');
-                gem.classList.remove('recharging');
-            } else {
-                gem.classList.remove('active');
-                gem.classList.add('recharging');
-            }
+            // Animate gem appearing after a moment
+            setTimeout(() => {
+                document.querySelector('.gem-gift').classList.add('appear');
+            }, 1000);
+            
+            // Teddy appears after gem
+            setTimeout(() => {
+                document.querySelector('.teddy-appears').classList.add('appear');
+            }, 2500);
         }
-
-        // Auto-regenerate gem
-        setInterval(() => {
-            if (gemEnergy < 100) {
-                gemEnergy = Math.min(100, gemEnergy + 1);
-                updateGemDisplay();
-            }
-        }, 1000);
     </script>
 </body>
 </html>
