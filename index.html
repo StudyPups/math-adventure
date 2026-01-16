@@ -6,49 +6,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
   <div id="scene" class="scene scene-1">
-
-    <!-- TEDDY -->
+    <!-- TEDDY - positioned independently -->
     <img
       src="teddy.png"
       alt="Teddy the StudyPup"
       id="teddy"
-      class="teddy run-in"
+      class="teddy"
+      style="opacity: 0;"
     />
-
-    <!-- STORY BOX -->
-    <div class="story-box">
-      <p id="story-text"><strong>I think he wants me to follow him…</strong></p>
+    
+    <!-- FLOATING TEXT - appears above button -->
+    <div id="floating-text" class="floating-text" style="opacity: 0;">
+      I think he wants me to follow him...
+    </div>
+    
+    <!-- BUTTON - appears at bottom center -->
+    <div id="button-container" class="button-container" style="opacity: 0;">
       <button id="followBtn" class="primary-btn" type="button">Follow Teddy</button>
     </div>
-
   </div>
-
+  
   <script>
     const followBtn = document.getElementById("followBtn");
     const scene = document.getElementById("scene");
     const teddy = document.getElementById("teddy");
-    const storyText = document.getElementById("story-text");
-
+    const floatingText = document.getElementById("floating-text");
+    const buttonContainer = document.getElementById("button-container");
+    
+    // Sequence of animations
+    window.onload = function() {
+      // 1. Teddy appears and runs in
+      setTimeout(() => {
+        teddy.style.opacity = "1";
+        teddy.classList.add("run-in");
+      }, 500);
+      
+      // 2. After Teddy arrives, text appears
+      setTimeout(() => {
+        floatingText.style.opacity = "1";
+        floatingText.style.transform = "translateX(-50%) translateY(0)";
+      }, 2500);
+      
+      // 3. Finally, button appears
+      setTimeout(() => {
+        buttonContainer.style.opacity = "1";
+        buttonContainer.style.transform = "translateX(-50%) translateY(0)";
+      }, 3500);
+    };
+    
     followBtn.addEventListener("click", goToForest);
-
+    
     function goToForest() {
       // prevent double-clicks
       followBtn.disabled = true;
-
+      
       // swap background to scene 2
       scene.classList.remove("scene-1");
       scene.classList.add("scene-2");
-
+      
       // Teddy runs to the forest
       teddy.classList.remove("run-in");
       teddy.classList.add("run-out");
-
-      // Update story text
-      storyText.innerHTML = "<strong>Let's see what Teddy found...</strong>";
-
+      
+      // Fade out text and button
+      floatingText.style.opacity = "0";
+      buttonContainer.style.opacity = "0";
+      
       // after animation, go to tutorial (or patterns if skipping tutorial)
       setTimeout(() => {
         // Check if they've done the tutorial before
