@@ -11,27 +11,40 @@ export const tutorialScenes = {
     id: "intro",
     background: "assets/images/backgrounds/scene2.png",
     layout: "scene", // full scene with characters
+    
+    // --- CHARACTER POSITIONS EXPLAINED ---
+    // We use a "stage" system for easier positioning:
+    //   "stage-left"   = Left third of screen (fairy + rock grouped here)
+    //   "stage-right"  = Right third of screen (teddy here)
+    //   "stage-center" = Middle of screen
+    //
+    // The fairy and rock are grouped together so they move as one unit!
+    
     characters: [
-      {
-        id: "teddy",
-        image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png",
-        position: "left",
-        size: "medium"
-      },
       {
         id: "fairy",
         image: "assets/images/characters/Fairy/fairy-concern-down.png",
-        position: "right-high", // on a rock, looking down
+        position: "stage-left-elevated",  // NEW: Left side, sitting on rock
+        size: "medium"
+      },
+      {
+        id: "teddy",
+        image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png",
+        position: "stage-right",  // NEW: Right side, ground level
         size: "medium"
       }
     ],
+    
+    // The rock is now part of a "stage-left-base" position
+    // so it always appears beneath the fairy
     environmentElements: [
       {
         id: "rock",
         image: "assets/images/environmental-elements/tall-rock.png",
-        position: "right-base"
+        position: "stage-left-base"  // NEW: Anchors to same spot as fairy
       }
     ],
+    
     dialogue: null, // No dialogue box yet, just the scene
     choices: [
       { text: "Are you okay?", next: "fairy-intro" },
@@ -214,15 +227,15 @@ export const tutorialScenes = {
     layout: "scene",
     characters: [
       {
-        id: "teddy",
-        image: "assets/images/characters/Teddy/teddy-jump-excited.png",
-        position: "center-left",
+        id: "fairy",
+        image: "assets/images/characters/Fairy/fairy-wow.png",
+        position: "stage-left",  // Ground level now (off the rock)
         size: "medium"
       },
       {
-        id: "fairy",
-        image: "assets/images/characters/Fairy/fairy-wow.png",
-        position: "center-right",
+        id: "teddy",
+        image: "assets/images/characters/Teddy/teddy-jump-excited.png",
+        position: "stage-right",
         size: "medium"
       }
     ],
@@ -281,7 +294,7 @@ export const tutorialScenes = {
       {
         id: "teddy",
         image: "assets/images/characters/Teddy/teddy-jump-excited.png",
-        position: "center",
+        position: "stage-center",
         size: "large",
         animation: "bounce"
       }
@@ -375,7 +388,7 @@ export const tutorialScenes = {
       {
         id: "teddy",
         image: "assets/images/characters/Teddy/teddy-focus-up.png",
-        position: "center",
+        position: "stage-center",
         size: "large"
       }
     ],
@@ -478,7 +491,7 @@ export const tutorialScenes = {
       {
         id: "teddy",
         image: "assets/images/characters/Teddy/teddy-run-forward.png",
-        position: "center",
+        position: "stage-center",
         size: "large",
         animation: "bounce"
       }

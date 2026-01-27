@@ -12,6 +12,7 @@ onReady(() => {
   const gameScreen = document.getElementById("gameScreen");
   const backgroundLayer = document.getElementById("backgroundLayer");
   const characterLayer = document.getElementById("characterLayer");
+  const environmentLayer = document.getElementById("environmentLayer");
   const vineContainer = document.getElementById("vineContainer");
   const dialogueLayer = document.getElementById("dialogueLayer");
   const speakerInfo = document.getElementById("speakerInfo");
@@ -90,6 +91,7 @@ onReady(() => {
   
   function clearUI() {
     characterLayer.innerHTML = "";
+    environmentLayer.innerHTML = "";  // Clear environment elements too
     choicesContainer.innerHTML = "";
     puzzleBox.innerHTML = "";
     puzzleBox.hidden = true;
@@ -108,6 +110,9 @@ onReady(() => {
     // Remove click hints
     const hint = document.querySelector(".click-hint");
     if (hint) hint.remove();
+    
+    // Re-add vine container to environment layer (it gets cleared)
+    environmentLayer.appendChild(vineContainer);
   }
 
   // --- SCENE LAYOUT ---
@@ -116,6 +121,11 @@ onReady(() => {
   function renderSceneLayout(scene) {
     // Use scene-mode (no card, just buttons)
     dialogueLayer.classList.add("scene-mode");
+    
+    // Show environment elements FIRST (behind characters)
+    if (scene.environmentElements) {
+      renderEnvironmentElements(scene.environmentElements);
+    }
     
     // Show characters
     if (scene.characters) {
@@ -162,7 +172,7 @@ onReady(() => {
       renderCharacters([{
         id: "speaker",
         image: scene.speaker.image,
-        position: scene.speaker.position || "center",
+        position: scene.speaker.position || "stage-center",
         size: "large"
       }]);
       
@@ -206,7 +216,7 @@ onReady(() => {
       renderCharacters([{
         id: "speaker",
         image: scene.speaker.image,
-        position: "left",
+        position: "stage-left",
         size: "medium"
       }]);
       
@@ -312,6 +322,31 @@ onReady(() => {
 
   // --- HELPERS ---
 
+  /**
+   * Render environment elements (rocks, props, etc.)
+   * These appear BEHIND characters (lower z-index)
+   */
+  function renderEnvironmentElements(elements) {
+    elements.forEach((element) => {
+      const container = document.createElement("div");
+      container.className = `environment-element pos-${element.position}`;
+      container.id = `env-${element.id}`;
+
+      const img = document.createElement("img");
+      img.src = element.image;
+      img.alt = element.id;
+      img.className = `${element.id}-sprite`;  // e.g., "rock-sprite"
+      
+      img.onerror = () => log("Failed to load environment element:", element.image);
+
+      container.appendChild(img);
+      environmentLayer.appendChild(container);
+    });
+  }
+
+  /**
+   * Render character sprites
+   */
   function renderCharacters(characters) {
     characters.forEach((char) => {
       const container = document.createElement("div");

@@ -22,12 +22,44 @@
   --text-dark: #1f2937;
   --text-light: #6b7280;
   --white: #ffffff;
-  
+    
   /* Dialogue styling (warm parchment) */
   --dialogue-bg: rgba(255, 248, 235, 0.97);
   --dialogue-border: #c9a55c;
   --button-blue: #4a90c2;
   --button-blue-dark: #2d6a9f;
+  
+  /* ============================================================
+     STAGE POSITIONING SYSTEM
+     
+     Think of the screen as a theatre stage divided into zones:
+     
+     |---------|----------|---------|
+     |  LEFT   |  CENTER  |  RIGHT  |
+     |  ZONE   |   ZONE   |  ZONE   |
+     |---------|----------|---------|
+     
+     Each zone is roughly 1/3 of the screen width.
+     Characters are positioned WITHIN these zones.
+     
+     ADJUST THESE VALUES to move characters:
+     ============================================================ */
+  
+  /* LEFT ZONE - Where the fairy stands on rock */
+  --stage-left-x: 15%;           /* Distance from left edge */
+  --stage-left-ground: 5%;       /* Ground level (bottom %) */
+  --stage-left-elevated: 20%;    /* Elevated position (on rock) */
+  
+  /* CENTER ZONE - For solo character moments */
+  --stage-center-x: 50%;         /* Center of screen */
+  --stage-center-ground: 5%;     /* Ground level */
+  
+  /* RIGHT ZONE - Where Teddy stands */
+  --stage-right-x: 85%;          /* Distance from left edge */
+  --stage-right-ground: 5%;      /* Ground level */
+  
+  /* ROCK POSITIONING (always under fairy) */
+  --rock-offset-y: 0%;           /* Vertical offset from ground */
 }
 
 /* ===== RESET ===== */
@@ -100,7 +132,52 @@ body {
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
 }
 
-/* --- Character Positions --- */
+
+/* ============================================================
+   NEW STAGE-BASED POSITIONING SYSTEM
+   
+   Much easier to understand and adjust!
+   Just change the CSS variables at the top of this file.
+   ============================================================ */
+
+/* --- LEFT ZONE (Fairy's side) --- */
+
+/* Ground level on left */
+.character-container.pos-stage-left {
+  left: var(--stage-left-x);
+  bottom: var(--stage-left-ground);
+  transform: translateX(-50%);  /* Center on the X position */
+}
+
+/* Elevated on left (standing on rock) */
+.character-container.pos-stage-left-elevated {
+  left: var(--stage-left-x);
+  bottom: var(--stage-left-elevated);
+  transform: translateX(-50%);
+}
+
+/* --- CENTER ZONE --- */
+
+.character-container.pos-stage-center {
+  left: var(--stage-center-x);
+  bottom: var(--stage-center-ground);
+  transform: translateX(-50%);
+}
+
+/* --- RIGHT ZONE (Teddy's side) --- */
+
+.character-container.pos-stage-right {
+  left: var(--stage-right-x);
+  bottom: var(--stage-right-ground);
+  transform: translateX(-50%);
+}
+
+
+/* ============================================================
+   LEGACY POSITIONING (keeping for backwards compatibility)
+   These are the old position classes - still work!
+   ============================================================ */
+
 .character-container.pos-center {
   bottom: 8%;
   left: 50%;
@@ -134,11 +211,13 @@ body {
   right: 8%;
 }
 
+
 /* --- Character Sizes --- */
 .size-small .character-sprite { height: 25vh; }
 .size-medium .character-sprite { height: 40vh; }
 .size-large .character-sprite { height: 70vh; }
 .size-xlarge .character-sprite { height: 80vh; }
+
 
 /* --- Character Animations --- */
 .anim-bounce {
@@ -164,7 +243,7 @@ body {
 
 /* ============================================================
    LAYER 2b: ENVIRONMENT (z-index: 8)
-   Vines appear behind characters
+   Rocks, vines, etc - appear behind characters
    ============================================================ */
 
 .environment-layer {
@@ -174,6 +253,34 @@ body {
   pointer-events: none;
 }
 
+/* --- ROCK POSITIONING --- */
+/* The rock sits at the base of the left stage zone */
+/* Fairy stands ON TOP of this rock */
+
+.environment-element {
+  position: absolute;
+}
+
+.environment-element.pos-stage-left-base {
+  left: var(--stage-left-x);
+  bottom: var(--rock-offset-y);
+  transform: translateX(-50%);
+}
+
+/* Legacy rock position */
+.environment-element.pos-right-base {
+  right: 8%;
+  bottom: 0;
+}
+
+.rock-sprite {
+  height: 25vh;  /* Adjust rock height here */
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+/* --- VINES --- */
 .vine-container {
   position: absolute;
   top: 10%;
@@ -210,7 +317,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  
+    
   width: min(800px, calc(100% - 40px));
 }
 
@@ -617,28 +724,67 @@ body {
 
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE - Adjustments for different screen sizes
+   
+   The stage positioning system automatically scales,
+   but we can fine-tune for mobile/tablet here.
    ============================================================ */
 
 @media (max-width: 768px) {
+  /* Adjust stage positions for smaller screens */
+  :root {
+    --stage-left-x: 20%;
+    --stage-right-x: 80%;
+    --stage-left-elevated: 18%;
+  }
+  
   .dialogue-layer {
     width: calc(100% - 30px);
     bottom: 15px;
   }
-  
+    
   .dialogue-layer.dialogue-mode {
     padding: 16px 20px 20px;
   }
-  
+    
   .dialogue-text {
     font-size: 1.1rem;
   }
-  
+    
   .size-large .character-sprite { height: 55vh; }
   .size-xlarge .character-sprite { height: 65vh; }
-  
+  .size-medium .character-sprite { height: 35vh; }
+    
   .puzzle-options {
     grid-template-columns: 1fr;
+  }
+  
+  .rock-sprite {
+    height: 20vh;
+  }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+  :root {
+    --stage-left-x: 25%;
+    --stage-right-x: 75%;
+    --stage-left-elevated: 15%;
+  }
+  
+  .size-medium .character-sprite { height: 30vh; }
+  
+  .rock-sprite {
+    height: 15vh;
+  }
+}
+
+/* Large screens / tablets in landscape */
+@media (min-width: 1024px) {
+  :root {
+    --stage-left-x: 18%;
+    --stage-right-x: 82%;
+    --stage-left-elevated: 22%;
   }
 }
 
