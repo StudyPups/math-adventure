@@ -113,13 +113,13 @@ onReady(() => {
 
         if (isCorrect) {
           btn.classList.add("correct");
-          tutorialText.textContent = "Nice! *Snap* — one vine breaks.";
+          setFeedback(q.feedback.correct);
           setFeedback("✅ Correct — vine snapped!");
           vinesRemaining = Math.max(0, vinesRemaining - 1);
           renderVines();
         } else {
           btn.classList.add("incorrect");
-          tutorialText.textContent = "Not quite — we’ll try another one.";
+        setFeedback(q.feedback.incorrect);
           setFeedback("❌ Not quite — try the next one.");
         }
 
