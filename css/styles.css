@@ -48,14 +48,12 @@ body {
 }
 
 /* Scene 1: Path/Village Background */
-.scene-1 {
-    background-image: url('scene1.png');
-}
+.scene-1 { background-image: url('../assets/images/backgrounds/scene1.png'); }
+
 
 /* Scene 2: Forest Background */
-.scene-2 {
-    background-image: url('scene2.png');
-}
+.scene-2 { background-image: url('../assets/images/backgrounds/scene2.png'); }
+
 
 /* Teddy Character - positioned on left side */
 .teddy {
@@ -140,14 +138,15 @@ body {
    ============================================ */
 
 .practice-page {
-    background: linear-gradient(135deg, var(--light-purple) 0%, var(--light-blue) 100%);
+ .practice-page.forest-background { background-image: url('../assets/images/backgrounds/scene2.png'); }
     padding: 20px;
     overflow-y: auto;
     min-height: 100vh;
 }
 
 .practice-page.forest-background {
-    background-image: url('scene2.png');
+.practice-page.forest-background { background-image: url('../assets/images/scene2.png'); }
+
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
