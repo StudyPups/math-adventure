@@ -1,4 +1,5 @@
 // js/shared.js
+// Shared utilities used across all pages
 
 // Short helper to grab elements safely
 export function $(selector, root = document) {
@@ -31,6 +32,45 @@ export function hide(el) {
 }
 
 // Tiny debug logger you can turn off later
+const DEBUG = true; // Set to false for production
+
 export function log(...args) {
-  console.log("[StudyPups]", ...args);
+  if (DEBUG) {
+    console.log("[StudyPups]", ...args);
+  }
+}
+
+// --- Save/Load System (using localStorage) ---
+
+const SAVE_KEY = "studypups_save";
+
+export function loadGameState() {
+  try {
+    const saved = localStorage.getItem(SAVE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) {
+    log("Error loading save:", e);
+    return null;
+  }
+}
+
+export function saveGameState(state) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    log("Game saved");
+  } catch (e) {
+    log("Error saving:", e);
+  }
+}
+
+export function createNewGameState(playerName = "Player") {
+  return {
+    playerName,
+    gems: 0,
+    tutorialComplete: false,
+    patternsComplete: false,
+    inventory: [],
+    studyPupsUnlocked: ["teddy"], // Start with Teddy
+    lastPlayed: new Date().toISOString()
+  };
 }

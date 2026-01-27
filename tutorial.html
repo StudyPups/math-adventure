@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vine Rescue Tutorial - StudyPups</title>
-<link rel="stylesheet" href="css/styles.css">
-
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vine Rescue Tutorial - StudyPups</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div
@@ -15,46 +13,54 @@
   >
     <!-- HUD -->
     <div class="hud">
-      <div class="hud-title">Tutorial</div>
-      <button class="hud-skip btn" id="skipBtn">Skip</button>
+      <div class="hud-title">🌿 Vine Rescue</div>
+      <button class="hud-skip btn" id="skipBtn">Skip →</button>
     </div>
 
-    <!-- Stage (vines / environment visuals live here later) -->
-    <div class="stage"></div>
+    <!-- Stage area - characters will go here -->
+    <div class="stage">
+      <div class="tutorial-characters">
+        <div class="character teddy-trapped">🐕</div>
+        <div class="vines-visual">
+          <span class="vine-icon" id="vine1">🌿</span>
+          <span class="vine-icon" id="vine2">🌿</span>
+          <span class="vine-icon" id="vine3">🌿</span>
+        </div>
+        <div class="character fairy">🧚</div>
+      </div>
+    </div>
 
     <!-- Bottom overlay panel -->
     <div class="overlay-panel">
       <div class="overlay-text">
-        <p class="feedback-line" id="feedbackLine"></p>
-        <div class="intro-actions">
-  <button class="btn primary" id="continueBtn">Start</button>
-</div>
-
         <p id="tutorialText">
-          Let’s rescue Teddy! Answer questions to snap the vines.
+          Oh no! Vines are blocking the path! Answer questions to snap them and help Teddy reach the fairy.
         </p>
+        <p class="feedback-line" id="feedbackLine" style="display: none;"></p>
       </div>
 
+      <!-- Vine progress dots -->
       <div class="vine-progress" id="vineProgress" aria-label="Vines remaining">
-  <span class="vine-dot active"></span>
-  <span class="vine-dot active"></span>
-  <span class="vine-dot active"></span>
-</div>
+        <span class="vine-dot active"></span>
+        <span class="vine-dot active"></span>
+        <span class="vine-dot active"></span>
+      </div>
 
-
+      <!-- Question box (hidden until game starts) -->
       <div class="question-box" id="questionBox" hidden>
         <div class="question-number" id="qNumber"></div>
         <div class="question-text" id="qText"></div>
-<img id="qImage" class="question-image" alt="" hidden />
+        <img id="qImage" class="question-image" alt="" hidden />
         <div class="answer-options" id="answers"></div>
+      </div>
 
-        
+      <!-- Continue/Start button -->
+      <div class="intro-actions">
+        <button class="btn primary" id="continueBtn">Start</button>
       </div>
     </div>
   </div>
 
   <script type="module" src="js/tutorial.js"></script>
 </body>
-
-
 </html>

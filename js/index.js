@@ -1,3 +1,6 @@
+// js/index.js
+// Main menu / landing page logic
+
 import { onReady, log } from "./shared.js";
 
 onReady(() => {
