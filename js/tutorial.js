@@ -106,25 +106,31 @@ onReady(() => {
       }
 
       btn.addEventListener("click", () => {
-        if (locked) return;
-        locked = true;
+   if (locked) return;
+locked = true;
 
-        const isCorrect = opt.id === q.correctId;
+const isCorrect = opt.id === q.correctId;
 
-        if (isCorrect) {
-          btn.classList.add("correct");
-          setFeedback(q.feedback.correct);
-          setFeedback("✅ Correct — vine snapped!");
-          vinesRemaining = Math.max(0, vinesRemaining - 1);
-          renderVines();
-        } else {
-          btn.classList.add("incorrect");
-        setFeedback(q.feedback.incorrect);
-          setFeedback("❌ Not quite — try the next one.");
-        }
+// pull feedback from question data if it exists
+const correctMsg =
+  q.feedback?.correct ?? "That’s right! A vine snaps!";
+const incorrectMsg =
+  q.feedback?.incorrect ?? "Not quite — try again.";
 
-        [...answersEl.children].forEach((b) => (b.disabled = true));
-        setContinue("Next", true, true);
+if (isCorrect) {
+  btn.classList.add("correct");
+  setFeedback(correctMsg);
+
+  vinesRemaining = Math.max(0, vinesRemaining - 1);
+  renderVines();
+} else {
+  btn.classList.add("incorrect");
+  setFeedback(incorrectMsg);
+}
+
+[...answersEl.children].forEach((b) => (b.disabled = true));
+setContinue("Next", true, true);
+
       });
 
       answersEl.appendChild(btn);
@@ -133,13 +139,33 @@ onReady(() => {
     questionBox.hidden = false;
   }
 
-  continueBtn.addEventListener("click", () => {
-    if (index >= questions.length) {
-      window.location.href = "patterns.html";
-      return;
-    }
-    showQuestion();
-  });
+  continueBtn.addEventListener("click", () => if (locked) return;
+locked = true;
+
+const isCorrect = opt.id === q.correctId;
+
+// pull feedback from question data if it exists
+const correctMsg =
+  q.feedback?.correct ?? "That’s right! A vine snaps!";
+const incorrectMsg =
+  q.feedback?.incorrect ?? "Not quite — try again.";
+
+if (isCorrect) {
+  btn.classList.add("correct");
+  tutorialText.textContent = "Nice! *Snap* — one vine breaks.";
+  setFeedback(correctMsg);
+
+  vinesRemaining = Math.max(0, vinesRemaining - 1);
+  renderVines();
+} else {
+  btn.classList.add("incorrect");
+  tutorialText.textContent = "Not quite — we’ll try another one.";
+  setFeedback(incorrectMsg);
+}
+
+[...answersEl.children].forEach((b) => (b.disabled = true));
+setContinue("Next", true, true);
+);
 
   skipBtn?.addEventListener("click", () => {
     window.location.href = "patterns.html";
