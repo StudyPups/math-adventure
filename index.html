@@ -4,86 +4,39 @@
   <meta charset="UTF-8" />
   <title>StudyPups — The Adventure Begins</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="css/styles.css" />
 
+  <!-- IMPORTANT: your CSS is in /css -->
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
-  <div id="scene" class="scene scene-1">
-    <!-- TEDDY - positioned independently -->
-    <img
-<img src="assets/images/characters/teddy.png" ...
-
-
-      alt="Teddy the StudyPup"
-      id="teddy"
-      class="teddy"
-      style="opacity: 0;"
-    />
-    
-    <!-- FLOATING TEXT - appears above button -->
-    <div id="floating-text" class="floating-text" style="opacity: 0;">
-      I think he wants me to follow him...
+  <!-- Full screen background layout -->
+  <div
+    class="fullscreen-bg"
+    style="background-image: url('assets/images/backgrounds/scene1.png');"
+  >
+    <!-- Top HUD -->
+    <div class="hud">
+      <div class="hud-title">StudyPups</div>
+      <button class="hud-skip btn" type="button" id="settingsBtn">Settings</button>
     </div>
-    
-    <!-- BUTTON - appears at bottom center -->
-    <div id="button-container" class="button-container" style="opacity: 0;">
-      <button id="followBtn" class="primary-btn" type="button">Follow Teddy</button>
+
+    <!-- Middle spacer (you can add logo art here later) -->
+    <div></div>
+
+    <!-- Bottom panel (menu / dialogue-style) -->
+    <div class="dialogue">
+      <p id="menuText">
+        Welcome! Ready to start your magical maths adventure?
+      </p>
+
+      <div class="actions">
+        <button class="btn" type="button" id="enterBtn">Enter Game</button>
+        <button class="btn" type="button" id="profileBtn">Profiles</button>
+      </div>
     </div>
   </div>
-  
-  <script>
-    const followBtn = document.getElementById("followBtn");
-    const scene = document.getElementById("scene");
-    const teddy = document.getElementById("teddy");
-    const floatingText = document.getElementById("floating-text");
-    const buttonContainer = document.getElementById("button-container");
-    
-    // Sequence of animations
-    window.onload = function() {
-      // 1. Teddy appears and runs in
-      setTimeout(() => {
-        teddy.style.opacity = "1";
-        teddy.classList.add("run-in");
-      }, 500);
-      
-      // 2. After Teddy arrives, text appears
-      setTimeout(() => {
-        floatingText.style.opacity = "1";
-        floatingText.style.transform = "translateX(-50%) translateY(0)";
-      }, 2500);
-      
-      // 3. Finally, button appears
-      setTimeout(() => {
-        buttonContainer.style.opacity = "1";
-        buttonContainer.style.transform = "translateX(-50%) translateY(0)";
-      }, 3500);
-    };
-    
-    followBtn.addEventListener("click", goToForest);
-    
-    function goToForest() {
-      // prevent double-clicks
-      followBtn.disabled = true;
-      
-      // swap background to scene 2
-      scene.classList.remove("scene-1");
-      scene.classList.add("scene-2");
-      
-      // Teddy runs to the forest
-      teddy.classList.remove("run-in");
-      teddy.classList.add("run-out");
-      
-      // Fade out text and button
-      floatingText.style.opacity = "0";
-      buttonContainer.style.opacity = "0";
-      
-      // after animation, always go to tutorial
-      setTimeout(() => {
-        window.location.href = "tutorial.html";
-      }, 1500);
-    }
-  </script>
-  <script type="module" src="js/index.js"></script>
 
+  <script type="module" src="js/index.js"></script>
 </body>
 </html>

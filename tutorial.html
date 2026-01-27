@@ -4,231 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vine Rescue Tutorial - StudyPups</title>
-    <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/styles.css">
+
+
 </head>
-<body class="practice-page forest-background">
-    
-    <div class="tutorial-container">
-        <!-- Story Introduction -->
-        <div class="story-panel" id="story-panel">
-            <div class="fairy-avatar">🧚‍♀️</div>
-            <div class="story-dialogue">
-                <p id="story-text">
-                    <strong>Help!</strong> I'm trapped in these magical vines!<br>
-                    Can you break them by solving their patterns?
-                </p>
-            </div>
-            <button class="primary-btn" onclick="startTutorial()">I'll help you! 🌟</button>
-            <button class="game-button-secondary" onclick="skipTutorial()">Skip Tutorial</button>
-        </div>
-
-        <!-- Tutorial Game Area (hidden initially) -->
-        <div class="tutorial-game" id="tutorial-game" style="display: none;">
-            
-            <div class="vine-visual">
-                <div class="fairy-trapped">🧚‍♀️</div>
-                <div class="vines-container">
-                    <div class="vine active" data-vine="1">🌿</div>
-                    <div class="vine active" data-vine="2">🌿</div>
-                    <div class="vine active" data-vine="3">🌿</div>
-                    <div class="vine active" data-vine="4">🌿</div>
-                    <div class="vine active" data-vine="5">🌿</div>
-                </div>
-                <div class="vines-remaining" id="vines-remaining">5 pattern vines!</div>
-            </div>
-
-            <div class="tutorial-question-area">
-                <div class="question-card">
-                    <div class="question-number">Pattern Vine <span id="puzzle-num">1</span> of 5</div>
-                    <div class="question-text" id="tutorial-question"></div>
-                    <div class="answer-options" id="tutorial-options"></div>
-                    <div class="feedback" id="tutorial-feedback"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Fairy Gives Gem! -->
-        <div class="gem-reward" id="gem-reward" style="display: none;">
-            <div class="fairy-free">🧚‍♀️✨</div>
-            <h1>Thank You!</h1>
-            <p class="reward-text">You saved me! Let me give you something special...</p>
-            
-            <div class="gem-gift">
-                <div class="gem-big">💎</div>
-                <div class="gem-glow"></div>
-            </div>
-            
-            <p class="reward-text">This is a <strong>Magical Hint Gem</strong>!</p>
-            <p>With it, you can understand what Teddy says, and he can help you whenever you're stuck!</p>
-            
-            <div class="teddy-appears">
-                <div class="teddy-big">🐕</div>
-                <p><strong>WOOF!</strong> (Hi! I'm Teddy! I'm here to help you on your adventure!)</p>
-            </div>
-            
-            <button class="game-button" onclick="window.location.href='patterns.html'">Start the Adventure! 🌟</button>
-        </div>
+<body>
+  <div
+    class="fullscreen-bg"
+    style="background-image: url('assets/images/backgrounds/scene2.png');"
+  >
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-title">Tutorial</div>
+      <button class="hud-skip btn" id="skipBtn">Skip</button>
     </div>
 
-    <script>
-        // Tutorial questions with embedded teaching
-        const tutorialQuestions = [
-            {
-                question: `Oh! It looks like something got caught inside these pattern vines! The only way to break them is to complete the patterns on them!
+    <!-- Stage (vines / environment visuals live here later) -->
+    <div class="stage"></div>
 
-Let me look at the first one...
+    <!-- Bottom overlay panel -->
+    <div class="overlay-panel">
+      <div class="overlay-text">
+        <p class="feedback-line" id="feedbackLine"></p>
+        <div class="intro-actions">
+  <button class="btn primary" id="continueBtn">Start</button>
+</div>
 
-Hmm, I can see this pattern! The number of dots is going up by one each time!
-• •• ••• •••• ____
+        <p id="tutorialText">
+          Let’s rescue Teddy! Answer questions to snap the vines.
+        </p>
+      </div>
 
-How many dots come next?`,
-                options: ["3 dots", "4 dots", "5 dots", "6 dots"],
-                correct: 2,
-                explanation: "Pattern rule: dots + 1"
-            },
-            {
-                question: `Great! One vine down! Let's try the next one...
+      <div class="vine-progress" id="vineProgress" aria-label="Vines remaining">
+  <span class="vine-dot active"></span>
+  <span class="vine-dot active"></span>
+  <span class="vine-dot active"></span>
+</div>
 
-This vine has numbers on it, and they're counting by 2s!
-2, 4, 6, 8, ____
 
-What number comes next?`,
-                options: ["9", "10", "11", "12"],
-                correct: 1,
-                explanation: "Pattern rule: number + 2"
-            },
-            {
-                question: `You're doing amazing! This next vine is tricky...
+      <div class="question-box" id="questionBox" hidden>
+        <div class="question-number" id="qNumber"></div>
+        <div class="question-text" id="qText"></div>
+<img id="qImage" class="question-image" alt="" hidden />
+        <div class="answer-options" id="answers"></div>
 
-Look! The stars are doubling each time!
-⭐ ⭐⭐ ⭐⭐⭐⭐ ____
+        
+      </div>
+    </div>
+  </div>
 
-How many stars come next?`,
-                options: ["5 stars", "6 stars", "7 stars", "8 stars"],
-                correct: 3,
-                explanation: "Pattern rule: stars × 2"
-            },
-            {
-                question: `Almost there! Just two more vines!
-
-This vine is counting by 5s - like counting fingers!
-5, 10, 15, 20, ____
-
-What number comes next?`,
-                options: ["22", "24", "25", "30"],
-                correct: 2,
-                explanation: "Pattern rule: number + 5"
-            },
-            {
-                question: `Last vine! You've got this!
-
-This pattern goes: heart, star, heart, star, heart, ____
-❤️ ⭐ ❤️ ⭐ ❤️ ____
-
-What comes next?`,
-                options: ["❤️ Heart", "⭐ Star", "💎 Gem", "🌿 Vine"],
-                correct: 1,
-                explanation: "Pattern rule: repeating hearts and stars"
-            }
-        ];
-
-        let currentPuzzle = 0;
-        let vinesRemaining = 5;
-
-        function startTutorial() {
-            document.getElementById('story-panel').style.display = 'none';
-            document.getElementById('tutorial-game').style.display = 'grid';
-            loadTutorialQuestion();
-        }
-
-        function skipTutorial() {
-            window.location.href = 'patterns.html';
-        }
-
-        function loadTutorialQuestion() {
-            const q = tutorialQuestions[currentPuzzle];
-            document.getElementById('puzzle-num').textContent = currentPuzzle + 1;
-            document.getElementById('tutorial-question').textContent = q.question;
-            
-            const optionsHtml = q.options.map((option, index) => 
-                `<button class="answer-option" onclick="checkTutorialAnswer(${index})">${option}</button>`
-            ).join('');
-            
-            document.getElementById('tutorial-options').innerHTML = optionsHtml;
-            document.getElementById('tutorial-feedback').innerHTML = '';
-        }
-
-        function checkTutorialAnswer(selected) {
-            const q = tutorialQuestions[currentPuzzle];
-            const feedback = document.getElementById('tutorial-feedback');
-            const options = document.querySelectorAll('.answer-option');
-            
-            options.forEach(opt => opt.disabled = true);
-            
-            if (selected === q.correct) {
-                options[selected].classList.add('correct');
-                feedback.innerHTML = `<div class="correct-feedback">✨ Yes! ${q.explanation} ✨</div>`;
-                
-                // Break a vine with celebration
-                breakVine();
-                
-                setTimeout(() => {
-                    currentPuzzle++;
-                    if (currentPuzzle < tutorialQuestions.length) {
-                        loadTutorialQuestion();
-                    } else {
-                        showGemReward();
-                    }
-                }, 2000);
-                
-            } else {
-                options[selected].classList.add('incorrect');
-                options[q.correct].classList.add('correct');
-                feedback.innerHTML = '<div class="incorrect-feedback">Not quite! Try again! You can do this!</div>';
-                
-                setTimeout(() => {
-                    // Reset for retry
-                    options.forEach(opt => {
-                        opt.disabled = false;
-                        opt.classList.remove('incorrect', 'correct');
-                    });
-                    feedback.innerHTML = '';
-                }, 2000);
-            }
-        }
-
-        function breakVine() {
-            const vines = document.querySelectorAll('.vine.active');
-            if (vines.length > 0) {
-                vines[0].classList.remove('active');
-                vines[0].classList.add('broken');
-                vines[0].textContent = '✨';
-                vinesRemaining--;
-                
-                if (vinesRemaining > 0) {
-                    document.getElementById('vines-remaining').textContent = `${vinesRemaining} vines left!`;
-                } else {
-                    document.getElementById('vines-remaining').innerHTML = '<strong>All vines broken! 🎉</strong>';
-                }
-            }
-        }
-
-        function showGemReward() {
-            document.getElementById('tutorial-game').style.display = 'none';
-            document.getElementById('gem-reward').style.display = 'flex';
-            
-            // Animate gem appearing after a moment
-            setTimeout(() => {
-                document.querySelector('.gem-gift').classList.add('appear');
-            }, 1000);
-            
-            // Teddy appears after gem
-            setTimeout(() => {
-                document.querySelector('.teddy-appears').classList.add('appear');
-            }, 2500);
-        }
-    </script>
-    <script type="module" src="js/tutorial.js"></script>
-
+  <script type="module" src="js/tutorial.js"></script>
 </body>
+
+
 </html>
