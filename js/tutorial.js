@@ -15,12 +15,36 @@ onReady(() => {
   const answersEl = document.getElementById("answers");
   const vineProgress = document.getElementById("vineProgress");
   const feedbackLine = document.getElementById("feedbackLine");
+  
+  // Character & vine elements
+  const teddyImg = document.getElementById("teddyImg");
+  const fairyImg = document.getElementById("fairyImg");
+  const tutorialScene = document.getElementById("tutorialScene");
+  const vine1 = document.getElementById("vine1");
+  const vine2 = document.getElementById("vine2");
+  const vine3 = document.getElementById("vine3");
+  const vines = [vine1, vine2, vine3];
+
+  // --- Image paths (ALL PNG NOW!) ---
+  const images = {
+    teddy: {
+      hopeful: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png",
+      happy: "assets/images/characters/Teddy/tutorial-teddy-tongue.png",
+      sad: "assets/images/characters/Teddy/teddy-wrong-answer.png",
+      celebrate: "assets/images/characters/Teddy/teddy-jump-excited.png"
+    },
+    fairy: {
+      help: "assets/images/characters/Fairy/fairy-help-request.png",
+      thanks: "assets/images/characters/Fairy/fairy-thanks.png"
+    }
+  };
 
   // --- Game State ---
   const questions = tutorialQuestions;
   let index = -1;           // -1 = intro screen, 0+ = question index
   let locked = false;       // Prevents double-clicking answers
   let vinesRemaining = questions.length;
+  let correctCount = 0;     // Track how many vines snapped
 
   // --- Helper Functions ---
   
@@ -38,6 +62,50 @@ onReady(() => {
     });
   }
 
+  function snapVine(vineIndex) {
+    // Snap the visual vine image
+    if (vines[vineIndex]) {
+      vines[vineIndex].classList.add("snapped");
+    }
+  }
+
+  function setTeddyExpression(expression) {
+    if (!teddyImg) return;
+    
+    // Remove animation classes
+    teddyImg.classList.remove("happy", "sad");
+    
+    // Change image and add animation
+    switch(expression) {
+      case "happy":
+        teddyImg.src = images.teddy.happy;
+        teddyImg.classList.add("happy");
+        break;
+      case "sad":
+        teddyImg.src = images.teddy.sad;
+        teddyImg.classList.add("sad");
+        break;
+      case "celebrate":
+        teddyImg.src = images.teddy.celebrate;
+        teddyImg.classList.add("happy");
+        break;
+      default:
+        teddyImg.src = images.teddy.hopeful;
+    }
+  }
+
+  function setFairyExpression(expression) {
+    if (!fairyImg) return;
+    
+    switch(expression) {
+      case "thanks":
+        fairyImg.src = images.fairy.thanks;
+        break;
+      default:
+        fairyImg.src = images.fairy.help;
+    }
+  }
+
   function setContinue(label, enabled = true, visible = true) {
     continueBtn.textContent = label;
     continueBtn.disabled = !enabled;
@@ -52,7 +120,15 @@ onReady(() => {
       "Oh no! Vines are blocking the path! Answer questions to snap them and help Teddy reach the fairy.";
     questionBox.hidden = true;
     vinesRemaining = questions.length;
+    correctCount = 0;
+    
+    // Reset visuals
     renderVines();
+    vines.forEach(v => v && v.classList.remove("snapped"));
+    setTeddyExpression("hopeful");
+    setFairyExpression("help");
+    tutorialScene.classList.remove("rescued");
+    
     setContinue("Start", true, true);
   }
 
@@ -67,6 +143,9 @@ onReady(() => {
     }
 
     const q = questions[index];
+
+    // Reset Teddy to hopeful for new question
+    setTeddyExpression("hopeful");
 
     // Update question number
     qNumber.textContent = `Question ${index + 1} of ${questions.length}`;
@@ -125,14 +204,25 @@ onReady(() => {
 
         if (isCorrect) {
           btn.classList.add("correct");
-          tutorialText.textContent = "Nice! *Snap* — one vine breaks!";
+          tutorialText.textContent = "Amazing! *SNAP* — a vine breaks away!";
           setFeedback(correctMsg);
+          
+          // Snap the vine!
+          snapVine(correctCount);
+          correctCount++;
           vinesRemaining = Math.max(0, vinesRemaining - 1);
           renderVines();
+          
+          // Teddy is happy!
+          setTeddyExpression("happy");
+          
         } else {
           btn.classList.add("incorrect");
-          tutorialText.textContent = "That's okay! We'll keep trying.";
+          tutorialText.textContent = "That's okay! Let's try the next one.";
           setFeedback(incorrectMsg);
+          
+          // Teddy is sad but encouraging
+          setTeddyExpression("sad");
         }
 
         // Disable all answer buttons
@@ -150,9 +240,20 @@ onReady(() => {
 
   function showComplete() {
     setFeedback("");
-    tutorialText.textContent = "🎉 Amazing! You cleared all the vines! Teddy can reach the fairy now!";
     questionBox.hidden = true;
-    setContinue("Continue Adventure", true, true);
+    
+    // Celebration visuals!
+    tutorialScene.classList.add("rescued");
+    setTeddyExpression("celebrate"); // Now has the magical collar!
+    setFairyExpression("thanks");
+    
+    tutorialText.innerHTML = `
+      🎉 <strong>You did it!</strong> 🎉<br><br>
+      The fairy is free! As a thank you, she gives Teddy a <strong>magical collar</strong> 
+      so you can understand him on your adventure!
+    `;
+    
+    setContinue("Start Adventure! →", true, true);
     
     // Update vines to show all cleared
     renderVines();
@@ -165,7 +266,10 @@ onReady(() => {
       // Was on intro screen, show first question
       showQuestion();
     } else if (index >= questions.length - 1 && vinesRemaining === 0) {
-      // Tutorial complete, go to next page
+      // Tutorial complete, go to patterns page
+      window.location.href = "patterns.html";
+    } else if (index >= questions.length) {
+      // Already on complete screen, go to patterns
       window.location.href = "patterns.html";
     } else {
       // Show next question

@@ -5,6 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vine Rescue Tutorial - StudyPups</title>
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Tutorial-specific styles for character layout */
+    .tutorial-scene {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 0;
+      padding: 20px;
+      min-height: 300px;
+      position: relative;
+    }
+
+    .character-img {
+      height: 200px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+      transition: transform 0.3s ease;
+    }
+
+    .teddy-container {
+      z-index: 10;
+    }
+
+    .fairy-container {
+      z-index: 10;
+    }
+
+    /* Vines blocking the path */
+    .vines-barrier {
+      display: flex;
+      gap: 5px;
+      align-items: flex-end;
+      margin: 0 -20px; /* Overlap slightly with characters */
+      z-index: 5;
+    }
+
+    .vine-img {
+      height: 220px;
+      width: auto;
+      object-fit: contain;
+      transition: all 0.5s ease;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    .vine-img.snapped {
+      opacity: 0.2;
+      transform: scale(0.7) rotate(15deg) translateY(20px);
+      filter: grayscale(50%) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    /* Teddy expressions */
+    .teddy-img {
+      transition: transform 0.3s ease;
+    }
+
+    .teddy-img.happy {
+      animation: teddyBounce 0.5s ease;
+    }
+
+    .teddy-img.sad {
+      animation: teddySad 0.5s ease;
+    }
+
+    @keyframes teddyBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes teddySad {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    /* Ground element for characters to stand on */
+    .ground-element {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 60px;
+      width: auto;
+      z-index: 1;
+      opacity: 0.9;
+    }
+
+    /* Celebration state */
+    .tutorial-scene.rescued .vines-barrier {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+
+    .tutorial-scene.rescued .teddy-img {
+      animation: teddyCelebrate 1s ease infinite;
+    }
+
+    @keyframes teddyCelebrate {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+  </style>
 </head>
 <body>
   <div
@@ -17,16 +119,35 @@
       <button class="hud-skip btn" id="skipBtn">Skip →</button>
     </div>
 
-    <!-- Stage area - characters will go here -->
+    <!-- Stage area with characters and vines -->
     <div class="stage">
-      <div class="tutorial-characters">
-        <div class="character teddy-trapped">🐕</div>
-        <div class="vines-visual">
-          <span class="vine-icon" id="vine1">🌿</span>
-          <span class="vine-icon" id="vine2">🌿</span>
-          <span class="vine-icon" id="vine3">🌿</span>
+      <div class="tutorial-scene" id="tutorialScene">
+        <!-- Teddy (left side, no collar initially) -->
+        <div class="teddy-container">
+          <img 
+            src="assets/images/characters/Teddy/tutorial-teddy-hopeful.png" 
+            alt="Teddy" 
+            class="character-img teddy-img"
+            id="teddyImg"
+          >
         </div>
-        <div class="character fairy">🧚</div>
+
+        <!-- Vines blocking the path (3 vines = 3 questions) -->
+        <div class="vines-barrier" id="vinesBarrier">
+          <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine1">
+          <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine2">
+          <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine3">
+        </div>
+
+        <!-- Fairy (right side, needs help) -->
+        <div class="fairy-container">
+          <img 
+            src="assets/images/characters/Fairy/fairy-help-request.png" 
+            alt="Fairy" 
+            class="character-img fairy-img"
+            id="fairyImg"
+          >
+        </div>
       </div>
     </div>
 
