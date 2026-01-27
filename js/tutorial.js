@@ -1,5 +1,6 @@
 // js/tutorial.js
 // Scene-based tutorial engine for StudyPups
+// Two modes: dialogue-mode (floating card) vs scene-mode (just buttons)
 
 import { onReady, log, saveGameState, loadGameState, createNewGameState } from "./shared.js";
 import { tutorialScenes, getScene, STARTING_SCENE } from "../data/tutorial-scenes.js";
@@ -8,25 +9,28 @@ onReady(() => {
   log("Tutorial Engine loaded ✅");
 
   // --- DOM Elements ---
-  const sceneContainer = document.getElementById("sceneContainer");
-  const dialoguePanel = document.getElementById("dialoguePanel");
+  const gameScreen = document.getElementById("gameScreen");
+  const backgroundLayer = document.getElementById("backgroundLayer");
+  const characterLayer = document.getElementById("characterLayer");
+  const vineContainer = document.getElementById("vineContainer");
+  const dialogueLayer = document.getElementById("dialogueLayer");
+  const speakerInfo = document.getElementById("speakerInfo");
   const speakerName = document.getElementById("speakerName");
-  const speakerPortrait = document.getElementById("speakerPortrait");
   const dialogueText = document.getElementById("dialogueText");
-  const choicesContainer = document.getElementById("choicesContainer");
-  const characterStage = document.getElementById("characterStage");
-  const vineDisplay = document.getElementById("vineDisplay");
+  const vineProgress = document.getElementById("vineProgress");
   const puzzleBox = document.getElementById("puzzleBox");
   const inputBox = document.getElementById("inputBox");
+  const choicesContainer = document.getElementById("choicesContainer");
   const skipBtn = document.getElementById("skipBtn");
 
   // --- Game State ---
   let gameState = loadGameState() || createNewGameState();
   let currentSceneId = STARTING_SCENE;
   let vinesSnapped = 0;
+  const TOTAL_VINES = 3;
 
-  // --- Core Functions ---
-
+  // --- Main Scene Renderer ---
+  
   function showScene(sceneId) {
     const scene = getScene(sceneId);
     if (!scene) {
@@ -35,35 +39,38 @@ onReady(() => {
     }
 
     currentSceneId = sceneId;
-    log("Showing scene:", sceneId);
+    log("Showing scene:", sceneId, "| Layout:", scene.layout);
 
-    // Clear previous content
-    choicesContainer.innerHTML = "";
-    puzzleBox.hidden = true;
-    inputBox.hidden = true;
+    // Reset everything
+    clearUI();
 
-    // Handle different layout types
+    // Set background
+    if (scene.background) {
+      backgroundLayer.style.backgroundImage = `url('${scene.background}')`;
+    }
+
+    // Route to layout handler
     switch (scene.layout) {
       case "scene":
-        showSceneLayout(scene);
+        renderSceneLayout(scene);
         break;
       case "dialogue":
-        showDialogueLayout(scene);
+        renderDialogueLayout(scene);
         break;
       case "puzzle":
-        showPuzzleLayout(scene);
+        renderPuzzleLayout(scene);
         break;
       case "reward":
-        showRewardLayout(scene);
+        renderRewardLayout(scene);
         break;
       case "gem-demo":
-        showGemDemoLayout(scene);
+        renderGemDemoLayout(scene);
         break;
       case "transition":
-        handleTransition(scene);
-        break;
+        renderTransition(scene);
+        return;
       default:
-        showDialogueLayout(scene);
+        renderDialogueLayout(scene);
     }
 
     // Handle vine snapping
@@ -79,243 +86,263 @@ onReady(() => {
     }
   }
 
-  // --- Layout Functions ---
-
-  function showSceneLayout(scene) {
-    // Show characters on stage
-    characterStage.innerHTML = "";
-    characterStage.hidden = false;
-
-    if (scene.characters) {
-      scene.characters.forEach(char => {
-        const charEl = document.createElement("div");
-        charEl.className = `character-container position-${char.position}`;
-        
-        const img = document.createElement("img");
-        img.src = char.image;
-        img.alt = char.id;
-        img.className = `character-img size-${char.size || 'medium'}`;
-        
-        if (char.animation) {
-          img.classList.add(`anim-${char.animation}`);
-        }
-        
-        charEl.appendChild(img);
-        characterStage.appendChild(charEl);
-      });
-    }
-
-    // Handle scene dialogue (action text)
-if (scene.dialogue && typeof scene.dialogue === 'object') {
-  dialoguePanel.hidden = false;
-  speakerPortrait.hidden = true;
-  speakerName.textContent = scene.dialogue.speaker || "";
-  dialogueText.innerHTML = formatDialogue(scene.dialogue.text);
-  dialogueText.className = scene.dialogue.style === 'action' ? 'action-text' : '';
-} else if (scene.choices) {
-  // No dialogue text, but we have choices - show the panel for buttons!
-  dialoguePanel.hidden = false;
-  speakerPortrait.hidden = true;
-  speakerName.textContent = "";
-  dialogueText.innerHTML = "";
-} else if (!scene.autoNext) {
-  dialoguePanel.hidden = true;
-}
-
-    // Show choices
-    if (scene.choices && !scene.autoNext) {
-      showChoices(scene.choices);
-    }
+  // --- Clear UI ---
+  
+  function clearUI() {
+    characterLayer.innerHTML = "";
+    choicesContainer.innerHTML = "";
+    puzzleBox.innerHTML = "";
+    puzzleBox.hidden = true;
+    inputBox.innerHTML = "";
+    inputBox.hidden = true;
+    vineContainer.hidden = true;
+    vineProgress.hidden = true;
+    speakerName.textContent = "";
+    dialogueText.textContent = "";
+    dialogueText.className = "dialogue-text";
+    
+    // Reset dialogue layer mode
+    dialogueLayer.classList.remove("dialogue-mode", "scene-mode", "hidden");
+    dialogueLayer.hidden = false;
+    
+    // Remove click hints
+    const hint = document.querySelector(".click-hint");
+    if (hint) hint.remove();
   }
 
-  function showDialogueLayout(scene) {
-    characterStage.hidden = true;
-    dialoguePanel.hidden = false;
+  // --- SCENE LAYOUT ---
+  // No dialogue card - just floating buttons over the scene
+  
+  function renderSceneLayout(scene) {
+    // Use scene-mode (no card, just buttons)
+    dialogueLayer.classList.add("scene-mode");
+    
+    // Show characters
+    if (scene.characters) {
+      renderCharacters(scene.characters);
+    }
 
-    // Show speaker
-    if (scene.speaker) {
-      speakerName.textContent = scene.speaker.name || "???";
-      if (scene.speaker.image) {
-        speakerPortrait.src = scene.speaker.image;
-        speakerPortrait.hidden = false;
+    // Handle action dialogue (like *woof woof*)
+    if (scene.dialogue && typeof scene.dialogue === "object") {
+      // Actually show dialogue card for action text
+      dialogueLayer.classList.remove("scene-mode");
+      dialogueLayer.classList.add("dialogue-mode");
+      
+      if (scene.dialogue.style === "action") {
+        dialogueText.innerHTML = formatDialogue(scene.dialogue.text);
+        dialogueText.classList.add("action-style");
       } else {
-        speakerPortrait.hidden = true;
+        if (scene.dialogue.speaker) {
+          speakerName.textContent = scene.dialogue.speaker;
+        }
+        dialogueText.innerHTML = formatDialogue(scene.dialogue.text);
       }
     }
 
-    // Show dialogue with text replacement
-    dialogueText.innerHTML = formatDialogue(scene.dialogue);
-    dialogueText.className = '';
+    // Show choices (if not auto-advancing)
+    if (scene.choices && !scene.autoNext) {
+      renderChoices(scene.choices);
+    }
+    
+    // Hide dialogue layer entirely if no choices and no dialogue
+    if (!scene.choices && !scene.dialogue && !scene.autoNext) {
+      dialogueLayer.classList.add("hidden");
+    }
+  }
+
+  // --- DIALOGUE LAYOUT ---
+  // Character big, floating dialogue card at bottom
+  
+  function renderDialogueLayout(scene) {
+    // Use dialogue-mode (floating card)
+    dialogueLayer.classList.add("dialogue-mode");
+    
+    // Show character BIG behind dialogue
+    if (scene.speaker && scene.speaker.image) {
+      renderCharacters([{
+        id: "speaker",
+        image: scene.speaker.image,
+        position: scene.speaker.position || "center",
+        size: "large"
+      }]);
+      
+      // Show speaker name in dialogue
+      speakerName.textContent = scene.speaker.name || "";
+    }
+
+    // Show dialogue text
+    if (scene.dialogue) {
+      const text = typeof scene.dialogue === "string" 
+        ? scene.dialogue 
+        : scene.dialogue.text;
+      dialogueText.innerHTML = formatDialogue(text);
+    }
 
     // Handle text input
     if (scene.input) {
-      showInputBox(scene.input);
+      renderInput(scene.input);
     }
 
     // Show choices
     if (scene.choices) {
-      showChoices(scene.choices, scene.input);
+      renderChoices(scene.choices, !!scene.input);
     }
   }
 
-  function showPuzzleLayout(scene) {
-    // Show speaker/fairy giving instruction
-    if (scene.speaker) {
-      speakerName.textContent = scene.speaker.name || "???";
-      speakerPortrait.src = scene.speaker.image;
-      speakerPortrait.hidden = false;
-    }
+  // --- PUZZLE LAYOUT ---
+  // Dialogue card with puzzle box inside
+  
+  function renderPuzzleLayout(scene) {
+    // Use dialogue-mode (card visible)
+    dialogueLayer.classList.add("dialogue-mode");
     
-    dialoguePanel.hidden = false;
-    dialogueText.innerHTML = formatDialogue(scene.dialogue);
+    // Show vines
+    vineContainer.hidden = false;
+    vineProgress.hidden = false;
+    updateVineProgress();
 
-    // Show puzzle
-    puzzleBox.hidden = false;
-    puzzleBox.innerHTML = "";
-
-    const puzzle = scene.puzzle;
-
-    // Question display
-    const questionEl = document.createElement("div");
-    questionEl.className = "puzzle-question";
-    questionEl.textContent = puzzle.question;
-    puzzleBox.appendChild(questionEl);
-
-    // Answer options
-    const optionsEl = document.createElement("div");
-    optionsEl.className = "puzzle-options";
-
-    puzzle.options.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.className = "answer-option";
-      btn.textContent = opt.text;
+    // Show fairy smaller to the side
+    if (scene.speaker && scene.speaker.image) {
+      renderCharacters([{
+        id: "speaker",
+        image: scene.speaker.image,
+        position: "left",
+        size: "medium"
+      }]);
       
-      btn.addEventListener("click", () => {
-        handlePuzzleAnswer(opt.id, puzzle, btn, optionsEl);
-      });
+      speakerName.textContent = scene.speaker.name || "";
+    }
 
-      optionsEl.appendChild(btn);
-    });
+    // Show instruction
+    if (scene.dialogue) {
+      dialogueText.innerHTML = formatDialogue(scene.dialogue);
+    }
 
-    puzzleBox.appendChild(optionsEl);
-
-    // Hint display area
-    const hintEl = document.createElement("div");
-    hintEl.className = "puzzle-hint";
-    hintEl.id = "puzzleHint";
-    hintEl.hidden = true;
-    puzzleBox.appendChild(hintEl);
+    // Build puzzle
+    if (scene.puzzle) {
+      renderPuzzle(scene.puzzle);
+    }
   }
 
-  function showRewardLayout(scene) {
-    characterStage.hidden = false;
-    characterStage.innerHTML = "";
-
-    // Show reward item
+  // --- REWARD LAYOUT ---
+  
+  function renderRewardLayout(scene) {
+    dialogueLayer.classList.add("dialogue-mode");
+    
+    // Show reward in character area
     const rewardEl = document.createElement("div");
     rewardEl.className = "reward-display";
     rewardEl.innerHTML = `
-      <img src="${scene.rewardImage}" alt="${scene.rewardName}" class="reward-image" 
-           onerror="this.src=''; this.alt='✨ ${scene.rewardName} ✨'; this.className='reward-placeholder';">
+      <img 
+        src="${scene.rewardImage}" 
+        alt="${scene.rewardName}" 
+        class="reward-image"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+      >
+      <div class="reward-placeholder" style="display: none;">🎁</div>
       <div class="reward-name">${scene.rewardName}</div>
     `;
-    characterStage.appendChild(rewardEl);
+    characterLayer.appendChild(rewardEl);
 
-    // Show dialogue
     if (scene.speaker) {
-      dialoguePanel.hidden = false;
       speakerName.textContent = scene.speaker.name;
-      speakerPortrait.src = scene.speaker.image;
-      speakerPortrait.hidden = false;
+    }
+
+    if (scene.dialogue) {
       dialogueText.innerHTML = formatDialogue(scene.dialogue);
     }
 
     if (scene.choices) {
-      showChoices(scene.choices);
+      renderChoices(scene.choices);
     }
   }
 
-  function showGemDemoLayout(scene) {
-    characterStage.hidden = false;
-    characterStage.innerHTML = "";
-
-    // Show Teddy with clickable gem
+  // --- GEM DEMO LAYOUT ---
+  
+  function renderGemDemoLayout(scene) {
+    dialogueLayer.classList.add("scene-mode");
+    
+    // Show clickable character
     if (scene.characters) {
-      scene.characters.forEach(char => {
-        const charEl = document.createElement("div");
-        charEl.className = `character-container position-${char.position} gem-demo`;
-        
+      scene.characters.forEach((char) => {
+        const container = document.createElement("div");
+        container.className = `character-container pos-${char.position} size-${char.size || "large"}`;
+
         const img = document.createElement("img");
         img.src = char.image;
         img.alt = char.id;
-        img.className = `character-img size-${char.size || 'large'} clickable-gem`;
-        
-        // Make the whole character clickable for the gem demo
+        img.className = "character-sprite character-clickable";
+
         img.addEventListener("click", () => {
-          showScene(scene.onGemClick);
+          if (scene.onGemClick) {
+            showScene(scene.onGemClick);
+          }
         });
-        
-        charEl.appendChild(img);
-        characterStage.appendChild(charEl);
+
+        container.appendChild(img);
+        characterLayer.appendChild(container);
       });
     }
 
-    // Show instruction
-    dialoguePanel.hidden = false;
-    speakerName.textContent = "";
-    speakerPortrait.hidden = true;
-    dialogueText.innerHTML = `<em>${scene.instruction}</em>`;
-    dialogueText.className = "instruction-text";
-
-    // Add pulsing hint
+    // Add click hint
     const hint = document.createElement("div");
     hint.className = "click-hint";
-    hint.textContent = "👆 Click on Teddy!";
-    characterStage.appendChild(hint);
+    hint.textContent = "👆 Click on Teddy's gem!";
+    gameScreen.appendChild(hint);
   }
 
-  function handleTransition(scene) {
-    // Show transition screen
-    sceneContainer.innerHTML = `
+  // --- TRANSITION ---
+  
+  function renderTransition(scene) {
+    gameState.tutorialComplete = true;
+    gameState.lastPlayed = new Date().toISOString();
+    saveGameState(gameState);
+
+    gameScreen.innerHTML = `
       <div class="transition-screen">
-        <div class="transition-text">${scene.transitionText}</div>
+        <div class="transition-text">${scene.transitionText || "Loading..."}</div>
         <div class="loading-paw">🐾</div>
       </div>
     `;
 
-    // Save game state before leaving
-    gameState.tutorialComplete = true;
-    saveGameState(gameState);
-
-    // Navigate after delay
     setTimeout(() => {
       window.location.href = scene.destination || "patterns.html";
     }, 1500);
   }
 
-  // --- Helper Functions ---
+  // --- HELPERS ---
 
-  function formatDialogue(text) {
-    if (!text) return "";
-    
-    // Replace {playerName} with actual name
-    let formatted = text.replace(/{playerName}/g, gameState.playerName || "friend");
-    
-    // Make *text* italic
-    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    
-    // Make ✨text✨ sparkly
-    formatted = formatted.replace(/✨([^✨]+)✨/g, '<span class="sparkle">$1</span>');
-    
-    return formatted;
+  function renderCharacters(characters) {
+    characters.forEach((char) => {
+      const container = document.createElement("div");
+      container.className = `character-container pos-${char.position} size-${char.size || "medium"}`;
+
+      const img = document.createElement("img");
+      img.src = char.image;
+      img.alt = char.id;
+      img.className = "character-sprite";
+
+      if (char.animation) {
+        img.classList.add(`anim-${char.animation}`);
+      }
+
+      img.onerror = () => log("Failed to load:", char.image);
+
+      container.appendChild(img);
+      characterLayer.appendChild(container);
+    });
   }
 
-  function showChoices(choices, hasInput = false) {
-    choicesContainer.innerHTML = "";
-
-    choices.forEach(choice => {
+  function renderChoices(choices, hasInput = false) {
+    choices.forEach((choice) => {
       const btn = document.createElement("button");
-      btn.className = choice.style === 'primary-large' ? 'btn primary large' : 'btn choice-btn';
+      
+      if (choice.style === "primary-large") {
+        btn.className = "btn btn-primary-large";
+      } else {
+        btn.className = "btn btn-choice";
+      }
+      
       btn.textContent = choice.text;
 
       if (choice.requiresInput && hasInput) {
@@ -324,94 +351,126 @@ if (scene.dialogue && typeof scene.dialogue === 'object') {
       }
 
       btn.addEventListener("click", () => {
-        if (choice.next) {
-          showScene(choice.next);
-        }
+        if (choice.next) showScene(choice.next);
       });
 
       choicesContainer.appendChild(btn);
     });
   }
 
-  function showInputBox(inputConfig) {
+  function renderInput(config) {
     inputBox.hidden = false;
-    inputBox.innerHTML = "";
 
     const input = document.createElement("input");
-    input.type = inputConfig.type || "text";
-    input.placeholder = inputConfig.placeholder || "";
-    input.className = "name-input";
-    input.maxLength = 20;
+    input.type = config.type || "text";
+    input.placeholder = config.placeholder || "Type here...";
+    input.className = "text-input";
+    input.maxLength = config.maxLength || 20;
 
     input.addEventListener("input", () => {
-      // Save the value
-      if (inputConfig.saveAs) {
-        gameState[inputConfig.saveAs] = input.value.trim();
-      }
+      const value = input.value.trim();
+      if (config.saveAs) gameState[config.saveAs] = value;
 
-      // Enable/disable buttons that require input
-      const requiresInputBtns = choicesContainer.querySelectorAll('[data-requires-input="true"]');
-      requiresInputBtns.forEach(btn => {
-        btn.disabled = input.value.trim().length === 0;
+      document.querySelectorAll('[data-requires-input="true"]').forEach((btn) => {
+        btn.disabled = value.length === 0;
       });
     });
 
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && input.value.trim().length > 0) {
+        const btn = choicesContainer.querySelector(".btn:not(:disabled)");
+        if (btn) btn.click();
+      }
+    });
+
     inputBox.appendChild(input);
-    
-    // Focus the input
     setTimeout(() => input.focus(), 100);
+  }
+
+  function renderPuzzle(puzzle) {
+    puzzleBox.hidden = false;
+
+    const questionEl = document.createElement("div");
+    questionEl.className = "puzzle-question";
+    questionEl.textContent = puzzle.question;
+    puzzleBox.appendChild(questionEl);
+
+    const optionsEl = document.createElement("div");
+    optionsEl.className = "puzzle-options";
+
+    puzzle.options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.textContent = opt.text;
+
+      btn.addEventListener("click", () => {
+        handlePuzzleAnswer(opt.id, puzzle, btn, optionsEl);
+      });
+
+      optionsEl.appendChild(btn);
+    });
+
+    puzzleBox.appendChild(optionsEl);
   }
 
   function handlePuzzleAnswer(selectedId, puzzle, selectedBtn, optionsEl) {
     const isCorrect = selectedId === puzzle.correctId;
-    const hintEl = document.getElementById("puzzleHint");
 
-    // Disable all buttons
-    optionsEl.querySelectorAll("button").forEach(btn => btn.disabled = true);
+    optionsEl.querySelectorAll("button").forEach((btn) => btn.disabled = true);
 
     if (isCorrect) {
       selectedBtn.classList.add("correct");
-      hintEl.hidden = true;
-      
-      // Show success and move to next scene
       setTimeout(() => {
-        if (puzzle.onCorrect) {
-          showScene(puzzle.onCorrect);
-        }
+        if (puzzle.onCorrect) showScene(puzzle.onCorrect);
       }, 1000);
     } else {
       selectedBtn.classList.add("incorrect");
-      
-      // Show hint
-      hintEl.textContent = puzzle.hintOnWrong;
-      hintEl.hidden = false;
 
-      // Re-enable buttons after a moment (except the wrong one)
+      // Only add hint if one doesn't already exist
+      let hintEl = puzzleBox.querySelector(".puzzle-hint");
+      if (!hintEl) {
+        hintEl = document.createElement("div");
+        hintEl.className = "puzzle-hint";
+        puzzleBox.appendChild(hintEl);
+      }
+      hintEl.textContent = puzzle.hintOnWrong || "Try again!";
+
       setTimeout(() => {
-        optionsEl.querySelectorAll("button").forEach(btn => {
-          if (!btn.classList.contains("incorrect")) {
-            btn.disabled = false;
-          }
+        optionsEl.querySelectorAll("button").forEach((btn) => {
+          if (!btn.classList.contains("incorrect")) btn.disabled = false;
         });
       }, 1000);
     }
   }
 
+  function formatDialogue(text) {
+    if (!text) return "";
+    let formatted = text.replace(/{playerName}/g, gameState.playerName || "friend");
+    formatted = formatted.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    formatted = formatted.replace(/✨([^✨]+)✨/g, '<span class="sparkle">$1</span>');
+    return formatted;
+  }
+
   function snapVine(vineNumber) {
     vinesSnapped = Math.max(vinesSnapped, vineNumber);
-    
-    // Update vine display
     for (let i = 1; i <= vinesSnapped; i++) {
       const vine = document.getElementById(`vine${i}`);
-      if (vine) {
-        vine.classList.add("snapped");
-      }
+      if (vine) vine.classList.add("snapped");
     }
+    updateVineProgress();
+    log("Vines snapped:", vinesSnapped, "/", TOTAL_VINES);
+  }
 
-    // Update progress dots
-    const dots = document.querySelectorAll(".vine-dot");
+  function updateVineProgress() {
+    const dots = vineProgress.querySelectorAll(".vine-dot");
     dots.forEach((dot, index) => {
-      dot.classList.toggle("active", index >= vinesSnapped);
+      const vineNum = index + 1;
+      dot.classList.remove("active", "cleared");
+      if (vineNum <= vinesSnapped) {
+        dot.classList.add("cleared");
+      } else if (vineNum === vinesSnapped + 1) {
+        dot.classList.add("active");
+      }
     });
   }
 
@@ -419,10 +478,12 @@ if (scene.dialogue && typeof scene.dialogue === 'object') {
 
   skipBtn?.addEventListener("click", () => {
     if (confirm("Skip the tutorial? You can always replay it later!")) {
+      gameState.tutorialComplete = true;
+      saveGameState(gameState);
       window.location.href = "patterns.html";
     }
   });
 
-  // --- Initialize ---
+  // --- Start ---
   showScene(STARTING_SCENE);
 });

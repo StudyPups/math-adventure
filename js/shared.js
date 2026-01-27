@@ -1,76 +1,121 @@
 // js/shared.js
-// Shared utilities used across all pages
+// Shared utilities for StudyPups game
 
-// Short helper to grab elements safely
-export function $(selector, root = document) {
-  return root.querySelector(selector);
-}
-
-// Grab all matches
-export function $all(selector, root = document) {
-  return Array.from(root.querySelectorAll(selector));
-}
-
-// Run code once the page is ready
-export function onReady(fn) {
+/**
+ * Wrapper for DOMContentLoaded - ensures DOM is ready
+ */
+export function onReady(callback) {
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", fn);
+    document.addEventListener("DOMContentLoaded", callback);
   } else {
-    fn();
+    callback();
   }
 }
 
-// Simple show/hide helpers for UI
-export function show(el) {
-  if (!el) return;
-  el.hidden = false;
-}
-
-export function hide(el) {
-  if (!el) return;
-  el.hidden = true;
-}
-
-// Tiny debug logger you can turn off later
-const DEBUG = true; // Set to false for production
-
+/**
+ * Simple logger (can be disabled in production)
+ */
+const DEBUG = true;
 export function log(...args) {
   if (DEBUG) {
     console.log("[StudyPups]", ...args);
   }
 }
 
-// --- Save/Load System (using localStorage) ---
-
+/**
+ * LocalStorage key for game saves
+ */
 const SAVE_KEY = "studypups_save";
 
+/**
+ * Create a fresh game state
+ */
+export function createNewGameState() {
+  return {
+    playerName: "",
+    tutorialComplete: false,
+    currentSection: "tutorial",
+    
+    progress: {
+      sectionsCompleted: [],
+      questionsCompleted: [],
+      studyPupsUnlocked: []
+    },
+    
+    stats: {
+      totalGlimmers: 0,
+      glimmersSpent: 0,
+      totalCorrect: 0,
+      totalAttempts: 0,
+      hintsUsed: 0,
+      timeSpentMinutes: 0
+    },
+    
+    inventory: {
+      items: [],
+      equippedItems: {}
+    },
+    
+    settings: {
+      soundEnabled: true,
+      musicEnabled: true
+    },
+    
+    lastPlayed: new Date().toISOString(),
+    createdAt: new Date().toISOString()
+  };
+}
+
+/**
+ * Save game state to localStorage
+ */
+export function saveGameState(state) {
+  try {
+    state.lastPlayed = new Date().toISOString();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    log("Game saved ✅");
+    return true;
+  } catch (error) {
+    console.error("Failed to save game:", error);
+    return false;
+  }
+}
+
+/**
+ * Load game state from localStorage
+ */
 export function loadGameState() {
   try {
     const saved = localStorage.getItem(SAVE_KEY);
-    return saved ? JSON.parse(saved) : null;
-  } catch (e) {
-    log("Error loading save:", e);
+    if (saved) {
+      const state = JSON.parse(saved);
+      log("Game loaded ✅", state.playerName || "(no name yet)");
+      return state;
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to load game:", error);
     return null;
   }
 }
 
-export function saveGameState(state) {
+/**
+ * Clear saved game (for testing/reset)
+ */
+export function clearGameState() {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-    log("Game saved");
-  } catch (e) {
-    log("Error saving:", e);
+    localStorage.removeItem(SAVE_KEY);
+    log("Game data cleared");
+    return true;
+  } catch (error) {
+    console.error("Failed to clear game:", error);
+    return false;
   }
 }
 
-export function createNewGameState(playerName = "Player") {
-  return {
-    playerName,
-    gems: 0,
-    tutorialComplete: false,
-    patternsComplete: false,
-    inventory: [],
-    studyPupsUnlocked: ["teddy"], // Start with Teddy
-    lastPlayed: new Date().toISOString()
-  };
+/**
+ * Check if this is a new player (no save exists)
+ */
+export function isNewPlayer() {
+  return !localStorage.getItem(SAVE_KEY);
 }

@@ -5,414 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to Complexa Meadows - StudyPups</title>
   <link rel="stylesheet" href="css/styles.css">
-  <style>
-    /* ===== TUTORIAL SCENE ENGINE STYLES ===== */
-    
-    /* Main container */
-    #sceneContainer {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Character Stage */
-    #characterStage {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      padding: 20px;
-      gap: 20px;
-      min-height: 300px;
-    }
-
-    .character-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .character-img {
-      object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-      transition: all 0.3s ease;
-    }
-
-    /* Character sizes */
-    .size-small { height: 120px; }
-    .size-medium { height: 180px; }
-    .size-large { height: 250px; }
-
-    /* Character positions */
-    .position-left { margin-right: auto; margin-left: 10%; }
-    .position-right { margin-left: auto; margin-right: 10%; }
-    .position-center { margin: 0 auto; }
-    .position-center-left { margin-right: 5%; }
-    .position-center-right { margin-left: 5%; }
-    .position-right-high { 
-      margin-left: auto; 
-      margin-right: 5%;
-      align-self: flex-start;
-      margin-top: 20px;
-    }
-
-    /* Animations */
-    .anim-bounce {
-      animation: charBounce 1s ease-in-out infinite;
-    }
-
-    @keyframes charBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
-
-    /* Vine Display */
-    #vineDisplay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      gap: 10px;
-      z-index: 5;
-    }
-
-    .vine-img {
-      height: 200px;
-      transition: all 0.5s ease;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-
-    .vine-img.snapped {
-      opacity: 0.15;
-      transform: scale(0.6) rotate(20deg) translateY(30px);
-      filter: grayscale(60%);
-    }
-
-    /* Dialogue Panel */
-    #dialoguePanel {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 24px;
-      margin: 0 auto 20px;
-      width: min(900px, calc(100% - 40px));
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    }
-
-    .dialogue-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    #speakerPortrait {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      border-radius: 50%;
-      background: var(--light-purple);
-      padding: 8px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-
-    #speakerName {
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: var(--dark-purple);
-    }
-
-    #dialogueText {
-      font-size: 1.15rem;
-      line-height: 1.6;
-      color: var(--text-dark);
-    }
-
-    #dialogueText em {
-      color: var(--primary-purple);
-      font-style: italic;
-    }
-
-    #dialogueText .sparkle {
-      color: #f59e0b;
-      font-weight: bold;
-      text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-    }
-
-    .action-text {
-      font-style: italic;
-      text-align: center;
-      font-size: 1.3rem;
-      color: var(--dark-purple);
-    }
-
-    .instruction-text {
-      text-align: center;
-      color: var(--text-light);
-    }
-
-    /* Choices */
-    #choicesContainer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
-    .choice-btn {
-      background: white;
-      border: 2px solid var(--light-purple);
-      padding: 12px 24px;
-      font-size: 1rem;
-      min-width: 200px;
-    }
-
-    .choice-btn:hover:not(:disabled) {
-      background: var(--light-purple);
-      border-color: var(--primary-purple);
-    }
-
-    .btn.large {
-      padding: 16px 32px;
-      font-size: 1.2rem;
-    }
-
-    /* Input Box */
-    #inputBox {
-      display: flex;
-      justify-content: center;
-      margin: 16px 0;
-    }
-
-    .name-input {
-      font-size: 1.2rem;
-      padding: 12px 20px;
-      border: 3px solid var(--light-purple);
-      border-radius: 12px;
-      width: 280px;
-      text-align: center;
-      font-family: inherit;
-    }
-
-    .name-input:focus {
-      outline: none;
-      border-color: var(--primary-purple);
-      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-    }
-
-    /* Puzzle Box */
-    #puzzleBox {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 16px;
-    }
-
-    .puzzle-question {
-      font-size: 1.5rem;
-      font-weight: bold;
-      text-align: center;
-      padding: 16px;
-      background: var(--light-blue);
-      border-radius: 12px;
-      margin-bottom: 16px;
-      font-family: 'Courier New', monospace;
-      letter-spacing: 4px;
-    }
-
-    .puzzle-options {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .puzzle-hint {
-      margin-top: 16px;
-      padding: 12px;
-      background: #fef3c7;
-      border-radius: 10px;
-      color: #92400e;
-      text-align: center;
-    }
-
-    /* Reward Display */
-    .reward-display {
-      text-align: center;
-      animation: rewardAppear 0.6s ease-out;
-    }
-
-    @keyframes rewardAppear {
-      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-      60% { transform: scale(1.1) rotate(5deg); }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; }
-    }
-
-    .reward-image {
-      height: 150px;
-      filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
-      animation: rewardGlow 2s ease-in-out infinite;
-    }
-
-    .reward-placeholder {
-      font-size: 2rem;
-      padding: 40px;
-      background: linear-gradient(135deg, var(--light-purple), var(--primary-purple));
-      border-radius: 20px;
-      color: white;
-    }
-
-    @keyframes rewardGlow {
-      0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
-      50% { filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.8)); }
-    }
-
-    .reward-name {
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: var(--dark-purple);
-      margin-top: 12px;
-    }
-
-    /* Gem Demo */
-    .gem-demo .character-img {
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .gem-demo .character-img:hover {
-      transform: scale(1.05);
-    }
-
-    .clickable-gem {
-      animation: gemPulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes gemPulse {
-      0%, 100% { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5)); }
-      50% { filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.9)); }
-    }
-
-    .click-hint {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary-purple);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-weight: bold;
-      animation: hintBounce 1s ease-in-out infinite;
-    }
-
-    @keyframes hintBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-10px); }
-    }
-
-    /* Transition Screen */
-    .transition-screen {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-    }
-
-    .transition-text {
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-
-    .loading-paw {
-      font-size: 3rem;
-      animation: pawWalk 0.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes pawWalk {
-      0% { transform: translateX(-20px) rotate(-10deg); }
-      100% { transform: translateX(20px) rotate(10deg); }
-    }
-
-    /* Vine Progress Dots */
-    .vine-progress {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .vine-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #d1d5db;
-      transition: all 0.3s ease;
-    }
-
-    .vine-dot.active {
-      background: var(--success-green);
-      box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
-    }
-  </style>
 </head>
 <body>
-  <div
-    class="fullscreen-bg"
-    style="background-image: url('assets/images/backgrounds/scene2.png');"
-  >
-    <!-- HUD -->
-    <div class="hud">
-      <div class="hud-title">🌿 Complexa Meadows</div>
-      <button class="hud-skip btn" id="skipBtn">Skip →</button>
+  <!-- 
+    LAYOUT STRUCTURE (back to front):
+    1. Background layer (z-index: 0)
+    2. Character layer (z-index: 10) 
+    3. Dialogue layer (z-index: 20)
+    4. HUD layer (z-index: 30)
+  -->
+  <div class="game-screen" id="gameScreen">
+    
+    <!-- LAYER 1: Background -->
+    <div class="background-layer" id="backgroundLayer"></div>
+
+    <!-- LAYER 2: Characters -->
+    <div class="character-layer" id="characterLayer">
+      <!-- Characters inserted dynamically -->
     </div>
 
-    <!-- Main Scene Container -->
-    <div id="sceneContainer">
-      
-      <!-- Character Stage (where characters appear) -->
-      <div id="characterStage">
-        <!-- Characters will be dynamically inserted here -->
+    <!-- LAYER 2b: Environmental Elements (vines, rocks, etc) -->
+    <div class="environment-layer" id="environmentLayer">
+      <!-- Vines for puzzle scenes -->
+      <div class="vine-container" id="vineContainer" hidden>
+        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine" id="vine1">
+        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine" id="vine2">
+        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine" id="vine3">
       </div>
-
-      <!-- Vine Display (for puzzle scenes) -->
-      <div id="vineDisplay" hidden>
-        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine1">
-        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine2">
-        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine3">
-      </div>
-
-      <!-- Dialogue Panel (bottom) -->
-      <div id="dialoguePanel">
-        <div class="dialogue-header">
-          <img id="speakerPortrait" src="" alt="" hidden>
-          <span id="speakerName"></span>
-        </div>
-        
-        <div id="dialogueText"></div>
-
-        <!-- Vine Progress -->
-        <div class="vine-progress" id="vineProgress">
-          <span class="vine-dot active"></span>
-          <span class="vine-dot active"></span>
-          <span class="vine-dot active"></span>
-        </div>
-
-        <!-- Puzzle Box (for pattern questions) -->
-        <div id="puzzleBox" hidden></div>
-
-        <!-- Input Box (for name entry) -->
-        <div id="inputBox" hidden></div>
-
-        <!-- Choices -->
-        <div id="choicesContainer"></div>
-      </div>
-
     </div>
+
+    <!-- LAYER 3: Dialogue Box -->
+    <div class="dialogue-layer" id="dialogueLayer">
+      <!-- Speaker info (portrait + name) -->
+      <div class="speaker-info" id="speakerInfo">
+        <img class="speaker-portrait" id="speakerPortrait" src="" alt="" hidden>
+        <span class="speaker-name" id="speakerName"></span>
+      </div>
+
+      <!-- Main dialogue text -->
+      <div class="dialogue-text" id="dialogueText"></div>
+
+      <!-- Vine progress dots (for puzzle scenes) -->
+      <div class="vine-progress" id="vineProgress" hidden>
+        <span class="vine-dot" data-vine="1"></span>
+        <span class="vine-dot" data-vine="2"></span>
+        <span class="vine-dot" data-vine="3"></span>
+      </div>
+
+      <!-- Puzzle box (for pattern questions) -->
+      <div class="puzzle-box" id="puzzleBox" hidden></div>
+
+      <!-- Text input (for name entry) -->
+      <div class="input-box" id="inputBox" hidden></div>
+
+      <!-- Choice buttons -->
+      <div class="choices-container" id="choicesContainer"></div>
+    </div>
+
+    <!-- LAYER 4: HUD -->
+    <div class="hud-layer">
+      <div class="hud-title" id="hudTitle">🌿 Complexa Meadows</div>
+      <button class="hud-btn" id="skipBtn">Skip →</button>
+    </div>
+
   </div>
 
   <script type="module" src="js/tutorial.js"></script>
