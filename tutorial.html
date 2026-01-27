@@ -3,108 +3,360 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vine Rescue Tutorial - StudyPups</title>
+  <title>Welcome to Complexa Meadows - StudyPups</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    /* Tutorial-specific styles for character layout */
-    .tutorial-scene {
+    /* ===== TUTORIAL SCENE ENGINE STYLES ===== */
+    
+    /* Main container */
+    #sceneContainer {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Character Stage */
+    #characterStage {
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: flex-end;
-      gap: 0;
       padding: 20px;
+      gap: 20px;
       min-height: 300px;
-      position: relative;
+    }
+
+    .character-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .character-img {
-      height: 200px;
-      width: auto;
       object-fit: contain;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-      transition: transform 0.3s ease;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+      transition: all 0.3s ease;
     }
 
-    .teddy-container {
-      z-index: 10;
+    /* Character sizes */
+    .size-small { height: 120px; }
+    .size-medium { height: 180px; }
+    .size-large { height: 250px; }
+
+    /* Character positions */
+    .position-left { margin-right: auto; margin-left: 10%; }
+    .position-right { margin-left: auto; margin-right: 10%; }
+    .position-center { margin: 0 auto; }
+    .position-center-left { margin-right: 5%; }
+    .position-center-right { margin-left: 5%; }
+    .position-right-high { 
+      margin-left: auto; 
+      margin-right: 5%;
+      align-self: flex-start;
+      margin-top: 20px;
     }
 
-    .fairy-container {
-      z-index: 10;
+    /* Animations */
+    .anim-bounce {
+      animation: charBounce 1s ease-in-out infinite;
     }
 
-    /* Vines blocking the path */
-    .vines-barrier {
+    @keyframes charBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* Vine Display */
+    #vineDisplay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       display: flex;
-      gap: 5px;
-      align-items: flex-end;
-      margin: 0 -20px; /* Overlap slightly with characters */
+      gap: 10px;
       z-index: 5;
     }
 
     .vine-img {
-      height: 220px;
-      width: auto;
-      object-fit: contain;
+      height: 200px;
       transition: all 0.5s ease;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
     .vine-img.snapped {
-      opacity: 0.2;
-      transform: scale(0.7) rotate(15deg) translateY(20px);
-      filter: grayscale(50%) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+      opacity: 0.15;
+      transform: scale(0.6) rotate(20deg) translateY(30px);
+      filter: grayscale(60%);
     }
 
-    /* Teddy expressions */
-    .teddy-img {
-      transition: transform 0.3s ease;
+    /* Dialogue Panel */
+    #dialoguePanel {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 24px;
+      margin: 0 auto 20px;
+      width: min(900px, calc(100% - 40px));
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     }
 
-    .teddy-img.happy {
-      animation: teddyBounce 0.5s ease;
+    .dialogue-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
-    .teddy-img.sad {
-      animation: teddySad 0.5s ease;
+    #speakerPortrait {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: var(--light-purple);
+      padding: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
-    @keyframes teddyBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
+    #speakerName {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--dark-purple);
     }
 
-    @keyframes teddySad {
-      0%, 100% { transform: rotate(0deg); }
-      25% { transform: rotate(-5deg); }
-      75% { transform: rotate(5deg); }
+    #dialogueText {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: var(--text-dark);
     }
 
-    /* Ground element for characters to stand on */
-    .ground-element {
+    #dialogueText em {
+      color: var(--primary-purple);
+      font-style: italic;
+    }
+
+    #dialogueText .sparkle {
+      color: #f59e0b;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .action-text {
+      font-style: italic;
+      text-align: center;
+      font-size: 1.3rem;
+      color: var(--dark-purple);
+    }
+
+    .instruction-text {
+      text-align: center;
+      color: var(--text-light);
+    }
+
+    /* Choices */
+    #choicesContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .choice-btn {
+      background: white;
+      border: 2px solid var(--light-purple);
+      padding: 12px 24px;
+      font-size: 1rem;
+      min-width: 200px;
+    }
+
+    .choice-btn:hover:not(:disabled) {
+      background: var(--light-purple);
+      border-color: var(--primary-purple);
+    }
+
+    .btn.large {
+      padding: 16px 32px;
+      font-size: 1.2rem;
+    }
+
+    /* Input Box */
+    #inputBox {
+      display: flex;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .name-input {
+      font-size: 1.2rem;
+      padding: 12px 20px;
+      border: 3px solid var(--light-purple);
+      border-radius: 12px;
+      width: 280px;
+      text-align: center;
+      font-family: inherit;
+    }
+
+    .name-input:focus {
+      outline: none;
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+
+    /* Puzzle Box */
+    #puzzleBox {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .puzzle-question {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 16px;
+      background: var(--light-blue);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 4px;
+    }
+
+    .puzzle-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .puzzle-hint {
+      margin-top: 16px;
+      padding: 12px;
+      background: #fef3c7;
+      border-radius: 10px;
+      color: #92400e;
+      text-align: center;
+    }
+
+    /* Reward Display */
+    .reward-display {
+      text-align: center;
+      animation: rewardAppear 0.6s ease-out;
+    }
+
+    @keyframes rewardAppear {
+      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+      60% { transform: scale(1.1) rotate(5deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .reward-image {
+      height: 150px;
+      filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+      animation: rewardGlow 2s ease-in-out infinite;
+    }
+
+    .reward-placeholder {
+      font-size: 2rem;
+      padding: 40px;
+      background: linear-gradient(135deg, var(--light-purple), var(--primary-purple));
+      border-radius: 20px;
+      color: white;
+    }
+
+    @keyframes rewardGlow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
+      50% { filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.8)); }
+    }
+
+    .reward-name {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--dark-purple);
+      margin-top: 12px;
+    }
+
+    /* Gem Demo */
+    .gem-demo .character-img {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .gem-demo .character-img:hover {
+      transform: scale(1.05);
+    }
+
+    .clickable-gem {
+      animation: gemPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes gemPulse {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5)); }
+      50% { filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.9)); }
+    }
+
+    .click-hint {
       position: absolute;
-      bottom: 10px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      height: 60px;
-      width: auto;
-      z-index: 1;
-      opacity: 0.9;
+      background: var(--primary-purple);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      animation: hintBounce 1s ease-in-out infinite;
     }
 
-    /* Celebration state */
-    .tutorial-scene.rescued .vines-barrier {
-      opacity: 0;
-      transform: translateY(50px);
+    @keyframes hintBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
     }
 
-    .tutorial-scene.rescued .teddy-img {
-      animation: teddyCelebrate 1s ease infinite;
+    /* Transition Screen */
+    .transition-screen {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
     }
 
-    @keyframes teddyCelebrate {
-      0%, 100% { transform: translateY(0) rotate(-5deg); }
-      50% { transform: translateY(-15px) rotate(5deg); }
+    .transition-text {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .loading-paw {
+      font-size: 3rem;
+      animation: pawWalk 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pawWalk {
+      0% { transform: translateX(-20px) rotate(-10deg); }
+      100% { transform: translateX(20px) rotate(10deg); }
+    }
+
+    /* Vine Progress Dots */
+    .vine-progress {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .vine-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #d1d5db;
+      transition: all 0.3s ease;
+    }
+
+    .vine-dot.active {
+      background: var(--success-green);
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
     }
   </style>
 </head>
@@ -115,70 +367,51 @@
   >
     <!-- HUD -->
     <div class="hud">
-      <div class="hud-title">🌿 Vine Rescue</div>
+      <div class="hud-title">🌿 Complexa Meadows</div>
       <button class="hud-skip btn" id="skipBtn">Skip →</button>
     </div>
 
-    <!-- Stage area with characters and vines -->
-    <div class="stage">
-      <div class="tutorial-scene" id="tutorialScene">
-        <!-- Teddy (left side, no collar initially) -->
-        <div class="teddy-container">
-          <img 
-            src="assets/images/characters/Teddy/tutorial-teddy-hopeful.png" 
-            alt="Teddy" 
-            class="character-img teddy-img"
-            id="teddyImg"
-          >
+    <!-- Main Scene Container -->
+    <div id="sceneContainer">
+      
+      <!-- Character Stage (where characters appear) -->
+      <div id="characterStage">
+        <!-- Characters will be dynamically inserted here -->
+      </div>
+
+      <!-- Vine Display (for puzzle scenes) -->
+      <div id="vineDisplay" hidden>
+        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine1">
+        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine2">
+        <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine3">
+      </div>
+
+      <!-- Dialogue Panel (bottom) -->
+      <div id="dialoguePanel">
+        <div class="dialogue-header">
+          <img id="speakerPortrait" src="" alt="" hidden>
+          <span id="speakerName"></span>
+        </div>
+        
+        <div id="dialogueText"></div>
+
+        <!-- Vine Progress -->
+        <div class="vine-progress" id="vineProgress">
+          <span class="vine-dot active"></span>
+          <span class="vine-dot active"></span>
+          <span class="vine-dot active"></span>
         </div>
 
-        <!-- Vines blocking the path (3 vines = 3 questions) -->
-        <div class="vines-barrier" id="vinesBarrier">
-          <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine1">
-          <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine2">
-          <img src="assets/images/environmental-elements/vine-dangle.png" alt="vine" class="vine-img" id="vine3">
-        </div>
+        <!-- Puzzle Box (for pattern questions) -->
+        <div id="puzzleBox" hidden></div>
 
-        <!-- Fairy (right side, needs help) -->
-        <div class="fairy-container">
-          <img 
-            src="assets/images/characters/Fairy/fairy-help-request.png" 
-            alt="Fairy" 
-            class="character-img fairy-img"
-            id="fairyImg"
-          >
-        </div>
-      </div>
-    </div>
+        <!-- Input Box (for name entry) -->
+        <div id="inputBox" hidden></div>
 
-    <!-- Bottom overlay panel -->
-    <div class="overlay-panel">
-      <div class="overlay-text">
-        <p id="tutorialText">
-          Oh no! Vines are blocking the path! Answer questions to snap them and help Teddy reach the fairy.
-        </p>
-        <p class="feedback-line" id="feedbackLine" style="display: none;"></p>
+        <!-- Choices -->
+        <div id="choicesContainer"></div>
       </div>
 
-      <!-- Vine progress dots -->
-      <div class="vine-progress" id="vineProgress" aria-label="Vines remaining">
-        <span class="vine-dot active"></span>
-        <span class="vine-dot active"></span>
-        <span class="vine-dot active"></span>
-      </div>
-
-      <!-- Question box (hidden until game starts) -->
-      <div class="question-box" id="questionBox" hidden>
-        <div class="question-number" id="qNumber"></div>
-        <div class="question-text" id="qText"></div>
-        <img id="qImage" class="question-image" alt="" hidden />
-        <div class="answer-options" id="answers"></div>
-      </div>
-
-      <!-- Continue/Start button -->
-      <div class="intro-actions">
-        <button class="btn primary" id="continueBtn">Start</button>
-      </div>
     </div>
   </div>
 
