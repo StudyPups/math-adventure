@@ -34,7 +34,17 @@
       </div>
     </div>
 
-    <!-- LAYER 3: Dialogue Box -->
+    <!-- LAYER 2c: Helper Character (for puzzle hints) -->
+    <div class="helper-layer" id="helperLayer" hidden>
+      <!-- Helper character inserted dynamically -->
+    </div>
+
+    <!-- LAYER 3a: PUZZLE BOX (separate from dialogue) -->
+    <div class="puzzle-layer" id="puzzleLayer" hidden>
+      <div class="puzzle-box" id="puzzleBox"></div>
+    </div>
+
+    <!-- LAYER 3b: Dialogue Box -->
     <div class="dialogue-layer" id="dialogueLayer">
       <!-- Speaker info (portrait + name) -->
       <div class="speaker-info" id="speakerInfo">
@@ -52,9 +62,6 @@
         <span class="vine-dot" data-vine="3"></span>
       </div>
 
-      <!-- Puzzle box (for pattern questions) -->
-      <div class="puzzle-box" id="puzzleBox" hidden></div>
-
       <!-- Text input (for name entry) -->
       <div class="input-box" id="inputBox" hidden></div>
 
@@ -64,7 +71,7 @@
 
     <!-- LAYER 4: HUD -->
     <div class="hud-layer">
-      <div class="hud-title" id="hudTitle">🌿 Complexa Meadows</div>
+      <button class="hud-title hud-home-btn" id="homeBtn" title="Return to home">🏠 Complexa Meadows</button>
       <button class="hud-btn" id="skipBtn">Skip →</button>
     </div>
 

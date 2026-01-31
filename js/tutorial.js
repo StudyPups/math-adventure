@@ -14,12 +14,14 @@ onReady(() => {
   const characterLayer = document.getElementById("characterLayer");
   const environmentLayer = document.getElementById("environmentLayer");
   const vineContainer = document.getElementById("vineContainer");
+  const helperLayer = document.getElementById("helperLayer");
+  const puzzleLayer = document.getElementById("puzzleLayer");
+  const puzzleBox = document.getElementById("puzzleBox");
   const dialogueLayer = document.getElementById("dialogueLayer");
   const speakerInfo = document.getElementById("speakerInfo");
   const speakerName = document.getElementById("speakerName");
   const dialogueText = document.getElementById("dialogueText");
   const vineProgress = document.getElementById("vineProgress");
-  const puzzleBox = document.getElementById("puzzleBox");
   const inputBox = document.getElementById("inputBox");
   const choicesContainer = document.getElementById("choicesContainer");
   const skipBtn = document.getElementById("skipBtn");
@@ -29,6 +31,14 @@ onReady(() => {
   let currentSceneId = STARTING_SCENE;
   let vinesSnapped = 0;
   const TOTAL_VINES = 3;
+  
+  // Dialogue pagination state
+  let dialoguePages = [];
+  let currentDialoguePage = 0;
+  let pendingChoices = null;
+  
+  // Max characters per dialogue page (keeps text from overwhelming screen)
+  const MAX_DIALOGUE_LENGTH = 150;
 
   // --- Main Scene Renderer ---
   
@@ -91,10 +101,12 @@ onReady(() => {
   
   function clearUI() {
     characterLayer.innerHTML = "";
-    environmentLayer.innerHTML = "";  // Clear environment elements too
+    environmentLayer.innerHTML = "";
+    helperLayer.innerHTML = "";
+    helperLayer.hidden = true;
     choicesContainer.innerHTML = "";
     puzzleBox.innerHTML = "";
-    puzzleBox.hidden = true;
+    puzzleLayer.hidden = true;
     inputBox.innerHTML = "";
     inputBox.hidden = true;
     vineContainer.hidden = true;
@@ -180,59 +192,284 @@ onReady(() => {
       speakerName.textContent = scene.speaker.name || "";
     }
 
-    // Show dialogue text
-    if (scene.dialogue) {
-      const text = typeof scene.dialogue === "string" 
-        ? scene.dialogue 
-        : scene.dialogue.text;
-      dialogueText.innerHTML = formatDialogue(text);
-    }
-
     // Handle text input
     if (scene.input) {
       renderInput(scene.input);
     }
 
-    // Show choices
-    if (scene.choices) {
+    // Show dialogue text with pagination support
+    if (scene.dialogue) {
+      const text = typeof scene.dialogue === "string" 
+        ? scene.dialogue 
+        : scene.dialogue.text;
+      
+      // Use pagination system
+      setDialogue(text, scene.choices, !!scene.input);
+    } else if (scene.choices) {
+      // No dialogue, just show choices
       renderChoices(scene.choices, !!scene.input);
     }
   }
 
   // --- PUZZLE LAYOUT ---
-  // Dialogue card with puzzle box inside
+  // Clean, focused layout: just the puzzle + clickable helper for hints
+  // NO dialogue box during puzzles - much less overwhelming!
   
   function renderPuzzleLayout(scene) {
-    // Use dialogue-mode (card visible)
-    dialogueLayer.classList.add("dialogue-mode");
+    // Hide dialogue layer entirely during puzzles
+    dialogueLayer.classList.add("hidden");
     
-    // Show vines
+    // Reset hint level for new puzzle
+    resetHintLevel();
+    
+    // Show vines and progress
     vineContainer.hidden = false;
     vineProgress.hidden = false;
     updateVineProgress();
 
-    // Show fairy smaller to the side
-    if (scene.speaker && scene.speaker.image) {
-      renderCharacters([{
-        id: "speaker",
-        image: scene.speaker.image,
-        position: "stage-left",
-        size: "medium"
-      }]);
-      
-      speakerName.textContent = scene.speaker.name || "";
+    // Show helper character (clickable for hints) - pass puzzle for hint data
+    if (scene.helper && scene.puzzle) {
+      renderHelper(scene.helper, scene.puzzle);
     }
 
-    // Show instruction
-    if (scene.dialogue) {
-      dialogueText.innerHTML = formatDialogue(scene.dialogue);
-    }
-
-    // Build puzzle
+    // Show puzzle immediately (no pagination needed)
     if (scene.puzzle) {
+      puzzleLayer.hidden = false;
       renderPuzzle(scene.puzzle);
     }
   }
+
+  /**
+   * Render clickable helper character with "Need help?" label
+   */
+  function renderHelper(helper, puzzle) {
+    helperLayer.hidden = false;
+    helperLayer.innerHTML = "";
+    
+    const container = document.createElement("div");
+    container.className = `helper-container pos-${helper.position || "left"}`;
+    
+    // Character sprite
+    const sprite = document.createElement("img");
+    sprite.src = helper.image;
+    sprite.alt = "Helper";
+    sprite.className = "helper-sprite";
+    sprite.onerror = () => log("Failed to load helper:", helper.image);
+    container.appendChild(sprite);
+    
+    // "Need help?" label below fairy
+    const label = document.createElement("div");
+    label.className = "helper-label";
+    label.textContent = "Need help?";
+    container.appendChild(label);
+    
+    // Click handler to show hint overlay
+    container.addEventListener("click", () => {
+      showHintOverlay(puzzle);
+    });
+    
+    helperLayer.appendChild(container);
+  }
+
+  // Track current hint level for each puzzle attempt
+  let currentHintLevel = 0;
+
+  /**
+   * Show the hint overlay with blurred background
+   */
+  function showHintOverlay(puzzle) {
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.className = "hint-overlay";
+    overlay.id = "hintOverlay";
+    
+    // Backdrop (blurred)
+    const backdrop = document.createElement("div");
+    backdrop.className = "hint-overlay-backdrop";
+    overlay.appendChild(backdrop);
+    
+    // Hint box
+    const hintBox = document.createElement("div");
+    hintBox.className = "hint-box";
+    
+    // Header
+    const header = document.createElement("div");
+    header.className = "hint-box-header";
+    header.innerHTML = `
+      <span class="hint-box-icon">💡</span>
+      <span class="hint-box-title">Let me help!</span>
+    `;
+    hintBox.appendChild(header);
+    
+    // Build hint content based on current level
+    buildHintContent(hintBox, puzzle, currentHintLevel);
+    
+    overlay.appendChild(hintBox);
+    document.body.appendChild(overlay);
+  }
+
+  /**
+   * Build the hint content based on hint level
+   */
+  function buildHintContent(hintBox, puzzle, level) {
+    const hints = puzzle.hints || [];
+    const pattern = puzzle.pattern || {};
+    const maxLevel = hints.length - 1;
+    
+    // Show previous hints (stacked, smaller) if we're past level 0
+    if (level > 0) {
+      for (let i = 0; i < level; i++) {
+        const prevHint = hints[i];
+        const prevContainer = document.createElement("div");
+        prevContainer.className = "hint-previous";
+        
+        if (prevHint.showPattern && pattern.numbers) {
+          const patternVis = createPatternVisual(pattern, true);
+          prevContainer.appendChild(patternVis);
+        }
+        
+        const prevExplanation = document.createElement("div");
+        prevExplanation.className = "hint-explanation";
+        prevExplanation.innerHTML = prevHint.explanation;
+        prevContainer.appendChild(prevExplanation);
+        
+        hintBox.appendChild(prevContainer);
+      }
+    }
+    
+    // Current hint
+    const currentHint = hints[level] || hints[0];
+    
+    // Question display with pattern visualization
+    const questionDisplay = document.createElement("div");
+    questionDisplay.className = "hint-question-display";
+    
+    const questionText = document.createElement("div");
+    questionText.className = "hint-question-text";
+    questionText.textContent = puzzle.instruction || "Find the next number:";
+    questionDisplay.appendChild(questionText);
+    
+    if (currentHint.showPattern && pattern.numbers) {
+      const patternVisual = createPatternVisual(pattern, false);
+      questionDisplay.appendChild(patternVisual);
+    }
+    
+    hintBox.appendChild(questionDisplay);
+    
+    // Explanation text
+    const explanation = document.createElement("div");
+    explanation.className = "hint-explanation";
+    explanation.innerHTML = currentHint.explanation;
+    hintBox.appendChild(explanation);
+    
+    // Final calculation (if this hint has one)
+    if (currentHint.showFinalCalc) {
+      const finalCalc = document.createElement("div");
+      finalCalc.className = "hint-final-calc";
+      const calcText = document.createElement("div");
+      calcText.className = "hint-final-calc-text";
+      calcText.textContent = currentHint.showFinalCalc;
+      finalCalc.appendChild(calcText);
+      hintBox.appendChild(finalCalc);
+    }
+    
+    // Buttons
+    const buttons = document.createElement("div");
+    buttons.className = "hint-buttons";
+    
+    // "Got it!" button - always present
+    const gotItBtn = document.createElement("button");
+    gotItBtn.className = "hint-btn hint-btn-primary";
+    gotItBtn.textContent = "Got it!";
+    gotItBtn.addEventListener("click", () => {
+      closeHintOverlay();
+    });
+    buttons.appendChild(gotItBtn);
+    
+    // "Another hint?" button - only if more hints available
+    if (level < maxLevel) {
+      const moreHintBtn = document.createElement("button");
+      moreHintBtn.className = "hint-btn hint-btn-secondary";
+      moreHintBtn.textContent = "Can I get another hint?";
+      moreHintBtn.addEventListener("click", () => {
+        currentHintLevel++;
+        // Remove old hint box content and rebuild
+        const overlay = document.getElementById("hintOverlay");
+        const oldBox = overlay.querySelector(".hint-box");
+        oldBox.innerHTML = "";
+        
+        // Re-add header
+        const header = document.createElement("div");
+        header.className = "hint-box-header";
+        header.innerHTML = `
+          <span class="hint-box-icon">💡</span>
+          <span class="hint-box-title">Here's more help!</span>
+        `;
+        oldBox.appendChild(header);
+        
+        buildHintContent(oldBox, puzzle, currentHintLevel);
+      });
+      buttons.appendChild(moreHintBtn);
+    }
+    
+    hintBox.appendChild(buttons);
+  }
+
+  /**
+   * Create the visual pattern display (numbers with operators between)
+   */
+  function createPatternVisual(pattern, isSmall) {
+    const container = document.createElement("div");
+    container.className = "hint-pattern-visual";
+    if (isSmall) {
+      container.style.fontSize = "1.1rem";
+    }
+    
+    pattern.numbers.forEach((num, index) => {
+      // Add number
+      const numSpan = document.createElement("span");
+      numSpan.className = "hint-pattern-number";
+      numSpan.textContent = num;
+      container.appendChild(numSpan);
+      
+      // Add operator after each number (except last)
+      if (index < pattern.numbers.length - 1) {
+        const opSpan = document.createElement("span");
+        opSpan.className = "hint-pattern-operator";
+        opSpan.textContent = pattern.operator;
+        container.appendChild(opSpan);
+      }
+    });
+    
+    // Add the blank at the end
+    const blankSpan = document.createElement("span");
+    blankSpan.className = "hint-pattern-operator";
+    blankSpan.textContent = pattern.operator;
+    container.appendChild(blankSpan);
+    
+    const answerBlank = document.createElement("span");
+    answerBlank.className = "hint-pattern-blank";
+    answerBlank.textContent = "?";
+    container.appendChild(answerBlank);
+    
+    return container;
+  }
+
+  /**
+   * Close the hint overlay
+   */
+  function closeHintOverlay() {
+    const overlay = document.getElementById("hintOverlay");
+    if (overlay) {
+      overlay.remove();
+    }
+  }
+  
+  // Reset hint level when moving to a new puzzle
+  function resetHintLevel() {
+    currentHintLevel = 0;
+  }
+  
 
   // --- REWARD LAYOUT ---
   
@@ -423,13 +660,23 @@ onReady(() => {
   }
 
   function renderPuzzle(puzzle) {
-    puzzleBox.hidden = false;
+    puzzleBox.innerHTML = "";
 
+    // Instruction line (e.g., "Find the next number in the pattern")
+    if (puzzle.instruction) {
+      const instructionEl = document.createElement("div");
+      instructionEl.className = "puzzle-instruction";
+      instructionEl.textContent = puzzle.instruction;
+      puzzleBox.appendChild(instructionEl);
+    }
+
+    // The actual question
     const questionEl = document.createElement("div");
     questionEl.className = "puzzle-question";
     questionEl.textContent = puzzle.question;
     puzzleBox.appendChild(questionEl);
 
+    // Answer options
     const optionsEl = document.createElement("div");
     optionsEl.className = "puzzle-options";
 
@@ -486,6 +733,84 @@ onReady(() => {
     return formatted;
   }
 
+  /**
+   * Split long dialogue into pages at sentence boundaries
+   * Returns array of text chunks
+   */
+  function splitDialogueIntoPages(text) {
+    if (!text || text.length <= MAX_DIALOGUE_LENGTH) {
+      return [text];
+    }
+    
+    const pages = [];
+    // Split on sentence endings (. ! ?) followed by space
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    let currentPage = "";
+    
+    for (const sentence of sentences) {
+      // If adding this sentence would exceed limit, start new page
+      if (currentPage.length + sentence.length > MAX_DIALOGUE_LENGTH && currentPage.length > 0) {
+        pages.push(currentPage.trim());
+        currentPage = sentence;
+      } else {
+        currentPage += (currentPage ? " " : "") + sentence;
+      }
+    }
+    
+    // Don't forget the last page
+    if (currentPage.trim()) {
+      pages.push(currentPage.trim());
+    }
+    
+    return pages.length > 0 ? pages : [text];
+  }
+
+  /**
+   * Show current page of dialogue with "continue" button if more pages
+   */
+  function showDialoguePage() {
+    const pageText = dialoguePages[currentDialoguePage];
+    dialogueText.innerHTML = formatDialogue(pageText);
+    
+    // Remove any existing continue button
+    const existingContinue = dialogueLayer.querySelector(".dialogue-continue");
+    if (existingContinue) existingContinue.remove();
+    
+    // If there are more pages, show continue indicator instead of choices
+    if (currentDialoguePage < dialoguePages.length - 1) {
+      choicesContainer.innerHTML = "";  // Hide choices until last page
+      
+      const continueDiv = document.createElement("div");
+      continueDiv.className = "dialogue-continue";
+      
+      const continueBtn = document.createElement("button");
+      continueBtn.className = "dialogue-continue-btn";
+      continueBtn.textContent = "▼ Tap to continue...";
+      continueBtn.addEventListener("click", () => {
+        currentDialoguePage++;
+        showDialoguePage();
+      });
+      
+      continueDiv.appendChild(continueBtn);
+      dialogueLayer.insertBefore(continueDiv, choicesContainer);
+    } else {
+      // Last page - show the choices
+      if (pendingChoices) {
+        renderChoices(pendingChoices.choices, pendingChoices.hasInput);
+      }
+    }
+  }
+
+  /**
+   * Initialize dialogue with pagination support
+   */
+  function setDialogue(text, choices = null, hasInput = false) {
+    dialoguePages = splitDialogueIntoPages(text);
+    currentDialoguePage = 0;
+    pendingChoices = choices ? { choices, hasInput } : null;
+    showDialoguePage();
+  }
+
   function snapVine(vineNumber) {
     vinesSnapped = Math.max(vinesSnapped, vineNumber);
     for (let i = 1; i <= vinesSnapped; i++) {
@@ -510,6 +835,14 @@ onReady(() => {
   }
 
   // --- Event Listeners ---
+
+  const homeBtn = document.getElementById("homeBtn");
+
+  homeBtn?.addEventListener("click", () => {
+    if (confirm("Return to the main menu?")) {
+      window.location.href = "index.html";
+    }
+  });
 
   skipBtn?.addEventListener("click", () => {
     if (confirm("Skip the tutorial? You can always replay it later!")) {

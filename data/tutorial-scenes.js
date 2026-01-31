@@ -110,16 +110,39 @@ export const tutorialScenes = {
   // ===================
   "vine-puzzle-intro": {
     id: "vine-puzzle-intro",
-    layout: "puzzle", // Special layout for vine puzzles
-    speaker: {
-      name: "???",
+    layout: "puzzle",
+    helper: {
       image: "assets/images/characters/Fairy/fairy-neutral.png",
       position: "left"
     },
-    dialogue: "Have a look at these numbers. Can you see that each number is going up by 2 each time? Which number would come next in this pattern?",
     puzzle: {
       type: "pattern",
+      instruction: "Find the next number in the pattern",
       question: "2, 4, 6, 8, ___",
+      // Pattern data for visual hints
+      pattern: {
+        numbers: [2, 4, 6, 8],
+        operator: "+2",
+        rule: "add 2"
+      },
+      hints: [
+        {
+          // Hint 1: Show the pattern visually
+          explanation: "Can you see the pattern between these numbers? Each number goes up by the same amount!",
+          showPattern: true
+        },
+        {
+          // Hint 2: Explain the rule
+          explanation: "The pattern is <strong>+2</strong> each time. It's repeating \"+2\" as a rule. The pattern continues the rule to the next number - see if you can work out what it should be!",
+          showPattern: true
+        },
+        {
+          // Hint 3: Final calculation
+          explanation: "You've got this! Just add 2 to the last number:",
+          showPattern: true,
+          showFinalCalc: "8 + 2 = ?"
+        }
+      ],
       options: [
         { id: "a", text: "9" },
         { id: "b", text: "10" },
@@ -127,7 +150,7 @@ export const tutorialScenes = {
         { id: "d", text: "11" }
       ],
       correctId: "b",
-      hintOnWrong: "Oh, these vines are pesky! Have a look again - the last number is 8. If you add 2, which number do you get?",
+      hintOnWrong: "Not quite! Remember, we're adding 2 each time.",
       onCorrect: "vine-puzzle-1-success"
     }
   },
@@ -156,15 +179,34 @@ export const tutorialScenes = {
   "vine-puzzle-2": {
     id: "vine-puzzle-2",
     layout: "puzzle",
-    speaker: {
-      name: "???",
+    helper: {
       image: "assets/images/characters/Fairy/fairy-neutral.png",
       position: "left"
     },
-    dialogue: "Here's the next one! What number comes next?",
     puzzle: {
       type: "pattern",
+      instruction: "Find the next number in the pattern",
       question: "5, 10, 15, 20, ___",
+      pattern: {
+        numbers: [5, 10, 15, 20],
+        operator: "+5",
+        rule: "add 5"
+      },
+      hints: [
+        {
+          explanation: "Look at the jumps between each number. What's being added each time?",
+          showPattern: true
+        },
+        {
+          explanation: "The pattern is <strong>+5</strong> each time! Count by 5s: 5, 10, 15, 20... what comes next?",
+          showPattern: true
+        },
+        {
+          explanation: "Almost there! Just add 5 to the last number:",
+          showPattern: true,
+          showFinalCalc: "20 + 5 = ?"
+        }
+      ],
       options: [
         { id: "a", text: "21" },
         { id: "b", text: "30" },
@@ -172,7 +214,7 @@ export const tutorialScenes = {
         { id: "d", text: "22" }
       ],
       correctId: "c",
-      hintOnWrong: "Look at the pattern - how much is being added each time? Try counting the jumps between numbers!",
+      hintOnWrong: "Not quite! What are we adding each time?",
       onCorrect: "vine-puzzle-2-success"
     }
   },
@@ -198,15 +240,34 @@ export const tutorialScenes = {
   "vine-puzzle-3": {
     id: "vine-puzzle-3",
     layout: "puzzle",
-    speaker: {
-      name: "???",
+    helper: {
       image: "assets/images/characters/Fairy/fairy-neutral.png",
       position: "left"
     },
-    dialogue: "Last one! You've got this!",
     puzzle: {
       type: "pattern",
+      instruction: "Find the next number in the pattern",
       question: "3, 6, 9, 12, ___",
+      pattern: {
+        numbers: [3, 6, 9, 12],
+        operator: "+3",
+        rule: "add 3"
+      },
+      hints: [
+        {
+          explanation: "What's the difference between each number? Look for the pattern!",
+          showPattern: true
+        },
+        {
+          explanation: "This is counting by <strong>3s</strong>! The rule is +3 each time. What comes after 12?",
+          showPattern: true
+        },
+        {
+          explanation: "You've nearly got it! Add 3 to finish:",
+          showPattern: true,
+          showFinalCalc: "12 + 3 = ?"
+        }
+      ],
       options: [
         { id: "a", text: "13" },
         { id: "b", text: "14" },
@@ -214,7 +275,7 @@ export const tutorialScenes = {
         { id: "d", text: "18" }
       ],
       correctId: "c",
-      hintOnWrong: "This pattern is counting by 3s. What's 12 + 3?",
+      hintOnWrong: "Almost! We're counting by 3s here.",
       onCorrect: "vines-cleared"
     }
   },

@@ -318,7 +318,7 @@ body {
   transform: translateX(-50%);
   z-index: 20;
     
-  width: min(800px, calc(100% - 40px));
+  width: min(700px, calc(100% - 40px));
 }
 
 /* --- MODE A: Dialogue Card (when character is speaking) --- */
@@ -326,7 +326,7 @@ body {
   background: var(--dialogue-bg);
   border: 3px solid var(--dialogue-border);
   border-radius: 20px;
-  padding: 20px 28px 24px;
+  padding: 16px 24px 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
@@ -383,12 +383,19 @@ body {
   color: var(--dialogue-border);
 }
 
-/* Dialogue text */
+/* ============================================================
+   DIALOGUE TEXT - Story/conversation style
+   Visually distinct from puzzle boxes!
+   ============================================================ */
+
 .dialogue-text {
-  font-size: 1.25rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.6;
   color: var(--text-dark);
   text-align: center;
+  font-family: 'Georgia', 'Times New Roman', serif;  /* Storybook feel */
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .dialogue-text em {
@@ -403,8 +410,35 @@ body {
 
 .dialogue-text.action-style {
   font-style: italic;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: var(--dark-purple);
+}
+
+/* "Continue" indicator for multi-part dialogue */
+.dialogue-continue {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.dialogue-continue-btn {
+  background: transparent;
+  border: none;
+  color: var(--dialogue-border);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 8px 16px;
+  animation: continuePulse 1.5s ease-in-out infinite;
+}
+
+.dialogue-continue-btn:hover {
+  color: var(--primary-purple);
+}
+
+@keyframes continuePulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 /* Vine progress dots */
@@ -498,27 +532,379 @@ body {
 
 
 /* ============================================================
-   PUZZLE BOX (for math questions)
-   This DOES take over focus - it's meant to
+   PUZZLE LAYER - Floats ABOVE dialogue box
+   Completely separate from narrative dialogue
    ============================================================ */
 
+.puzzle-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* Center on screen */
+  z-index: 22;
+  width: min(550px, calc(100% - 80px));
+}
+
 .puzzle-box {
-  background: var(--light-blue);
+  background: white;
   border-radius: 16px;
   padding: 20px;
-  margin-top: 12px;
+  border: 3px solid var(--accent-blue);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+}
+
+.puzzle-instruction {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 8px;
+  font-family: 'Arial', sans-serif;
 }
 
 .puzzle-question {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
-  padding: 18px;
-  background: white;
+  padding: 16px;
+  background: var(--light-blue);
   border-radius: 12px;
   margin-bottom: 14px;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 3px;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 2px;
+  color: var(--text-dark);
+}
+
+/* ============================================================
+   HELPER CHARACTER - Clickable sprite for hints
+   Shows "Need help?" text below the character
+   ============================================================ */
+
+.helper-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.helper-container {
+  position: absolute;
+  bottom: 5%;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.helper-container.pos-left {
+  left: 3%;
+}
+
+.helper-container.pos-right {
+  right: 3%;
+}
+
+.helper-sprite {
+  height: 30vh;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+/* Gentle glow animation */
+.helper-container .helper-sprite {
+  animation: helperGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes helperGlow {
+  0%, 100% { 
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3)) 
+            drop-shadow(0 0 8px rgba(139, 92, 246, 0.3)); 
+  }
+  50% { 
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3)) 
+            drop-shadow(0 0 20px rgba(139, 92, 246, 0.7)); 
+  }
+}
+
+.helper-container:hover .helper-sprite {
+  transform: scale(1.05);
+}
+
+/* "Need help?" label below fairy - always visible */
+.helper-label {
+  background: var(--primary-purple);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-top: 8px;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+.helper-container:hover .helper-label {
+  background: var(--dark-purple);
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   HINT OVERLAY - Blurred background with focused hint box
+   ============================================================ */
+
+.hint-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hint-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hint-box {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  padding: 24px 28px;
+  max-width: 500px;
+  width: 100%;
+  max-height: calc(100vh - 40px);  /* Don't exceed viewport */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: hintBoxPop 0.3s ease-out;
+}
+
+@keyframes hintBoxPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.hint-box-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--light-purple);
+  flex-shrink: 0;  /* Don't shrink header */
+}
+
+.hint-box-icon {
+  font-size: 1.8rem;
+}
+
+.hint-box-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--dark-purple);
+}
+
+/* Scrollable content area */
+.hint-box-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+  min-height: 0;  /* Important for flex scrolling */
+}
+
+/* Buttons always visible at bottom */
+.hint-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  flex-shrink: 0;  /* Don't shrink buttons */
+}
+
+/* The question shown in hint box */
+.hint-question-display {
+  background: var(--light-blue);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.hint-question-text {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.hint-pattern-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.hint-pattern-number {
+  color: var(--text-dark);
+}
+
+.hint-pattern-operator {
+  color: var(--primary-purple);
+  font-size: 1rem;
+  padding: 4px 8px;
+  background: rgba(139, 92, 246, 0.15);
+  border-radius: 8px;
+}
+
+.hint-pattern-blank {
+  color: var(--accent-blue);
+  border-bottom: 3px solid var(--accent-blue);
+  padding: 0 8px;
+}
+
+/* Hint explanation text */
+.hint-explanation {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: 'Georgia', serif;
+}
+
+.hint-explanation strong {
+  color: var(--primary-purple);
+}
+
+/* Previous hints (stacked above, smaller) */
+.hint-previous {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--light-purple);
+}
+
+.hint-previous .hint-pattern-visual {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.hint-previous .hint-explanation {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  color: var(--text-light);
+}
+
+/* Final calculation hint */
+.hint-final-calc {
+  background: linear-gradient(135deg, var(--light-purple), #e0d4fc);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.hint-final-calc-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--dark-purple);
+}
+
+/* Hint buttons */
+.hint-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hint-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.hint-btn-primary {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.hint-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+}
+
+.hint-btn-secondary {
+  background: white;
+  color: var(--dark-purple);
+  border: 2px solid var(--light-purple);
+}
+
+.hint-btn-secondary:hover {
+  background: var(--light-purple);
+}
+
+/* Responsive hint overlay */
+@media (max-width: 768px) {
+  .hint-box {
+    padding: 20px 24px;
+    margin: 20px;
+  }
+  
+  .hint-pattern-visual {
+    font-size: 1.2rem;
+  }
+  
+  .hint-explanation {
+    font-size: 1rem;
+  }
+  
+  .helper-sprite {
+    height: 25vh;
+  }
+  
+  .helper-label {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hint-box {
+    padding: 16px 20px;
+  }
+  
+  .hint-pattern-visual {
+    font-size: 1.1rem;
+    gap: 4px;
+  }
+  
+  .helper-sprite {
+    height: 20vh;
+  }
 }
 
 .puzzle-options {
@@ -611,6 +997,20 @@ body {
   font-weight: bold;
   font-size: 1.05rem;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Clickable home button version of hud-title */
+.hud-home-btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.hud-home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #e0b060, #c9a048);
 }
 
 .hud-btn {
