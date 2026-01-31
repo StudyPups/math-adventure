@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buttercup's Farm - StudyPups</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- 
+    FARM LOCATION
+    First gameplay area after tutorial
+    Math focus: Skip counting, multiplication, grouping (easier confidence-builders)
+  -->
+  <div class="game-screen" id="gameScreen">
+    
+    <!-- LAYER 1: Background -->
+    <div class="background-layer" id="backgroundLayer"></div>
+
+    <!-- LAYER 2: Characters -->
+    <div class="character-layer" id="characterLayer">
+      <!-- Characters inserted dynamically -->
+    </div>
+
+    <!-- LAYER 3: Dialogue Box -->
+    <div class="dialogue-layer" id="dialogueLayer">
+      <!-- Speaker info -->
+      <div class="speaker-info" id="speakerInfo">
+        <span class="speaker-name" id="speakerName"></span>
+      </div>
+
+      <!-- Main dialogue text -->
+      <div class="dialogue-text" id="dialogueText"></div>
+
+      <!-- Puzzle box (for math questions) -->
+      <div class="puzzle-box" id="puzzleBox" hidden></div>
+
+      <!-- Choice buttons -->
+      <div class="choices-container" id="choicesContainer"></div>
+    </div>
+
+    <!-- LAYER 4: HUD -->
+    <div class="hud-layer">
+      <div class="hud-title" id="hudTitle">🌻 Buttercup's Farm</div>
+      <div class="gem-display" id="gemDisplay">
+        <span class="gem-icon">💎</span>
+        <span class="gem-count" id="gemCount">0</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/farm.js"></script>
+</body>
+</html>
