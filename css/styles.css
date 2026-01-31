@@ -2505,3 +2505,368 @@ body {
     font-size: 1.5em;
   }
 }
+
+/* ============================================
+   TEDDY HELPER SYSTEM - CSS
+   "Help is always available"
+   ============================================ */
+
+/* ===== TEDDY HELPER CONTAINER ===== */
+.teddy-helper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.teddy-helper:hover {
+  transform: scale(1.05);
+}
+
+.teddy-helper:active {
+  transform: scale(0.98);
+}
+
+/* ===== TEDDY SPRITE ===== */
+.teddy-helper-sprite {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transition: opacity 0.2s ease, transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== COLLAR GLOW ===== */
+.teddy-collar-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: collarPulse 3s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes collarPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+/* Brighter glow when hint is available (after wrong answer) */
+.teddy-helper.hint-available .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.7) 0%, rgba(255, 165, 0, 0.3) 50%, transparent 70%);
+  animation: collarPulseBright 2s ease-in-out infinite;
+}
+
+@keyframes collarPulseBright {
+  0%, 100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+}
+
+/* Extra bright when actively helping */
+.teddy-helper.teddy-helping .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(255, 165, 0, 0.6) 40%, transparent 70%);
+  animation: collarGlowActive 1s ease-in-out infinite;
+}
+
+@keyframes collarGlowActive {
+  0%, 100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
+}
+
+/* ===== TAP ME LABEL ===== */
+.teddy-helper-label {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: -10px;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 3;
+}
+
+.teddy-helper:hover .teddy-helper-label {
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  transform: scale(1.05);
+}
+
+/* ===== CELEBRATION STATE ===== */
+.teddy-helper.teddy-celebrating .teddy-helper-sprite {
+  animation: teddyCelebrate 0.6s ease-out;
+}
+
+@keyframes teddyCelebrate {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-15px) rotate(-5deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+  75% { transform: translateY(-10px) rotate(-3deg); }
+}
+
+.teddy-helper.teddy-celebrating .teddy-helper-label {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+.teddy-helper.teddy-celebrating .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.4) 50%, transparent 70%);
+  animation: celebrationGlow 0.5s ease-out 3;
+}
+
+@keyframes celebrationGlow {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+}
+
+/* ============================================
+   HINT PANEL (Speech bubble from Teddy)
+   ============================================ */
+
+.teddy-hint-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.teddy-hint-panel.panel-visible {
+  opacity: 1;
+}
+
+.hint-panel-content {
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  border: 4px solid #FFD93D;
+  border-radius: 24px;
+  padding: 28px 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.25),
+    0 0 0 4px rgba(255, 217, 61, 0.3);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.teddy-hint-panel.panel-visible .hint-panel-content {
+  transform: scale(1) translateY(0);
+}
+
+/* Speech bubble pointer toward Teddy (bottom right) */
+.hint-panel-content::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  right: 60px;
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid #FFD93D;
+}
+
+.hint-panel-content::before {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  right: 64px;
+  width: 0;
+  height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 16px solid #FFF3CD;
+  z-index: 1;
+}
+
+.hint-panel-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #92400E;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.hint-panel-message {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #78350F;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.hint-panel-message strong {
+  color: #B45309;
+  background: rgba(251, 191, 36, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.hint-panel-close {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.hint-panel-close:hover {
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+}
+
+.hint-panel-close:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .teddy-helper {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .teddy-helper-sprite {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .teddy-helper-label {
+    font-size: 0.8rem;
+    padding: 5px 12px;
+  }
+  
+  .hint-panel-content {
+    padding: 24px;
+    margin: 20px;
+  }
+  
+  .hint-panel-header {
+    font-size: 1.15rem;
+  }
+  
+  .hint-panel-message {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .teddy-helper {
+    bottom: 10px;
+    right: 10px;
+  }
+  
+  .teddy-helper-sprite {
+    width: 85px;
+    height: 85px;
+  }
+  
+  .teddy-collar-glow {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .teddy-helper-label {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    margin-top: -8px;
+  }
+  
+  .hint-panel-content {
+    padding: 20px;
+    border-radius: 20px;
+  }
+  
+  /* Move speech bubble pointer for mobile */
+  .hint-panel-content::after {
+    right: 40px;
+  }
+  
+  .hint-panel-content::before {
+    right: 44px;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .teddy-collar-glow {
+    animation: none;
+    opacity: 0.6;
+  }
+  
+  .teddy-helper.hint-available .teddy-collar-glow,
+  .teddy-helper.teddy-helping .teddy-collar-glow {
+    animation: none;
+    opacity: 0.9;
+  }
+  
+  .teddy-helper-sprite {
+    transition: none;
+  }
+  
+  .teddy-helper.teddy-celebrating .teddy-helper-sprite {
+    animation: none;
+  }
+}
+
+/* Focus state for keyboard users */
+.teddy-helper:focus {
+  outline: 3px solid #8B5CF6;
+  outline-offset: 4px;
+  border-radius: 20px;
+}
+
+.teddy-helper:focus-visible {
+  outline: 3px solid #8B5CF6;
+  outline-offset: 4px;
+}
