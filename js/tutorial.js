@@ -2,6 +2,8 @@
 // Scene-based tutorial engine for StudyPups
 // Two modes: dialogue-mode (floating card) vs scene-mode (just buttons)
 
+import { showHintOverlay, closeHintOverlay, resetHintLevel } from './hint-system.js';
+
 import { onReady, log, saveGameState, loadGameState, createNewGameState } from "./shared.js";
 import { tutorialScenes, getScene, STARTING_SCENE } from "../data/tutorial-scenes.js";
 
@@ -239,7 +241,7 @@ onReady(() => {
     }
   }
 
-  /**
+ /**
    * Render clickable helper character with "Need help?" label
    */
   function renderHelper(helper, puzzle) {
@@ -271,205 +273,7 @@ onReady(() => {
     helperLayer.appendChild(container);
   }
 
-  // Track current hint level for each puzzle attempt
-  let currentHintLevel = 0;
 
-  /**
-   * Show the hint overlay with blurred background
-   */
-  function showHintOverlay(puzzle) {
-    // Create overlay
-    const overlay = document.createElement("div");
-    overlay.className = "hint-overlay";
-    overlay.id = "hintOverlay";
-    
-    // Backdrop (blurred)
-    const backdrop = document.createElement("div");
-    backdrop.className = "hint-overlay-backdrop";
-    overlay.appendChild(backdrop);
-    
-    // Hint box
-    const hintBox = document.createElement("div");
-    hintBox.className = "hint-box";
-    
-    // Header
-    const header = document.createElement("div");
-    header.className = "hint-box-header";
-    header.innerHTML = `
-      <span class="hint-box-icon">💡</span>
-      <span class="hint-box-title">Let me help!</span>
-    `;
-    hintBox.appendChild(header);
-    
-    // Build hint content based on current level
-    buildHintContent(hintBox, puzzle, currentHintLevel);
-    
-    overlay.appendChild(hintBox);
-    document.body.appendChild(overlay);
-  }
-
-  /**
-   * Build the hint content based on hint level
-   */
-  function buildHintContent(hintBox, puzzle, level) {
-    const hints = puzzle.hints || [];
-    const pattern = puzzle.pattern || {};
-    const maxLevel = hints.length - 1;
-    
-    // Show previous hints (stacked, smaller) if we're past level 0
-    if (level > 0) {
-      for (let i = 0; i < level; i++) {
-        const prevHint = hints[i];
-        const prevContainer = document.createElement("div");
-        prevContainer.className = "hint-previous";
-        
-        if (prevHint.showPattern && pattern.numbers) {
-          const patternVis = createPatternVisual(pattern, true);
-          prevContainer.appendChild(patternVis);
-        }
-        
-        const prevExplanation = document.createElement("div");
-        prevExplanation.className = "hint-explanation";
-        prevExplanation.innerHTML = prevHint.explanation;
-        prevContainer.appendChild(prevExplanation);
-        
-        hintBox.appendChild(prevContainer);
-      }
-    }
-    
-    // Current hint
-    const currentHint = hints[level] || hints[0];
-    
-    // Question display with pattern visualization
-    const questionDisplay = document.createElement("div");
-    questionDisplay.className = "hint-question-display";
-    
-    const questionText = document.createElement("div");
-    questionText.className = "hint-question-text";
-    questionText.textContent = puzzle.instruction || "Find the next number:";
-    questionDisplay.appendChild(questionText);
-    
-    if (currentHint.showPattern && pattern.numbers) {
-      const patternVisual = createPatternVisual(pattern, false);
-      questionDisplay.appendChild(patternVisual);
-    }
-    
-    hintBox.appendChild(questionDisplay);
-    
-    // Explanation text
-    const explanation = document.createElement("div");
-    explanation.className = "hint-explanation";
-    explanation.innerHTML = currentHint.explanation;
-    hintBox.appendChild(explanation);
-    
-    // Final calculation (if this hint has one)
-    if (currentHint.showFinalCalc) {
-      const finalCalc = document.createElement("div");
-      finalCalc.className = "hint-final-calc";
-      const calcText = document.createElement("div");
-      calcText.className = "hint-final-calc-text";
-      calcText.textContent = currentHint.showFinalCalc;
-      finalCalc.appendChild(calcText);
-      hintBox.appendChild(finalCalc);
-    }
-    
-    // Buttons
-    const buttons = document.createElement("div");
-    buttons.className = "hint-buttons";
-    
-    // "Got it!" button - always present
-    const gotItBtn = document.createElement("button");
-    gotItBtn.className = "hint-btn hint-btn-primary";
-    gotItBtn.textContent = "Got it!";
-    gotItBtn.addEventListener("click", () => {
-      closeHintOverlay();
-    });
-    buttons.appendChild(gotItBtn);
-    
-    // "Another hint?" button - only if more hints available
-    if (level < maxLevel) {
-      const moreHintBtn = document.createElement("button");
-      moreHintBtn.className = "hint-btn hint-btn-secondary";
-      moreHintBtn.textContent = "Can I get another hint?";
-      moreHintBtn.addEventListener("click", () => {
-        currentHintLevel++;
-        // Remove old hint box content and rebuild
-        const overlay = document.getElementById("hintOverlay");
-        const oldBox = overlay.querySelector(".hint-box");
-        oldBox.innerHTML = "";
-        
-        // Re-add header
-        const header = document.createElement("div");
-        header.className = "hint-box-header";
-        header.innerHTML = `
-          <span class="hint-box-icon">💡</span>
-          <span class="hint-box-title">Here's more help!</span>
-        `;
-        oldBox.appendChild(header);
-        
-        buildHintContent(oldBox, puzzle, currentHintLevel);
-      });
-      buttons.appendChild(moreHintBtn);
-    }
-    
-    hintBox.appendChild(buttons);
-  }
-
-  /**
-   * Create the visual pattern display (numbers with operators between)
-   */
-  function createPatternVisual(pattern, isSmall) {
-    const container = document.createElement("div");
-    container.className = "hint-pattern-visual";
-    if (isSmall) {
-      container.style.fontSize = "1.1rem";
-    }
-    
-    pattern.numbers.forEach((num, index) => {
-      // Add number
-      const numSpan = document.createElement("span");
-      numSpan.className = "hint-pattern-number";
-      numSpan.textContent = num;
-      container.appendChild(numSpan);
-      
-      // Add operator after each number (except last)
-      if (index < pattern.numbers.length - 1) {
-        const opSpan = document.createElement("span");
-        opSpan.className = "hint-pattern-operator";
-        opSpan.textContent = pattern.operator;
-        container.appendChild(opSpan);
-      }
-    });
-    
-    // Add the blank at the end
-    const blankSpan = document.createElement("span");
-    blankSpan.className = "hint-pattern-operator";
-    blankSpan.textContent = pattern.operator;
-    container.appendChild(blankSpan);
-    
-    const answerBlank = document.createElement("span");
-    answerBlank.className = "hint-pattern-blank";
-    answerBlank.textContent = "?";
-    container.appendChild(answerBlank);
-    
-    return container;
-  }
-
-  /**
-   * Close the hint overlay
-   */
-  function closeHintOverlay() {
-    const overlay = document.getElementById("hintOverlay");
-    if (overlay) {
-      overlay.remove();
-    }
-  }
-  
-  // Reset hint level when moving to a new puzzle
-  function resetHintLevel() {
-    currentHintLevel = 0;
-  }
-  
 
   // --- REWARD LAYOUT ---
   

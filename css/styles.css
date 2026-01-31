@@ -1635,3 +1635,428 @@ body {
 .gem-display.earned {
   animation: gemEarned 0.4s ease-out;
 }
+/* ============================================================
+   MAGICAL HINT SYSTEM - StudyPups
+   
+   Three levels of progressive hints with magical transformations:
+   Level 1: "What's the pattern?" - Question marks between numbers
+   Level 2: "Here's the rule!" - Fairy reveals the pattern (+2, +5, etc.)
+   Level 3: "You've got this!" - Final calculation help
+   
+   The fairy appears and magically transforms the hints!
+   ============================================================ */
+
+/* ===== HINT OVERLAY (unchanged, but here for reference) ===== */
+.hint-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hint-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ===== HINT BOX ===== */
+.hint-box {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  padding: 24px 28px;
+  max-width: 520px;
+  width: 100%;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: hintBoxPop 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes hintBoxPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ===== HEADER - Changes per level ===== */
+.hint-box-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--light-purple);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.hint-box-icon {
+  font-size: 1.8rem;
+  transition: transform 0.3s ease;
+}
+
+.hint-box-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--dark-purple);
+  transition: color 0.3s ease;
+}
+
+/* Header variations by level */
+.hint-box.level-1 .hint-box-header { border-bottom-color: #fbbf24; }
+.hint-box.level-2 .hint-box-header { border-bottom-color: var(--primary-purple); }
+.hint-box.level-3 .hint-box-header { border-bottom-color: var(--success-green); }
+
+/* ===== SCROLLABLE CONTENT AREA ===== */
+.hint-box-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0;
+  min-height: 0;
+  position: relative;
+}
+
+/* ===== FAIRY MAGIC CONTAINER ===== */
+.fairy-magic-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* The fairy sprite that appears during transformation */
+.hint-fairy {
+  width: 100px;
+  height: auto;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.4));
+  animation: fairyAppear 0.5s ease-out;
+}
+
+@keyframes fairyAppear {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.5) translateY(20px); 
+  }
+  60% { 
+    opacity: 1; 
+    transform: scale(1.1) translateY(-5px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+/* Fairy casting animation (subtle bob + glow) */
+.hint-fairy.casting {
+  animation: fairyCasting 1s ease-in-out infinite;
+}
+
+@keyframes fairyCasting {
+  0%, 100% { 
+    filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.4)); 
+    transform: translateY(0);
+  }
+  50% { 
+    filter: drop-shadow(0 4px 20px rgba(139, 92, 246, 0.8))
+            drop-shadow(0 0 30px rgba(255, 215, 0, 0.6)); 
+    transform: translateY(-3px);
+  }
+}
+
+/* ===== PATTERN DISPLAY BOX ===== */
+.hint-pattern-box {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 2px solid var(--accent-blue);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sparkle overlay for magic effect */
+.hint-pattern-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.hint-pattern-box.sparkling::before {
+  animation: sparkleFlash 0.8s ease-out;
+}
+
+@keyframes sparkleFlash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Instruction text above pattern */
+.hint-instruction {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* ===== PATTERN VISUAL (the numbers and operators) ===== */
+.hint-pattern-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 1.6rem;
+  font-weight: bold;
+  font-family: 'Arial', sans-serif;
+  margin: 12px 0;
+}
+
+/* Individual number in the pattern */
+.hint-pattern-number {
+  color: var(--text-dark);
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+/* The operator/mystery between numbers */
+.hint-pattern-operator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.4s ease;
+}
+
+/* Level 1: Mystery operators (red question marks) */
+.hint-pattern-operator.mystery {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 2px dashed #f87171;
+  color: #dc2626;
+}
+
+/* Level 2: Revealed operators (purple/blue with the rule) */
+.hint-pattern-operator.revealed {
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  border: 2px solid var(--primary-purple);
+  color: var(--dark-purple);
+  animation: operatorReveal 0.5s ease-out;
+}
+
+@keyframes operatorReveal {
+  0% { 
+    transform: scale(0.8) rotateY(90deg); 
+    opacity: 0;
+  }
+  50% { 
+    transform: scale(1.15) rotateY(0deg); 
+  }
+  100% { 
+    transform: scale(1) rotateY(0deg); 
+    opacity: 1;
+  }
+}
+
+/* The blank/answer spot at the end */
+.hint-pattern-blank {
+  color: var(--accent-blue);
+  border-bottom: 3px solid var(--accent-blue);
+  padding: 4px 12px;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* ===== EXPLANATION TEXT ===== */
+.hint-explanation {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+  text-align: center;
+  font-family: 'Comic Neue', 'Trebuchet MS', sans-serif;
+  padding: 0 8px;
+}
+
+.hint-explanation strong {
+  color: var(--primary-purple);
+}
+
+.hint-explanation .keyword {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: #92400e;
+}
+
+/* ===== FINAL CALCULATION (Level 3) ===== */
+.hint-final-calc {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border: 2px solid var(--success-green);
+  border-radius: 14px;
+  padding: 16px 20px;
+  text-align: center;
+  margin: 16px 0;
+  animation: calcAppear 0.4s ease-out;
+}
+
+@keyframes calcAppear {
+  from { 
+    transform: scale(0.95); 
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+.hint-final-calc-label {
+  font-size: 0.9rem;
+  color: #065f46;
+  margin-bottom: 8px;
+}
+
+.hint-final-calc-text {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #047857;
+  font-family: 'Arial', sans-serif;
+}
+
+/* ===== BUTTONS ===== */
+.hint-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.hint-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.hint-btn-primary {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.hint-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+}
+
+.hint-btn-secondary {
+  background: white;
+  color: var(--dark-purple);
+  border: 2px solid var(--light-purple);
+}
+
+.hint-btn-secondary:hover {
+  background: var(--light-purple);
+}
+
+/* Level-specific button colors */
+.hint-btn-next-level {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #78350f;
+  border: none;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+}
+
+.hint-btn-next-level:hover {
+  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+  transform: translateY(-2px);
+}
+
+/* ===== SPARKLE PARTICLES ===== */
+.sparkle-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #ffd700, transparent 70%);
+  border-radius: 50%;
+  animation: sparkleFloat 1s ease-out forwards;
+}
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 1;
+    transform: scale(0) translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5) translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-40px);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .hint-box {
+    padding: 20px;
+  }
+  
+  .hint-pattern-visual {
+    font-size: 1.3rem;
+    gap: 4px;
+  }
+  
+  .hint-pattern-operator {
+    min-width: 36px;
+    padding: 4px 8px;
+    font-size: 0.95rem;
+  }
+  
+  .hint-fairy {
+    width: 80px;
+  }
+  
+  .hint-explanation {
+    font-size: 1rem;
+  }
+}

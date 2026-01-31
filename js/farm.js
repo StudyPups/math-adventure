@@ -313,3 +313,10 @@ onReady(() => {
   // --- Start ---
   showScene(STARTING_SCENE);
 });
+// Home button click handler
+const homeBtn = document.getElementById("homeBtn");
+homeBtn?.addEventListener("click", () => {
+  if (confirm("Return to the main menu?")) {
+    window.location.href = "index.html";
+  }
+});
