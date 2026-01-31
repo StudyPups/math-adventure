@@ -1691,7 +1691,12 @@ body {
    The fairy appears and magically transforms the hints!
    ============================================================ */
 
-/* ===== HINT OVERLAY (unchanged, but here for reference) ===== */
+/* ============================================================
+   TUTORIAL HINT SYSTEM - Complete
+   Three levels of progressive hints with magical transformations
+   ============================================================ */
+
+/* ===== HINT OVERLAY ===== */
 .hint-overlay {
   position: fixed;
   inset: 0;
@@ -2080,7 +2085,7 @@ body {
   }
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== TUTORIAL HINT RESPONSIVE ===== */
 @media (max-width: 480px) {
   .hint-box {
     padding: 20px;
@@ -2103,5 +2108,400 @@ body {
   
   .hint-explanation {
     font-size: 1rem;
+  }
+}
+
+
+/* ============================================================
+   FARM HINT SYSTEM - FIXED POSITIONING
+   Teddy appears BESIDE the hint box (not inside!)
+   ============================================================ */
+
+/* CRITICAL: Puzzle box must allow overflow */
+#puzzleBox,
+.puzzle-box {
+  position: relative;
+  overflow: visible !important; /* Don't clip Teddy! */
+}
+
+/* Hint Popup (appears on first error) */
+.hint-popup {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #9b59b6;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  animation: popup-appear 0.3s ease-out;
+  z-index: 100;
+  max-width: 400px;
+}
+
+@keyframes popup-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.hint-popup-content {
+  text-align: center;
+}
+
+.hint-popup-content p {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.hint-popup-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-hint-yes,
+.btn-hint-no {
+  padding: 10px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.btn-hint-yes {
+  background: #9b59b6;
+  color: white;
+}
+
+.btn-hint-yes:hover {
+  background: #8e44ad;
+  transform: scale(1.05);
+}
+
+.btn-hint-no {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-hint-no:hover {
+  background: #7f8c8d;
+  transform: scale(1.05);
+}
+
+/* Hint Text Container - NO background/border here! */
+.puzzle-hint {
+  margin-top: 20px;
+  animation: hint-slide-in 0.4s ease-out;
+  position: relative;
+  z-index: 50;
+}
+
+@keyframes hint-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Teddy + Bubble Container (side by side layout) */
+.hint-with-teddy {
+  display: flex;
+  align-items: flex-end; /* Teddy's feet align with bubble bottom */
+  gap: 20px; /* Space between Teddy and bubble */
+  padding: 0; /* No padding - bubble will have its own */
+  position: relative;
+  justify-content: flex-start;
+}
+
+/* Teddy Image - BIG and prominent! */
+.hint-teddy {
+  width: 140px !important; /* Force override any conflicting styles */
+  height: 140px !important;
+  object-fit: contain;
+  flex-shrink: 0; /* Don't let Teddy shrink */
+  animation: teddy-bounce 0.6s ease-out;
+  margin-bottom: -20px; /* Sit at "ground level" */
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+  position: relative;
+  z-index: 51;
+}
+
+@keyframes teddy-bounce {
+  0% { 
+    transform: translateY(30px) scale(0.6); 
+    opacity: 0; 
+  }
+  60% { 
+    transform: translateY(-10px) scale(1.1); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translateY(0) scale(1); 
+    opacity: 1; 
+  }
+}
+
+/* The hint speech bubble */
+.hint-bubble {
+  flex: 1;
+  max-width: 550px; /* Don't stretch too wide */
+  background: #fff3cd;
+  border: 3px solid #ffc107;
+  border-radius: 15px;
+  padding: 18px 22px;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 1.1em;
+  color: #333;
+  line-height: 1.7;
+  font-weight: 500;
+  z-index: 50;
+}
+
+/* Speech bubble pointer (points LEFT at Teddy) */
+.hint-bubble::before {
+  content: "";
+  position: absolute;
+  left: -18px; /* Outside the bubble edge */
+  bottom: 45px; /* Align with middle-ish of bubble */
+  width: 0;
+  height: 0;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  border-right: 18px solid #ffc107; /* Border color */
+  z-index: 49;
+}
+
+.hint-bubble::after {
+  content: "";
+  position: absolute;
+  left: -14px; /* Inner triangle for clean look */
+  bottom: 47px;
+  width: 0;
+  height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-right: 14px solid #fff3cd; /* Background color */
+  z-index: 50;
+}
+
+/* Waiting Teddy (corner buddy when user says "I'll try again") */
+.teddy-waiting {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 150;
+  animation: waiting-teddy-appear 0.4s ease-out;
+}
+
+@keyframes waiting-teddy-appear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.teddy-wait-sprite {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  animation: teddy-patient-bob 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes teddy-patient-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ===== RESPONSIVE - Mobile/Tablet ===== */
+
+@media (max-width: 900px) {
+  .hint-teddy {
+    width: 110px !important;
+    height: 110px !important;
+  }
+  
+  .hint-bubble {
+    font-size: 1em;
+    padding: 15px 18px;
+    max-width: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hint-popup {
+    max-width: 90%;
+    padding: 15px;
+  }
+  
+  .hint-teddy {
+    width: 100px !important;
+    height: 100px !important;
+    margin-bottom: -15px;
+  }
+  
+  .hint-bubble {
+    font-size: 0.95em;
+    padding: 14px 16px;
+  }
+  
+  .teddy-wait-sprite {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stack Teddy ABOVE hint on tiny screens */
+  .hint-with-teddy {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .hint-teddy {
+    width: 120px !important;
+    height: 120px !important;
+    margin-bottom: 0;
+  }
+  
+  /* Flip speech bubble arrow to point UP at Teddy */
+  .hint-bubble::before {
+    left: 50%;
+    bottom: auto;
+    top: -16px;
+    transform: translateX(-50%);
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 16px solid #ffc107;
+    border-top: none;
+  }
+  
+  .hint-bubble::after {
+    left: 50%;
+    bottom: auto;
+    top: -12px;
+    transform: translateX(-50%);
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 14px solid #fff3cd;
+    border-top: none;
+  }
+  
+  .hint-bubble {
+    max-width: 90%;
+  }
+}
+
+
+/* ============================================================
+   GEM CELEBRATION ANIMATIONS
+   (Used in both tutorial and farm!)
+   ============================================================ */
+
+/* Gem counter bounce and shine */
+.gem-earned {
+  animation: gem-celebrate 0.6s ease-out;
+}
+
+@keyframes gem-celebrate {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.3);
+    filter: brightness(1.5) drop-shadow(0 0 15px gold);
+  }
+  50% {
+    transform: scale(1.1) rotate(10deg);
+  }
+  75% {
+    transform: scale(1.3) rotate(-10deg);
+  }
+}
+
+/* Floating "+X" text */
+.gem-plus-text {
+  font-size: 2em;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 
+    2px 2px 0 #ff8c00,
+    -1px -1px 0 #ff8c00,
+    1px -1px 0 #ff8c00,
+    -1px 1px 0 #ff8c00;
+  animation: float-up-gems 1.5s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes float-up-gems {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.8);
+  }
+}
+
+/* Add sparkle to gem counter area */
+.gem-counter {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Optional: Simple sparkle effect */
+@keyframes sparkle-pulse {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* If you want to add sparkles around gems later */
+.gem-sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: gold;
+  border-radius: 50%;
+  animation: sparkle-pulse 0.6s ease-in-out;
+}
+
+/* ===== GEM RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .gem-plus-text {
+    font-size: 1.5em;
   }
 }

@@ -29,7 +29,7 @@ export const tutorialScenes = {
       },
       {
         id: "teddy",
-        image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png",
+        image: "assets/images/characters/Teddy/teddy-vines.png",
         position: "stage-right",  // NEW: Right side, ground level
         size: "medium"
       }
@@ -295,7 +295,7 @@ export const tutorialScenes = {
       },
       {
         id: "teddy",
-        image: "assets/images/characters/Teddy/teddy-jump-excited.png",
+        image: "assets/images/characters/Teddy/tutorial-teddy-lookup.png",
         position: "stage-right",
         size: "medium"
       }
@@ -354,7 +354,7 @@ export const tutorialScenes = {
     characters: [
       {
         id: "teddy",
-        image: "assets/images/characters/Teddy/teddy-jump-excited.png",
+        image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png",
         position: "stage-center",
         size: "large",
         animation: "bounce"
@@ -377,7 +377,7 @@ export const tutorialScenes = {
     layout: "dialogue",
     speaker: {
       name: "Melody",
-      image: "assets/images/characters/Fairy/fairy-cute-reaction.png",
+      image: "assets/images/characters/Fairy/fairy-grant-reward.png",
       position: "left"
     },
     dialogue: "It sounds like Teddy wants to say thank you! Oh! I have just the thing...",
