@@ -2004,14 +2004,14 @@ body {
 }
 
 /* ===== SPARKLE PARTICLES ===== */
-.sparkle-container {
+.hint-sparkle-container {
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
 }
 
-.sparkle {
+.hint-sparkle {
   position: absolute;
   width: 8px;
   height: 8px;

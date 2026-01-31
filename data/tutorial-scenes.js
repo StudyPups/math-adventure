@@ -502,7 +502,7 @@ export const tutorialScenes = {
       image: "assets/images/characters/Fairy/fairy-neutral.png",
       position: "left"
     },
-    dialogue: "Oh! But you're new here, aren't you? You'll need to earn some ✨glimmers✨ first! That's what we use as currency in Complexa Meadows.",
+    dialogue: "Oh! But you're new here, aren't you? You'll need to earn some ✨glimmers✨ first - that's our currency in Complexa Meadows!",
     choices: [
       { text: "How do I earn glimmers?", next: "farm-intro" }
     ]

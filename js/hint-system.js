@@ -290,11 +290,11 @@ function triggerMagicalTransformation(puzzle, newLevel) {
  */
 function createSparkles(container, count) {
   const sparkleContainer = document.createElement("div");
-  sparkleContainer.className = "sparkle-container";
+  sparkleContainer.className = "hint-sparkle-container";  // ✅ You did this
   
   for (let i = 0; i < count; i++) {
     const sparkle = document.createElement("div");
-    sparkle.className = "sparkle";
+    sparkle.className = "hint-sparkle";  // ← Change this one too!
     
     // Random position within container
     sparkle.style.left = `${20 + Math.random() * 60}%`;
