@@ -868,10 +868,14 @@ showTeddyHelper(null);
   showScene(STARTING_SCENE);
 });
 
-// Home button click handler
+// Map/Menu button click handler
+// Opens the location menu overlay instead of navigating away
 const homeBtn = document.getElementById("homeBtn");
 homeBtn?.addEventListener("click", () => {
-  if (confirm("Return to the main menu?")) {
-    window.location.href = "index.html";
+  // Use the game menu system from shared.js
+  if (window.openGameMenu) {
+    window.openGameMenu();
+  } else {
+    console.warn("Game menu not initialized - check that initGameMenu() was called");
   }
 });

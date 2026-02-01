@@ -125,6 +125,11 @@ export function isNewPlayer() {
 // Creates a map/menu overlay accessible from any page
 // ============================================
 
+// ============================================
+// GAME MENU SYSTEM
+// Creates a map/menu overlay accessible from any page
+// ============================================
+
 /**
  * Initialize the game menu on any page
  * Call this in your onReady() or at page load
@@ -173,7 +178,7 @@ export function initGameMenu(currentPage = "") {
       badge: "🔒 Coming Soon",
       locked: true
     }
-  ];
+  ];  // <-- Array CLOSES here!
   
   // Build location HTML
   const locationsHTML = locations.map(loc => {
@@ -200,12 +205,10 @@ export function initGameMenu(currentPage = "") {
     `;
   }).join("");
   
-  // Create menu button
+  // Create menu button (hamburger icon in top-left)
   const menuBtn = document.createElement("button");
-  menuBtn.id = "menuBtn";
-  menuBtn.className = "menu-btn";
-  menuBtn.title = "Menu";
-  menuBtn.innerHTML = "☰";
+  
+
   
   // Create menu overlay
   const menuOverlay = document.createElement("div");
@@ -256,6 +259,18 @@ export function initGameMenu(currentPage = "") {
       menuOverlay.classList.remove("open");
     }
   });
+  
+  // =============================================
+  // EXPOSE MENU TOGGLE FOR EXTERNAL BUTTONS
+  // This lets the homeBtn open the menu!
+  // =============================================
+  window.openGameMenu = () => {
+    menuOverlay.classList.add("open");
+  };
+
+  window.closeGameMenu = () => {
+    menuOverlay.classList.remove("open");
+  };
   
   log("Game menu initialized ✅");
 }

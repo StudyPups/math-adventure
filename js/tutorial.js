@@ -9,6 +9,7 @@ import { tutorialScenes, getScene, STARTING_SCENE } from "../data/tutorial-scene
 
 onReady(() => {
   log("Tutorial Engine loaded ✅");
+   initGameMenu("tutorial"); 
 
   // --- DOM Elements ---
   const gameScreen = document.getElementById("gameScreen");
@@ -638,15 +639,15 @@ onReady(() => {
     });
   }
 
-  // --- Event Listeners ---
-
-  const homeBtn = document.getElementById("homeBtn");
-
-  homeBtn?.addEventListener("click", () => {
-    if (confirm("Return to the main menu?")) {
-      window.location.href = "index.html";
-    }
-  });
+  //// Map/Menu button click handler
+const homeBtn = document.getElementById("homeBtn");
+homeBtn?.addEventListener("click", () => {
+  if (window.openGameMenu) {
+    window.openGameMenu();
+  } else {
+    console.warn("Game menu not initialized");
+  }
+});
 
   skipBtn?.addEventListener("click", () => {
     if (confirm("Skip the tutorial? You can always replay it later!")) {
