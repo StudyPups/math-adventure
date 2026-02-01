@@ -1395,11 +1395,11 @@ body {
 .answer-option.incorrect { background: #fee2e2; border-color: var(--error-red); }
 
 .teddy-helper {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  background: none;
+  backdrop-filter: blur(0.1px);
   padding: 20px;
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2514,8 +2514,8 @@ body {
 /* ===== TEDDY HELPER CONTAINER ===== */
 .teddy-helper {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 80px;
+  right: calc(50% - 350px - 140px);  /* 350px = half of dialogue box, 140px = Teddy's space */
   z-index: 100;
   cursor: pointer;
   display: flex;
@@ -2869,4 +2869,248 @@ body {
 .teddy-helper:focus-visible {
   outline: 3px solid #8B5CF6;
   outline-offset: 4px;
+}
+
+/* ============================================
+   GAME MENU OVERLAY
+   Access from any page via top-left button
+   ============================================ */
+
+/* Menu Button (top-left corner) */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 500;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.menu-btn:active {
+  transform: scale(0.98);
+}
+
+/* Menu Overlay (fullscreen) */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Menu Panel */
+.menu-panel {
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.menu-overlay.open .menu-panel {
+  transform: scale(1) translateY(0);
+}
+
+/* Menu Header */
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid #E8D5A3;
+}
+
+.menu-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #5D4037;
+}
+
+.menu-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #EF4444;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-close:hover {
+  background: #DC2626;
+  transform: scale(1.1);
+}
+
+/* Location List */
+.menu-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.menu-location {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 14px 18px;
+  background: white;
+  border-radius: 14px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.menu-location:hover {
+  border-color: #8B5CF6;
+  transform: translateX(5px);
+}
+
+.menu-location.current {
+  border-color: #10B981;
+  background: #ECFDF5;
+}
+
+.menu-location.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.menu-location.locked:hover {
+  border-color: transparent;
+  transform: none;
+}
+
+.menu-location-icon {
+  font-size: 2rem;
+  width: 50px;
+  text-align: center;
+}
+
+.menu-location-info {
+  flex: 1;
+}
+
+.menu-location-name {
+  font-weight: bold;
+  color: #5D4037;
+  margin-bottom: 2px;
+}
+
+.menu-location-desc {
+  font-size: 0.85rem;
+  color: #757575;
+}
+
+.menu-location-badge {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.menu-location.current .menu-location-badge {
+  background: #10B981;
+  color: white;
+}
+
+.menu-location.locked .menu-location-badge {
+  background: #EEEEEE;
+  color: #757575;
+}
+
+/* Menu Footer */
+.menu-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 2px solid #E8D5A3;
+}
+
+.menu-footer-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.menu-footer-btn.secondary {
+  background: white;
+  color: #5D4037;
+  border: 2px solid #E8D5A3;
+}
+
+.menu-footer-btn.secondary:hover {
+  background: #FFF9E6;
+  border-color: #D4A55A;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .menu-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+  
+  .menu-panel {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .menu-location {
+    padding: 12px 14px;
+  }
+  
+  .menu-location-icon {
+    font-size: 1.6rem;
+    width: 40px;
+  }
 }

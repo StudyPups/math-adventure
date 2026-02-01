@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complexa Meadows - StudyPups</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Quick map styles - can move to styles.css later */
+    .map-screen {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #87CEEB 0%, #98D8AA 100%);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .map-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .map-title {
+      font-size: 2.5rem;
+      color: #5D4037;
+      text-shadow: 2px 2px 0 white;
+      margin-bottom: 10px;
+    }
+
+    .map-subtitle {
+      font-size: 1.1rem;
+      color: #6D4C41;
+    }
+
+    /* Location Cards */
+    .locations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .location-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 4px solid transparent;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .location-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    }
+
+    .location-card.available {
+      border-color: #4CAF50;
+    }
+
+    .location-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .location-card.dev-only {
+      border-color: #FF9800;
+      border-style: dashed;
+    }
+
+    .location-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .location-name {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #5D4037;
+      margin-bottom: 8px;
+    }
+
+    .location-desc {
+      font-size: 0.95rem;
+      color: #757575;
+      margin-bottom: 12px;
+    }
+
+    .location-status {
+      font-size: 0.85rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .status-available {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status-locked {
+      background: #EEEEEE;
+      color: #757575;
+    }
+
+    .status-dev {
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    /* Dev Tools Section */
+    .dev-section {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 15px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .dev-title {
+      font-size: 1rem;
+      color: #E65100;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dev-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .dev-link {
+      padding: 8px 16px;
+      background: #FF9800;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .dev-link:hover {
+      background: #F57C00;
+    }
+
+    /* Teddy in corner */
+    .map-teddy {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="map-screen">
+    
+    <header class="map-header">
+      <h1 class="map-title">🗺️ Complexa Meadows</h1>
+      <p class="map-subtitle">Where would you like to go today?</p>
+    </header>
+
+    <div class="locations-grid">
+      
+      <!-- Tutorial Forest -->
+      <a href="tutorial.html" class="location-card available">
+        <div class="location-icon">🌲</div>
+        <div class="location-name">Whispering Woods</div>
+        <div class="location-desc">Meet Melody the fairy and learn about patterns! (Tutorial)</div>
+        <span class="location-status status-available">✓ Available</span>
+      </a>
+
+      <!-- Buttercup's Farm -->
+      <a href="farm.html" class="location-card available">
+        <div class="location-icon">🌻</div>
+        <div class="location-name">Buttercup's Farm</div>
+        <div class="location-desc">Help Farmer Buttercup count sheep! (Multiplication)</div>
+        <span class="location-status status-available">✓ Available</span>
+      </a>
+
+      <!-- Future: Cafe -->
+      <div class="location-card locked">
+        <div class="location-icon">☕</div>
+        <div class="location-name">Cozy Cafe</div>
+        <div class="location-desc">Coming soon! (Money & Decimals)</div>
+        <span class="location-status status-locked">🔒 Coming Soon</span>
+      </div>
+
+      <!-- Future: Restaurant -->
+      <div class="location-card locked">
+        <div class="location-icon">🍽️</div>
+        <div class="location-name">Riverside Restaurant</div>
+        <div class="location-desc">Coming soon! (Measurement)</div>
+        <span class="location-status status-locked">🔒 Coming Soon</span>
+      </div>
+
+    </div>
+
+    <!-- Dev Tools - Remove or hide before release -->
+    <div class="dev-section">
+      <div class="dev-title">🛠️ Developer Quick Links (remove before release)</div>
+      <div class="dev-links">
+        <a href="farm.html" class="dev-link">Farm (skip intro)</a>
+        <a href="tutorial.html" class="dev-link">Tutorial</a>
+        <a href="index.html" class="dev-link">Original Index</a>
+      </div>
+    </div>
+
+    <!-- Teddy companion -->
+    <img src="assets/images/characters/Teddy/teddy-wait.png" alt="Teddy" class="map-teddy">
+
+  </div>
+
+</body>
+</html>

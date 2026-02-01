@@ -2,8 +2,9 @@
 // Game engine for Buttercup's Farm location
 // NOW WITH: Error tracking, hint popups, and gem celebrations! 🎉
 
-import { onReady, log, saveGameState, loadGameState, createNewGameState } from "./shared.js";
+import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./shared.js";
 import { farmScenes, getScene, STARTING_SCENE } from "../data/farm-scenes.js";
+
 
 // ============================================
 // TEDDY HELPER SYSTEM
@@ -117,13 +118,8 @@ function showTeddyHelper(puzzle) {
     }
   });
   
-  // Add to page - position beside puzzle box
-  const puzzleBox = document.getElementById("puzzleBox");
-  if (puzzleBox && puzzleBox.parentElement) {
-    puzzleBox.parentElement.appendChild(teddyContainer);
-  } else {
-    document.getElementById("gameScreen").appendChild(teddyContainer);
-  }
+  // Add to page - ALWAYS add to gameScreen so Teddy floats freely
+document.getElementById("gameScreen").appendChild(teddyContainer);
   
   teddyHelper.element = teddyContainer;
   teddyHelper.isVisible = true;
@@ -385,6 +381,7 @@ function stopIdleAnimation() {
 
 onReady(() => {
   log("Farm Engine loaded ✅");
+  initGameMenu("farm");
 
   // --- DOM Elements ---
   const gameScreen = document.getElementById("gameScreen");
@@ -442,6 +439,9 @@ onReady(() => {
     if (scene.background) {
       backgroundLayer.style.backgroundImage = `url('${scene.background}')`;
     }
+
+    // 🐕 ADD THIS LINE - Teddy is ALWAYS present as a friend!
+showTeddyHelper(null);
 
     // Route to layout handler
     switch (scene.layout) {
@@ -707,7 +707,7 @@ onReady(() => {
         showHintPopup(puzzle);
       } else if (currentErrors >= 3) {
         // THIRD ERROR: Show hint automatically
-        showHintText(puzzle);
+       onTeddyClick(puzzle);
       }
       
       // Re-enable non-incorrect buttons after a moment
@@ -745,13 +745,13 @@ onReady(() => {
     // "Yes" button - show the hint
     popup.querySelector(".btn-hint-yes").addEventListener("click", () => {
       popup.remove();
-      showHintText(puzzle);
+      onTeddyClick(puzzle);
     });
     
     // "No" button - close and show waiting Teddy
     popup.querySelector(".btn-hint-no").addEventListener("click", () => {
       popup.remove();
-      showWaitingTeddy();
+
     });
   }
   

@@ -4,7 +4,7 @@
 
 import { showHintOverlay, closeHintOverlay, resetHintLevel } from './hint-system.js';
 
-import { onReady, log, saveGameState, loadGameState, createNewGameState } from "./shared.js";
+import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./shared.js";
 import { tutorialScenes, getScene, STARTING_SCENE } from "../data/tutorial-scenes.js";
 
 onReady(() => {
