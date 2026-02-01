@@ -14,6 +14,18 @@
 // Track current hint level for each puzzle attempt
 let currentHintLevel = 0;
 
+// Track whether Teddy encouragement should show
+// Default TRUE - only tutorial.js sets this to false
+let teddyEncouragementEnabled = true;
+
+/**
+ * Enable/disable Teddy encouragement popups
+ * @param {boolean} enabled - Whether Teddy can give encouragement
+ */
+function setTeddyEncouragementEnabled(enabled) {
+  teddyEncouragementEnabled = enabled;
+}
+
 // Encouraging messages from Teddy when player tries without more hints
 const TEDDY_ENCOURAGEMENTS = [
   { text: "You've got this! I believe in you! 🐕", image: "assets/images/characters/Teddy/teddy-tongue.png" },
@@ -396,7 +408,7 @@ function closeHintOverlay(showEncouragement = false) {
       overlay.remove();
       
       // Show Teddy encouragement AFTER the hint closes
-      if (showEncouragement) {
+      if (showEncouragement && teddyEncouragementEnabled) {
         showTeddyEncouragement();
       }
     }, 200);
@@ -426,14 +438,8 @@ function getOperatorSymbol(operator) {
   return symbol;
 }
 
-// ============================================================
+  // ============================================================
 // EXPORT FOR USE IN TUTORIAL.JS AND PATTERNS.JS
-// 
-// To use this, add these lines near the top of your JS file:
-//   import { showHintOverlay, closeHintOverlay, resetHintLevel } 
-//     from './hint-system.js';
-//
-// Or copy these functions directly into your file.
 // ============================================================
 
 export { 
@@ -441,5 +447,6 @@ export {
   closeHintOverlay, 
   resetHintLevel,
   currentHintLevel,
-  showTeddyEncouragement  // Export in case you want to trigger manually
+  showTeddyEncouragement,
+  setTeddyEncouragementEnabled  // ADD THIS LINE
 };

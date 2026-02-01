@@ -1,15 +1,18 @@
+
 // js/tutorial.js
 // Scene-based tutorial engine for StudyPups
 // Two modes: dialogue-mode (floating card) vs scene-mode (just buttons)
 
-import { showHintOverlay, closeHintOverlay, resetHintLevel } from './hint-system.js';
-
+import { showHintOverlay, closeHintOverlay, resetHintLevel, setTeddyEncouragementEnabled } from './hint-system.js';
 import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./shared.js";
 import { tutorialScenes, getScene, STARTING_SCENE } from "../data/tutorial-scenes.js";
 
 onReady(() => {
   log("Tutorial Engine loaded ✅");
-   initGameMenu("tutorial"); 
+  initGameMenu("tutorial");
+  
+  // Teddy can't talk yet - no collar!
+  setTeddyEncouragementEnabled(false);
 
   // --- DOM Elements ---
   const gameScreen = document.getElementById("gameScreen");
@@ -44,9 +47,15 @@ onReady(() => {
   const MAX_DIALOGUE_LENGTH = 150;
 
   // --- Main Scene Renderer ---
-  
+
   function showScene(sceneId) {
-    const scene = getScene(sceneId);
+  // Enable Teddy's voice after collar is given
+  if (sceneId === "teddy-speaks") {
+    setTeddyEncouragementEnabled(true);
+  }
+  
+  const scene = getScene(sceneId);
+  
     if (!scene) {
       log("Scene not found:", sceneId);
       return;

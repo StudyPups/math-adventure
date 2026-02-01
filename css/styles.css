@@ -714,6 +714,30 @@ body {
    Used in tutorial.html during puzzle scenes
    ============================================================ */
 
+   /* --- Hint Fairy (in hint box) --- */
+.hint-fairy {
+  max-height: 85px;  /* Constrain fairy size in hint box */
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(139, 92, 246, 0.3));
+}
+
+/* --- Fairy Magic Container (centers fairy in hint box) --- */
+.fairy-magic-container {
+  display: flex;
+  justify-content: center;
+  margin: -0.5rem 0;
+}
+
+.hint-fairy.casting {
+  animation: fairyFloat 1.5s ease-in-out infinite;
+}
+
+@keyframes fairyFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
 .helper-layer {
   position: absolute;
   inset: 0;
@@ -729,6 +753,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  margin: -10px 0 5px 0; 
 }
 
 .helper-container.pos-left {
@@ -743,6 +769,7 @@ body {
   height: 30vh;
   width: auto;
   object-fit: contain;
+   justify-content: center;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
   transition: all 0.3s ease;
   animation: helperGlow 2.5s ease-in-out infinite;
@@ -1048,6 +1075,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 16px 0;
+  padding-bottom: 8px; 
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -1264,6 +1292,7 @@ body {
   border: 2px solid var(--success-green);
   border-radius: 14px;
   padding: 16px 20px;
+  margin-bottom: 8px; 
   text-align: center;
   margin: 16px 0;
   animation: calcAppear 0.4s ease-out;
