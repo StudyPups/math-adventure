@@ -5106,7 +5106,7 @@ body {
 }
 
 .teddy-helper-sprite {
-  width: 100px;
+  width: 300px;
   height: auto;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
   transition: transform 0.2s ease, filter 0.2s ease;
