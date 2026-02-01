@@ -1,5 +1,5 @@
 // ============================================================
-// MAGICAL HINT SYSTEM - StudyPups
+// MAGICAL HINT SYSTEM - StudyPups (Enhanced)
 // 
 // Drop-in replacement for the hint functions in tutorial.js
 // 
@@ -8,15 +8,33 @@
 //   Level 1: "Here's the pattern!" - Fairy reveals the rule (+2)
 //   Level 2: "You've got this!" - Final calculation help
 //
-// The fairy appears and magically transforms the hints!
+// NEW: Teddy encouragement when player chooses "Got it!" 🎉
 // ============================================================
 
 // Track current hint level for each puzzle attempt
 let currentHintLevel = 0;
 
+// Encouraging messages from Teddy when player tries without more hints
+const TEDDY_ENCOURAGEMENTS = [
+  { text: "You've got this! I believe in you! 🐕", image: "assets/images/characters/Teddy/teddy-tongue.png" },
+  { text: "Go for it! You're doing great!", image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png" },
+  { text: "I knew you could figure it out!", image: "assets/images/characters/Teddy/teddy-tongue.png" },
+  { text: "That's the spirit! Give it a try!", image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png" },
+  { text: "Woof! You're so brave!", image: "assets/images/characters/Teddy/teddy-tongue.png" },
+  { text: "I'm cheering for you! 🐾", image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png" }
+];
+
 // Reset hint level when moving to a new puzzle
 function resetHintLevel() {
   currentHintLevel = 0;
+}
+
+/**
+ * Get a random encouragement from Teddy
+ */
+function getRandomEncouragement() {
+  const index = Math.floor(Math.random() * TEDDY_ENCOURAGEMENTS.length);
+  return TEDDY_ENCOURAGEMENTS[index];
 }
 
 /**
@@ -32,7 +50,7 @@ function showHintOverlay(puzzle) {
   // Backdrop (blurred background)
   const backdrop = document.createElement("div");
   backdrop.className = "hint-overlay-backdrop";
-  backdrop.addEventListener("click", closeHintOverlay); // Click outside to close
+  backdrop.addEventListener("click", () => closeHintOverlay(false)); // Click outside = no encouragement
   overlay.appendChild(backdrop);
   
   // Hint box
@@ -134,15 +152,20 @@ function buildMagicalHintContent(hintBox, puzzle, level) {
   const buttons = document.createElement("div");
   buttons.className = "hint-buttons";
   
-  // "Got it!" button - always present
+  // "Got it!" button - always present, now triggers encouragement if more hints available
   const gotItBtn = document.createElement("button");
   gotItBtn.className = "hint-btn hint-btn-primary";
   gotItBtn.textContent = "Got it!";
-  gotItBtn.addEventListener("click", closeHintOverlay);
+  
+  // Show encouragement if there were more hints available (player chose to try on their own!)
+  const moreHintsAvailable = level < maxLevel;
+  gotItBtn.addEventListener("click", () => {
+    closeHintOverlay(moreHintsAvailable);
+  });
   buttons.appendChild(gotItBtn);
   
   // "Next level hint" button - only if more hints available
-  if (level < maxLevel) {
+  if (moreHintsAvailable) {
     const nextHintBtn = document.createElement("button");
     nextHintBtn.className = "hint-btn hint-btn-next-level";
     nextHintBtn.textContent = getNextHintButtonText(level);
@@ -290,11 +313,11 @@ function triggerMagicalTransformation(puzzle, newLevel) {
  */
 function createSparkles(container, count) {
   const sparkleContainer = document.createElement("div");
-  sparkleContainer.className = "hint-sparkle-container";  // ✅ You did this
+  sparkleContainer.className = "hint-sparkle-container";
   
   for (let i = 0; i < count; i++) {
     const sparkle = document.createElement("div");
-    sparkle.className = "hint-sparkle";  // ← Change this one too!
+    sparkle.className = "hint-sparkle";
     
     // Random position within container
     sparkle.style.left = `${20 + Math.random() * 60}%`;
@@ -315,9 +338,55 @@ function createSparkles(container, count) {
 }
 
 /**
- * Close the hint overlay
+ * Show Teddy's encouragement popup
+ * A brief, celebratory moment before returning to the puzzle
  */
-function closeHintOverlay() {
+function showTeddyEncouragement() {
+  const encouragement = getRandomEncouragement();
+  
+  // Create encouragement popup
+  const popup = document.createElement("div");
+  popup.className = "teddy-encouragement-popup";
+  popup.id = "teddyEncouragement";
+  
+  popup.innerHTML = `
+    <div class="teddy-encouragement-content">
+      <img 
+        src="${encouragement.image}" 
+        alt="Teddy cheering" 
+        class="teddy-encouragement-sprite bounce-in"
+        onerror="this.style.display='none'"
+      >
+      <div class="teddy-encouragement-bubble pop-in">
+        <span class="teddy-encouragement-text">${encouragement.text}</span>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(popup);
+  
+  // Auto-dismiss after a moment
+  setTimeout(() => {
+    popup.classList.add("fade-out");
+    setTimeout(() => {
+      popup.remove();
+    }, 300);
+  }, 1500);
+  
+  // Also allow click to dismiss early
+  popup.addEventListener("click", () => {
+    popup.classList.add("fade-out");
+    setTimeout(() => {
+      popup.remove();
+    }, 300);
+  });
+}
+
+/**
+ * Close the hint overlay
+ * @param {boolean} showEncouragement - Whether to show Teddy's encouragement
+ */
+function closeHintOverlay(showEncouragement = false) {
   const overlay = document.getElementById("hintOverlay");
   if (overlay) {
     // Fade out animation
@@ -325,6 +394,11 @@ function closeHintOverlay() {
     overlay.style.transition = "opacity 0.2s ease";
     setTimeout(() => {
       overlay.remove();
+      
+      // Show Teddy encouragement AFTER the hint closes
+      if (showEncouragement) {
+        showTeddyEncouragement();
+      }
     }, 200);
   }
 }
@@ -353,19 +427,19 @@ function getOperatorSymbol(operator) {
 }
 
 // ============================================================
-// EXPORT FOR USE IN TUTORIAL.JS
+// EXPORT FOR USE IN TUTORIAL.JS AND PATTERNS.JS
 // 
-// To use this, add these lines near the top of tutorial.js:
+// To use this, add these lines near the top of your JS file:
 //   import { showHintOverlay, closeHintOverlay, resetHintLevel } 
 //     from './hint-system.js';
 //
-// Or copy these functions directly into tutorial.js,
-// replacing the existing hint functions.
+// Or copy these functions directly into your file.
 // ============================================================
 
 export { 
   showHintOverlay, 
   closeHintOverlay, 
   resetHintLevel,
-  currentHintLevel 
+  currentHintLevel,
+  showTeddyEncouragement  // Export in case you want to trigger manually
 };
