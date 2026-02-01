@@ -1,75 +1,86 @@
 /* ============================================================
    STUDYPUPS GAME STYLES
    
-   Concept Art Layout:
-   - Character HUGE, dominates the screen
-   - Dialogue is a small floating card at bottom (~15% height)
-   - Dialogue card has rounded corners, doesn't touch edges
-   - NO dialogue box when there's no dialogue - just floating buttons
-   - Portrait NOT in dialogue box (character sprite IS the visual)
+   TABLE OF CONTENTS:
+   1. CSS Variables & Reset
+   2. Typography & Base
+   3. Game Screen & Layers
+   4. Background Layer
+   5. Character Layer & Positioning
+   6. Environment Layer (rocks, vines)
+   7. Dialogue Layer
+   8. Puzzle System
+   9. Buttons
+   10. HUD (Heads-Up Display)
+   11. Teddy System (Decorative & Helper)
+   12. Hint System (3-tier progressive hints)
+   13. Gem System & Celebrations
+   14. Game Menu Overlay
+   15. Practice Page (patterns.html)
+   16. Welcome Page (index.html)
+   17. Modals & Transitions
+   18. Animations
+   19. Responsive Breakpoints
    ============================================================ */
 
-/* ===== VARIABLES ===== */
+
+/* ============================================================
+   1. CSS VARIABLES & RESET
+   ============================================================ */
+
 :root {
+  /* === BRAND COLORS === */
   --primary-purple: #8b5cf6;
   --light-purple: #c4b5fd;
   --dark-purple: #6d28d9;
   --accent-blue: #3b82f6;
   --light-blue: #dbeafe;
+  
+  /* === FEEDBACK COLORS === */
   --success-green: #4caf50;
   --error-red: #ef4444;
   --warning-amber: #f59e0b;
+  
+  /* === TEXT COLORS === */
   --text-dark: #1f2937;
   --text-light: #6b7280;
   --white: #ffffff;
-    
-  /* Dialogue styling (warm parchment) */
+  
+  /* === DIALOGUE STYLING === */
   --dialogue-bg: rgba(255, 248, 235, 0.97);
   --dialogue-border: #c9a55c;
   --button-blue: #4a90c2;
   --button-blue-dark: #2d6a9f;
   
-  /* ============================================================
-     STAGE POSITIONING SYSTEM
-     
-     Think of the screen as a theatre stage divided into zones:
-     
-     |---------|----------|---------|
-     |  LEFT   |  CENTER  |  RIGHT  |
-     |  ZONE   |   ZONE   |  ZONE   |
-     |---------|----------|---------|
-     
-     Each zone is roughly 1/3 of the screen width.
-     Characters are positioned WITHIN these zones.
-     
-     ADJUST THESE VALUES to move characters:
-     ============================================================ */
+  /* === STAGE POSITIONING === */
+  --stage-left-x: 15%;
+  --stage-left-ground: 5%;
+  --stage-left-elevated: 20%;
+  --stage-center-x: 50%;
+  --stage-center-ground: 5%;
+  --stage-right-x: 85%;
+  --stage-right-ground: 5%;
+  --rock-offset-y: 0%;
   
-  /* LEFT ZONE - Where the fairy stands on rock */
-  --stage-left-x: 15%;           /* Distance from left edge */
-  --stage-left-ground: 5%;       /* Ground level (bottom %) */
-  --stage-left-elevated: 20%;    /* Elevated position (on rock) */
-  
-  /* CENTER ZONE - For solo character moments */
-  --stage-center-x: 50%;         /* Center of screen */
-  --stage-center-ground: 5%;     /* Ground level */
-  
-  /* RIGHT ZONE - Where Teddy stands */
-  --stage-right-x: 85%;          /* Distance from left edge */
-  --stage-right-ground: 5%;      /* Ground level */
-  
-  /* ROCK POSITIONING (always under fairy) */
-  --rock-offset-y: 0%;           /* Vertical offset from ground */
+  /* === TEDDY SIZING (Single source of truth!) === */
+  --teddy-decor-size: 180px;
+  --teddy-helper-size: 200px;
+  --teddy-bottom: 8%;
+  --teddy-right: 8%;
 }
 
-/* ===== RESET ===== */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* ===== FONTS ===== */
+
+/* ============================================================
+   2. TYPOGRAPHY & BASE
+   ============================================================ */
+
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap");
 
 body {
@@ -80,7 +91,7 @@ body {
 
 
 /* ============================================================
-   GAME SCREEN - Main Container
+   3. GAME SCREEN & LAYERS
    ============================================================ */
 
 .game-screen {
@@ -92,7 +103,7 @@ body {
 
 
 /* ============================================================
-   LAYER 1: BACKGROUND (z-index: 0)
+   4. BACKGROUND LAYER (z-index: 0)
    ============================================================ */
 
 .background-layer {
@@ -107,10 +118,7 @@ body {
 
 
 /* ============================================================
-   LAYER 2: CHARACTERS (z-index: 10)
-   
-   Characters are HUGE - they dominate the screen.
-   They overlap ABOVE the dialogue card.
+   5. CHARACTER LAYER & POSITIONING (z-index: 10)
    ============================================================ */
 
 .character-layer {
@@ -132,31 +140,18 @@ body {
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
 }
 
-
-/* ============================================================
-   NEW STAGE-BASED POSITIONING SYSTEM
-   
-   Much easier to understand and adjust!
-   Just change the CSS variables at the top of this file.
-   ============================================================ */
-
-/* --- LEFT ZONE (Fairy's side) --- */
-
-/* Ground level on left */
+/* --- Stage Positioning (new system) --- */
 .character-container.pos-stage-left {
   left: var(--stage-left-x);
   bottom: var(--stage-left-ground);
-  transform: translateX(-50%);  /* Center on the X position */
+  transform: translateX(-50%);
 }
 
-/* Elevated on left (standing on rock) */
 .character-container.pos-stage-left-elevated {
   left: var(--stage-left-x);
   bottom: var(--stage-left-elevated);
   transform: translateX(-50%);
 }
-
-/* --- CENTER ZONE --- */
 
 .character-container.pos-stage-center {
   left: var(--stage-center-x);
@@ -164,20 +159,13 @@ body {
   transform: translateX(-50%);
 }
 
-/* --- RIGHT ZONE (Teddy's side) --- */
-
 .character-container.pos-stage-right {
   left: var(--stage-right-x);
   bottom: var(--stage-right-ground);
   transform: translateX(-50%);
 }
 
-
-/* ============================================================
-   LEGACY POSITIONING (keeping for backwards compatibility)
-   These are the old position classes - still work!
-   ============================================================ */
-
+/* --- Legacy Positioning (backwards compatibility) --- */
 .character-container.pos-center {
   bottom: 8%;
   left: 50%;
@@ -211,39 +199,25 @@ body {
   right: 8%;
 }
 
-
 /* --- Character Sizes --- */
 .size-small .character-sprite { height: 25vh; }
 .size-medium .character-sprite { height: 40vh; }
 .size-large .character-sprite { height: 70vh; }
 .size-xlarge .character-sprite { height: 80vh; }
 
-
 /* --- Character Animations --- */
 .anim-bounce {
   animation: characterBounce 0.8s ease-in-out infinite;
 }
 
-@keyframes characterBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-/* Clickable (gem tutorial) */
 .character-clickable {
   cursor: pointer;
   animation: gemPulse 1.5s ease-in-out infinite;
 }
 
-@keyframes gemPulse {
-  0%, 100% { filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4)); }
-  50% { filter: drop-shadow(0 8px 40px rgba(139, 92, 246, 0.9)); }
-}
-
 
 /* ============================================================
-   LAYER 2b: ENVIRONMENT (z-index: 8)
-   Rocks, vines, etc - appear behind characters
+   6. ENVIRONMENT LAYER (z-index: 8)
    ============================================================ */
 
 .environment-layer {
@@ -252,10 +226,6 @@ body {
   z-index: 8;
   pointer-events: none;
 }
-
-/* --- ROCK POSITIONING --- */
-/* The rock sits at the base of the left stage zone */
-/* Fairy stands ON TOP of this rock */
 
 .environment-element {
   position: absolute;
@@ -267,20 +237,19 @@ body {
   transform: translateX(-50%);
 }
 
-/* Legacy rock position */
 .environment-element.pos-right-base {
   right: 8%;
   bottom: 0;
 }
 
 .rock-sprite {
-  height: 25vh;  /* Adjust rock height here */
+  height: 25vh;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
-/* --- VINES --- */
+/* --- Vines --- */
 .vine-container {
   position: absolute;
   top: 10%;
@@ -304,11 +273,7 @@ body {
 
 
 /* ============================================================
-   LAYER 3: DIALOGUE (z-index: 20)
-   
-   TWO MODES:
-   A) "dialogue-mode" - Floating card with text (concept art style)
-   B) "scene-mode" - NO card, just floating buttons over the scene
+   7. DIALOGUE LAYER (z-index: 20)
    ============================================================ */
 
 .dialogue-layer {
@@ -317,11 +282,10 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-    
   width: min(700px, calc(100% - 40px));
 }
 
-/* --- MODE A: Dialogue Card (when character is speaking) --- */
+/* --- Dialogue Mode (with card) --- */
 .dialogue-layer.dialogue-mode {
   background: var(--dialogue-bg);
   border: 3px solid var(--dialogue-border);
@@ -338,7 +302,7 @@ body {
   margin-top: 16px;
 }
 
-/* --- MODE B: Scene Mode (just floating buttons, no card) --- */
+/* --- Scene Mode (no card) --- */
 .dialogue-layer.scene-mode {
   background: none;
   border: none;
@@ -346,35 +310,23 @@ body {
   box-shadow: none;
 }
 
-.dialogue-layer.scene-mode .dialogue-text {
-  display: none;
-}
-
-.dialogue-layer.scene-mode .speaker-info {
-  display: none;
-}
-
+.dialogue-layer.scene-mode .dialogue-text,
+.dialogue-layer.scene-mode .speaker-info,
 .dialogue-layer.scene-mode .vine-progress {
   display: none;
 }
 
-/* Hidden entirely when not needed */
 .dialogue-layer.hidden {
   display: none;
 }
 
-
-/* ============================================================
-   DIALOGUE COMPONENTS
-   ============================================================ */
-
-/* Speaker info - small and subtle, NOT a big portrait */
+/* --- Speaker Info --- */
 .speaker-info {
   margin-bottom: 8px;
 }
 
 .speaker-portrait {
-  display: none; /* Character sprite IS the visual - no portrait needed */
+  display: none;
 }
 
 .speaker-name {
@@ -383,17 +335,13 @@ body {
   color: var(--dialogue-border);
 }
 
-/* ============================================================
-   DIALOGUE TEXT - Story/conversation style
-   Visually distinct from puzzle boxes!
-   ============================================================ */
-
+/* --- Dialogue Text --- */
 .dialogue-text {
   font-size: 1.1rem;
   line-height: 1.6;
   color: var(--text-dark);
   text-align: center;
-  font-family: 'Georgia', 'Times New Roman', serif;  /* Storybook feel */
+  font-family: 'Georgia', 'Times New Roman', serif;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -414,7 +362,7 @@ body {
   color: var(--dark-purple);
 }
 
-/* "Continue" indicator for multi-part dialogue */
+/* --- Continue Indicator --- */
 .dialogue-continue {
   display: flex;
   justify-content: center;
@@ -436,12 +384,7 @@ body {
   color: var(--primary-purple);
 }
 
-@keyframes continuePulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* Vine progress dots */
+/* --- Vine Progress Dots --- */
 .vine-progress {
   display: flex;
   justify-content: center;
@@ -468,7 +411,7 @@ body {
   border-color: #16a34a;
 }
 
-/* Choices */
+/* --- Choices Container --- */
 .choices-container {
   display: flex;
   flex-wrap: wrap;
@@ -478,7 +421,123 @@ body {
 
 
 /* ============================================================
-   BUTTONS
+   8. PUZZLE SYSTEM
+   ============================================================ */
+
+.puzzle-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 22;
+  width: min(550px, calc(100% - 80px));
+}
+
+.puzzle-box {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 3px solid var(--accent-blue);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: visible !important;
+}
+
+.puzzle-instruction {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 8px;
+  font-family: 'Arial', sans-serif;
+}
+
+.puzzle-question {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 16px;
+  background: var(--light-blue);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 2px;
+  color: var(--text-dark);
+}
+
+.puzzle-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.answer-btn {
+  font-family: 'Arial', sans-serif;
+  font-size: 1.15rem;
+  font-weight: bold;
+  padding: 14px 18px;
+  background: white;
+  border: 3px solid var(--light-purple);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.answer-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--primary-purple);
+  transform: translateY(-2px);
+}
+
+.answer-btn:disabled {
+  cursor: not-allowed;
+}
+
+.answer-btn.correct {
+  background: #d1fae5;
+  border-color: var(--success-green);
+}
+
+.answer-btn.incorrect {
+  background: #fee2e2;
+  border-color: var(--error-red);
+}
+
+.puzzle-hint {
+  margin-top: 14px;
+  padding: 12px;
+  background: #fef3c7;
+  border-radius: 10px;
+  border-left: 4px solid var(--warning-amber);
+  color: #92400e;
+  text-align: center;
+}
+
+/* --- Input Box (name entry) --- */
+.input-box {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0;
+}
+
+.text-input {
+  font-size: 1.15rem;
+  padding: 12px 20px;
+  border: 3px solid var(--light-purple);
+  border-radius: 12px;
+  width: 260px;
+  text-align: center;
+  font-family: inherit;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+}
+
+
+/* ============================================================
+   9. BUTTONS
    ============================================================ */
 
 .btn {
@@ -503,13 +562,11 @@ body {
   cursor: not-allowed;
 }
 
-/* Primary (main action) */
 .btn-primary {
   background: linear-gradient(135deg, var(--button-blue), var(--button-blue-dark));
   color: white;
 }
 
-/* Choice buttons */
 .btn-choice {
   background: rgba(255, 255, 255, 0.95);
   color: var(--text-dark);
@@ -522,7 +579,6 @@ body {
   border-color: var(--primary-purple);
 }
 
-/* Large primary */
 .btn-primary-large {
   background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
   color: white;
@@ -530,53 +586,132 @@ body {
   font-size: 1.2rem;
 }
 
+.btn.primary {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.game-button {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  margin: 5px;
+}
+
+.game-button:hover {
+  transform: translateY(-2px);
+}
+
+.game-button-secondary {
+  background: white;
+  color: var(--dark-purple);
+  border: 2px solid var(--light-purple);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.game-button-secondary:hover {
+  background: var(--light-purple);
+}
+
 
 /* ============================================================
-   PUZZLE LAYER - Floats ABOVE dialogue box
-   Completely separate from narrative dialogue
+   10. HUD (Heads-Up Display) (z-index: 30)
    ============================================================ */
 
-.puzzle-layer {
+.hud-layer {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);  /* Center on screen */
-  z-index: 22;
-  width: min(550px, calc(100% - 80px));
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
 }
 
-.puzzle-box {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  border: 3px solid var(--accent-blue);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
-}
-
-.puzzle-instruction {
-  font-size: 0.95rem;
-  color: var(--text-light);
-  text-align: center;
-  margin-bottom: 8px;
-  font-family: 'Arial', sans-serif;
-}
-
-.puzzle-question {
-  font-size: 1.5rem;
+.hud-title {
+  background: linear-gradient(135deg, #d4a55a, #b8923e);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 10px;
   font-weight: bold;
-  text-align: center;
-  padding: 16px;
-  background: var(--light-blue);
-  border-radius: 12px;
-  margin-bottom: 14px;
-  font-family: 'Arial', 'Helvetica', sans-serif;
-  letter-spacing: 2px;
-  color: var(--text-dark);
+  font-size: 1.05rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
 }
+
+.hud-home-btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.hud-home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #e0b060, #c9a048);
+}
+
+.hud-btn {
+  background: linear-gradient(135deg, #6b8e6b, #4a6b4a);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+}
+
+.hud-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* --- Gem Display --- */
+.gem-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 3px 12px rgba(139, 92, 246, 0.4);
+}
+
+.gem-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+}
+
+.gem-count {
+  min-width: 24px;
+  text-align: center;
+}
+
 
 /* ============================================================
-   HELPER CHARACTER - Clickable sprite for hints
-   Shows "Need help?" text below the character
+   11a. TUTORIAL HELPER (Fairy) - Clickable hint character
+   Used in tutorial.html during puzzle scenes
    ============================================================ */
 
 .helper-layer {
@@ -610,10 +745,6 @@ body {
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
   transition: all 0.3s ease;
-}
-
-/* Gentle glow animation */
-.helper-container .helper-sprite {
   animation: helperGlow 2.5s ease-in-out infinite;
 }
 
@@ -632,7 +763,6 @@ body {
   transform: scale(1.05);
 }
 
-/* "Need help?" label below fairy - always visible */
 .helper-label {
   background: var(--primary-purple);
   color: white;
@@ -650,24 +780,211 @@ body {
   transform: scale(1.05);
 }
 
+
 /* ============================================================
-   HINT OVERLAY - Blurred background with focused hint box
+   11b. TEDDY SYSTEM - SINGLE SOURCE OF TRUTH
+   
+   Three contexts:
+   A) .teddy-decor - Decorative, always visible, clickable for fun
+   B) .teddy-helper - Appears during puzzles, clickable for hints
+   C) .teddy-sidebar - Practice page emoji + dialogue box
    ============================================================ */
 
+/* --- A) DECORATIVE TEDDY (non-puzzle scenes) --- */
+.teddy-decor {
+  position: absolute;
+  bottom: var(--teddy-bottom);
+  right: var(--teddy-right);
+  z-index: 15;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.teddy-decor-sprite {
+  width: var(--teddy-decor-size);
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  animation: teddyIdle 3s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.teddy-decor:hover .teddy-decor-sprite {
+  transform: scale(1.08);
+}
+
+.teddy-decor-sprite.teddy-excited {
+  animation: teddyExcited 0.4s ease;
+}
+
+/* --- B) HELPER TEDDY (during puzzles) --- */
+.teddy-helper {
+  position: absolute;
+  bottom: var(--teddy-bottom);
+  right: var(--teddy-right);
+  z-index: 50;
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.teddy-helper-sprite {
+  width: var(--teddy-helper-size);
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.teddy-helper:hover .teddy-helper-sprite {
+  transform: scale(1.08);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+.teddy-helper-label {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+.teddy-helper:hover .teddy-helper-label {
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  transform: scale(1.05);
+}
+
+.teddy-collar-glow {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: collarPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Helper states */
+.teddy-helper.hint-available .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.7) 0%, rgba(255, 165, 0, 0.3) 50%, transparent 70%);
+  animation: collarPulseBright 2s ease-in-out infinite;
+}
+
+.teddy-helper.teddy-helping .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(255, 165, 0, 0.6) 40%, transparent 70%);
+  animation: collarGlowActive 1s ease-in-out infinite;
+}
+
+.teddy-helper.teddy-celebrating .teddy-helper-sprite {
+  animation: teddyCelebrate 0.6s ease-out;
+}
+
+.teddy-helper.teddy-celebrating .teddy-helper-label {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+/* --- TEDDY SPEECH BUBBLE (fun responses) --- */
+.teddy-fun-bubble {
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+  border: 3px solid #8B4513;
+  border-radius: 16px;
+  padding: 10px 16px;
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5D4037;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: bubblePop 0.3s ease;
+  z-index: 20;
+}
+
+.teddy-fun-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid #8B4513;
+}
+
+.teddy-fun-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #fff9e6;
+  z-index: 1;
+}
+
+.teddy-fun-bubble.fade-out {
+  animation: bubbleFade 0.3s ease forwards;
+}
+
+/* --- C) TEDDY SIDEBAR (Practice page) --- */
+.teddy-sidebar {
+  background: none;
+  backdrop-filter: blur(1px);
+  padding: 20px;
+  border-radius: 30px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.teddy-sidebar-avatar {
+  font-size: 60px;
+}
+
+.teddy-sidebar-dialogue {
+  background: var(--light-purple);
+  padding: 15px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.teddy-sidebar-dialogue p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.teddy-sidebar-dialogue strong {
+  color: var(--dark-purple);
+}
+
+
+/* ============================================================
+   12. HINT SYSTEM (3-Tier Progressive Hints)
+   ============================================================ */
+
+/* --- Hint Overlay --- */
 .hint-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   animation: overlayFadeIn 0.3s ease-out;
-}
-
-@keyframes overlayFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .hint-overlay-backdrop {
@@ -678,53 +995,299 @@ body {
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* --- Hint Box --- */
 .hint-box {
   position: relative;
-  background: white;
+  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+  border: 4px solid #8B4513;
   border-radius: 20px;
-  padding: 24px 28px;
-  max-width: 500px;
-  width: 100%;
-  max-height: calc(100vh - 40px);  /* Don't exceed viewport */
+  padding: 1.5rem;
+  max-width: 90%;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: hintBoxPop 0.3s ease-out;
 }
 
-@keyframes hintBoxPop {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
+/* Level-based styling */
+.hint-box.level-1 { border-color: #7CB342; }
+.hint-box.level-2 { border-color: #FFB300; }
+.hint-box.level-3 { border-color: #FF7043; }
 
+.hint-box.level-1 .hint-box-header { border-bottom-color: #7CB342; }
+.hint-box.level-2 .hint-box-header { border-bottom-color: #FFB300; }
+.hint-box.level-3 .hint-box-header { border-bottom-color: #FF7043; }
+
+/* --- Hint Box Header --- */
 .hint-box-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--light-purple);
-  flex-shrink: 0;  /* Don't shrink header */
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px dashed #ddd;
+  flex-shrink: 0;
 }
 
 .hint-box-icon {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .hint-box-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--dark-purple);
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #5D4037;
 }
 
-/* Scrollable content area */
+/* --- Hint Box Content --- */
 .hint-box-content {
   flex: 1;
   overflow-y: auto;
   padding: 16px 0;
-  min-height: 0;  /* Important for flex scrolling */
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-/* Buttons always visible at bottom */
+/* --- Hint Teddy (in hint box) --- */
+.hint-teddy-container {
+  display: flex;
+  justify-content: center;
+  margin: -0.5rem 0;
+}
+
+.hint-teddy {
+  width: 80px;
+  height: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.hint-teddy.casting {
+  animation: teddyBounce 0.6s ease;
+}
+
+/* --- Pattern/Problem Box --- */
+.hint-pattern-box {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 2px solid var(--accent-blue);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.hint-pattern-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.hint-pattern-box.sparkling::before {
+  animation: sparkleFlash 0.8s ease-out;
+}
+
+.hint-instruction {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* --- Pattern Visual --- */
+.hint-pattern-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 1.6rem;
+  font-weight: bold;
+  font-family: 'Arial', sans-serif;
+  margin: 12px 0;
+}
+
+.hint-pattern-number {
+  color: var(--text-dark);
+  padding: 4px 8px;
+}
+
+.hint-pattern-operator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.4s ease;
+}
+
+.hint-pattern-operator.mystery {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 2px dashed #f87171;
+  color: #dc2626;
+}
+
+.hint-pattern-operator.revealed {
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  border: 2px solid var(--primary-purple);
+  color: var(--dark-purple);
+  animation: operatorReveal 0.5s ease-out;
+}
+
+.hint-pattern-blank {
+  color: var(--accent-blue);
+  border-bottom: 3px solid var(--accent-blue);
+  padding: 4px 12px;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* --- Multiplication Visual --- */
+.multiplication-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mult-problem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.mult-num {
+  background: #E3F2FD;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  border: 2px solid #64B5F6;
+}
+
+.mult-op {
+  color: #666;
+}
+
+.mult-answer {
+  background: #C8E6C9;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  border: 2px solid #66BB6A;
+  min-width: 50px;
+}
+
+.mult-answer.mystery {
+  background: #FFF3E0;
+  border-color: #FFB74D;
+  color: #E65100;
+}
+
+/* --- Skip Counting Visual --- */
+.skip-count-visual {
+  background: #E8F5E9;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.skip-count-label {
+  font-size: 0.85rem;
+  color: #2E7D32;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.skip-count-numbers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1B5E20;
+}
+
+.skip-num {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.skip-num.highlight {
+  background: #FFEB3B;
+  border: 2px solid #FBC02D;
+  font-weight: 700;
+  transform: scale(1.1);
+}
+
+/* --- Hint Explanation --- */
+.hint-explanation {
+  font-family: 'Comic Neue', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+  text-align: center;
+  padding: 0 8px;
+}
+
+.hint-explanation strong {
+  color: var(--primary-purple);
+}
+
+.hint-explanation .keyword {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: #92400e;
+}
+
+/* --- Final Calculation --- */
+.hint-final-calc {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border: 2px solid var(--success-green);
+  border-radius: 14px;
+  padding: 16px 20px;
+  text-align: center;
+  margin: 16px 0;
+  animation: calcAppear 0.4s ease-out;
+}
+
+.hint-final-calc-label {
+  font-size: 0.9rem;
+  color: #065f46;
+  margin-bottom: 8px;
+}
+
+.hint-final-calc-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #047857;
+  font-family: 'Arial', sans-serif;
+}
+
+.hint-final-calc-text strong {
+  color: #D32F2F;
+  font-size: 1.5rem;
+}
+
+/* --- Hint Buttons --- */
 .hint-buttons {
   display: flex;
   gap: 12px;
@@ -732,107 +1295,7 @@ body {
   flex-wrap: wrap;
   padding-top: 16px;
   border-top: 1px solid #eee;
-  flex-shrink: 0;  /* Don't shrink buttons */
-}
-
-/* The question shown in hint box */
-.hint-question-display {
-  background: var(--light-blue);
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.hint-question-text {
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  margin-bottom: 12px;
-}
-
-.hint-pattern-visual {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.hint-pattern-number {
-  color: var(--text-dark);
-}
-
-.hint-pattern-operator {
-  color: var(--primary-purple);
-  font-size: 1rem;
-  padding: 4px 8px;
-  background: rgba(139, 92, 246, 0.15);
-  border-radius: 8px;
-}
-
-.hint-pattern-blank {
-  color: var(--accent-blue);
-  border-bottom: 3px solid var(--accent-blue);
-  padding: 0 8px;
-}
-
-/* Hint explanation text */
-.hint-explanation {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--text-dark);
-  margin-bottom: 20px;
-  text-align: center;
-  font-family: 'Georgia', serif;
-}
-
-.hint-explanation strong {
-  color: var(--primary-purple);
-}
-
-/* Previous hints (stacked above, smaller) */
-.hint-previous {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 16px;
-  border-left: 4px solid var(--light-purple);
-}
-
-.hint-previous .hint-pattern-visual {
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-}
-
-.hint-previous .hint-explanation {
-  font-size: 0.9rem;
-  margin-bottom: 0;
-  color: var(--text-light);
-}
-
-/* Final calculation hint */
-.hint-final-calc {
-  background: linear-gradient(135deg, var(--light-purple), #e0d4fc);
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.hint-final-calc-text {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--dark-purple);
-}
-
-/* Hint buttons */
-.hint-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .hint-btn {
@@ -847,14 +1310,14 @@ body {
 }
 
 .hint-btn-primary {
-  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  background: linear-gradient(135deg, #66BB6A, #43A047);
   color: white;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 187, 106, 0.4);
 }
 
 .hint-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 16px rgba(102, 187, 106, 0.5);
 }
 
 .hint-btn-secondary {
@@ -867,173 +1330,216 @@ body {
   background: var(--light-purple);
 }
 
-/* Responsive hint overlay */
-@media (max-width: 768px) {
-  .hint-box {
-    padding: 20px 24px;
-    margin: 20px;
-  }
-  
-  .hint-pattern-visual {
-    font-size: 1.2rem;
-  }
-  
-  .hint-explanation {
-    font-size: 1rem;
-  }
-  
-  .helper-sprite {
-    height: 25vh;
-  }
-  
-  .helper-label {
-    font-size: 0.85rem;
-    padding: 6px 12px;
-  }
+.hint-btn-next-level {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #78350f;
+  border: none;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
 }
 
-@media (max-width: 480px) {
-  .hint-box {
-    padding: 16px 20px;
-  }
-  
-  .hint-pattern-visual {
-    font-size: 1.1rem;
-    gap: 4px;
-  }
-  
-  .helper-sprite {
-    height: 20vh;
-  }
-}
-
-.puzzle-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.answer-btn {
-  font-family: 'Arial', sans-serif;
-  font-size: 1.15rem;
-  font-weight: bold;
-  padding: 14px 18px;
-  background: white;
-  border: 3px solid var(--light-purple);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.answer-btn:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: var(--primary-purple);
+.hint-btn-next-level:hover {
+  background: linear-gradient(135deg, #fcd34d, #fbbf24);
   transform: translateY(-2px);
 }
 
-.answer-btn:disabled { cursor: not-allowed; }
-.answer-btn.correct { background: #d1fae5; border-color: var(--success-green); }
-.answer-btn.incorrect { background: #fee2e2; border-color: var(--error-red); }
-
-.puzzle-hint {
-  margin-top: 14px;
-  padding: 12px;
-  background: #fef3c7;
-  border-radius: 10px;
-  border-left: 4px solid var(--warning-amber);
-  color: #92400e;
-  text-align: center;
-}
-
-
-/* ============================================================
-   INPUT BOX (name entry)
-   ============================================================ */
-
-.input-box {
-  display: flex;
-  justify-content: center;
-  margin: 14px 0;
-}
-
-.text-input {
-  font-size: 1.15rem;
-  padding: 12px 20px;
-  border: 3px solid var(--light-purple);
-  border-radius: 12px;
-  width: 260px;
-  text-align: center;
-  font-family: inherit;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: var(--primary-purple);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
-}
-
-
-/* ============================================================
-   LAYER 4: HUD (z-index: 30)
-   ============================================================ */
-
-.hud-layer {
+/* --- Hint Offer Popup --- */
+.hint-popup {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 30;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 3px solid #8B4513;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  animation: popIn 0.3s ease;
+}
+
+.hint-popup-content {
+  text-align: center;
+}
+
+.hint-popup-content p {
+  font-family: 'Comic Neue', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #5D4037;
+  margin-bottom: 1rem;
+}
+
+.hint-popup-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
+  gap: 0.75rem;
+  justify-content: center;
 }
 
-.hud-title {
-  background: linear-gradient(135deg, #d4a55a, #b8923e);
+.btn-hint-yes {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
   color: white;
-  padding: 10px 22px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 1.05rem;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
-}
-
-/* Clickable home button version of hud-title */
-.hud-home-btn {
   border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s ease;
 }
 
-.hud-home-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #e0b060, #c9a048);
+.btn-hint-yes:hover {
+  transform: scale(1.05);
 }
 
-.hud-btn {
-  background: linear-gradient(135deg, #6b8e6b, #4a6b4a);
+.btn-hint-no {
+  background: linear-gradient(135deg, #90A4AE, #78909C);
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-family: inherit;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
 }
 
-.hud-btn:hover {
-  transform: translateY(-2px);
+.btn-hint-no:hover {
+  transform: scale(1.05);
+}
+
+/* --- Sparkle Container --- */
+.hint-sparkle-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hint-sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #FFD700 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sparkleFloat 0.8s ease-out forwards;
 }
 
 
 /* ============================================================
-   REWARD DISPLAY
+   13. GEM SYSTEM & CELEBRATIONS
    ============================================================ */
 
+.gem-display.earned {
+  animation: gemEarned 0.4s ease-out;
+}
+
+.gem-earned {
+  animation: gem-celebrate 0.6s ease-out;
+}
+
+.gem-plus-one {
+  position: absolute;
+  color: gold;
+  font-size: 24px;
+  font-weight: bold;
+  animation: float-up 1s ease-out forwards;
+  pointer-events: none;
+}
+
+.gem-plus-text {
+  font-size: 2em;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 
+    2px 2px 0 #ff8c00,
+    -1px -1px 0 #ff8c00,
+    1px -1px 0 #ff8c00,
+    -1px 1px 0 #ff8c00;
+  animation: float-up-gems 1.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* --- Teddy Encouragement Popup --- */
+.teddy-encouragement-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  pointer-events: all;
+  background: rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease;
+}
+
+.teddy-encouragement-popup.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+.teddy-encouragement-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.teddy-encouragement-sprite {
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.teddy-encouragement-sprite.bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.teddy-encouragement-bubble {
+  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+  border: 3px solid #8B4513;
+  border-radius: 20px;
+  padding: 0.75rem 1.25rem;
+  max-width: 250px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.teddy-encouragement-bubble.pop-in {
+  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.15s both;
+}
+
+.teddy-encouragement-bubble::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 12px solid #8B4513;
+}
+
+.teddy-encouragement-bubble::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #fff9e6;
+}
+
+.teddy-encouragement-text {
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #5D4037;
+  line-height: 1.4;
+}
+
+/* --- Reward Display --- */
 .reward-display {
   text-align: center;
   padding: 20px;
@@ -1043,11 +1549,6 @@ body {
   height: 120px;
   filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
   animation: rewardGlow 2s ease-in-out infinite;
-}
-
-@keyframes rewardGlow {
-  0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
-  50% { filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.9)); }
 }
 
 .reward-placeholder {
@@ -1065,11 +1566,7 @@ body {
   margin-top: 10px;
 }
 
-
-/* ============================================================
-   CLICK HINT (gem tutorial)
-   ============================================================ */
-
+/* --- Click Hint (gem tutorial) --- */
 .click-hint {
   position: absolute;
   bottom: 25%;
@@ -1085,112 +1582,224 @@ body {
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
-@keyframes hintBounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-10px); }
-}
-
 
 /* ============================================================
-   TRANSITION SCREEN
+   14. GAME MENU OVERLAY
    ============================================================ */
 
-.transition-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.8);
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 500;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.transition-text {
-  font-size: 2rem;
+.menu-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.menu-btn:active {
+  transform: scale(0.98);
+}
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.menu-panel {
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.menu-overlay.open .menu-panel {
+  transform: scale(1) translateY(0);
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid #E8D5A3;
+}
+
+.menu-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #5D4037;
+}
+
+.menu-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #EF4444;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-close:hover {
+  background: #DC2626;
+  transform: scale(1.1);
+}
+
+.menu-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
-.loading-paw {
-  font-size: 3rem;
-  animation: pawWalk 0.5s ease-in-out infinite alternate;
+.menu-location {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 14px 18px;
+  background: white;
+  border-radius: 14px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
-@keyframes pawWalk {
-  0% { transform: translateX(-20px) rotate(-10deg); }
-  100% { transform: translateX(20px) rotate(10deg); }
+.menu-location:hover {
+  border-color: #8B5CF6;
+  transform: translateX(5px);
+}
+
+.menu-location.current {
+  border-color: #10B981;
+  background: #ECFDF5;
+}
+
+.menu-location.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.menu-location.locked:hover {
+  border-color: transparent;
+  transform: none;
+}
+
+.menu-location-icon {
+  font-size: 2rem;
+  width: 50px;
+  text-align: center;
+}
+
+.menu-location-info {
+  flex: 1;
+}
+
+.menu-location-name {
+  font-weight: bold;
+  color: #5D4037;
+  margin-bottom: 2px;
+}
+
+.menu-location-desc {
+  font-size: 0.85rem;
+  color: #757575;
+}
+
+.menu-location-badge {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.menu-location.current .menu-location-badge {
+  background: #10B981;
+  color: white;
+}
+
+.menu-location.locked .menu-location-badge {
+  background: #EEEEEE;
+  color: #757575;
+}
+
+.menu-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 2px solid #E8D5A3;
+}
+
+.menu-footer-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.menu-footer-btn.secondary {
+  background: white;
+  color: #5D4037;
+  border: 2px solid #E8D5A3;
+}
+
+.menu-footer-btn.secondary:hover {
+  background: #FFF9E6;
+  border-color: #D4A55A;
 }
 
 
 /* ============================================================
-   RESPONSIVE - Adjustments for different screen sizes
-   
-   The stage positioning system automatically scales,
-   but we can fine-tune for mobile/tablet here.
-   ============================================================ */
-
-@media (max-width: 768px) {
-  /* Adjust stage positions for smaller screens */
-  :root {
-    --stage-left-x: 20%;
-    --stage-right-x: 80%;
-    --stage-left-elevated: 18%;
-  }
-  
-  .dialogue-layer {
-    width: calc(100% - 30px);
-    bottom: 15px;
-  }
-    
-  .dialogue-layer.dialogue-mode {
-    padding: 16px 20px 20px;
-  }
-    
-  .dialogue-text {
-    font-size: 1.1rem;
-  }
-    
-  .size-large .character-sprite { height: 55vh; }
-  .size-xlarge .character-sprite { height: 65vh; }
-  .size-medium .character-sprite { height: 35vh; }
-    
-  .puzzle-options {
-    grid-template-columns: 1fr;
-  }
-  
-  .rock-sprite {
-    height: 20vh;
-  }
-}
-
-/* Extra small screens (phones in portrait) */
-@media (max-width: 480px) {
-  :root {
-    --stage-left-x: 25%;
-    --stage-right-x: 75%;
-    --stage-left-elevated: 15%;
-  }
-  
-  .size-medium .character-sprite { height: 30vh; }
-  
-  .rock-sprite {
-    height: 15vh;
-  }
-}
-
-/* Large screens / tablets in landscape */
-@media (min-width: 1024px) {
-  :root {
-    --stage-left-x: 18%;
-    --stage-right-x: 82%;
-    --stage-left-elevated: 22%;
-  }
-}
-
-
-/* ============================================================
-   PRACTICE PAGE STYLES (patterns.html)
+   15. PRACTICE PAGE (patterns.html)
    ============================================================ */
 
 .practice-page {
@@ -1282,8 +1891,16 @@ body {
   border: 2px solid var(--primary-purple);
 }
 
-.pup-silhouette { font-size: 40px; margin-bottom: 5px; }
-.pup-name { font-size: 0.85em; font-weight: bold; text-align: center; }
+.pup-silhouette {
+  font-size: 40px;
+  margin-bottom: 5px;
+}
+
+.pup-name {
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+}
 
 .gem-container {
   display: flex;
@@ -1306,13 +1923,13 @@ body {
   filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.8));
 }
 
-@keyframes glow {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.8)); }
-  50% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 1)); }
+.gem.recharging {
+  opacity: 0.6;
 }
 
-.gem.recharging { opacity: 0.6; }
-.gem:hover:not(.recharging) { transform: scale(1.2); }
+.gem:hover:not(.recharging) {
+  transform: scale(1.2);
+}
 
 .gem-energy-bar {
   width: 60px;
@@ -1328,7 +1945,10 @@ body {
   transition: width 0.3s ease;
 }
 
-.gem-label { font-size: 0.8em; color: var(--text-light); }
+.gem-label {
+  font-size: 0.8em;
+  color: var(--text-light);
+}
 
 .practice-container {
   display: grid;
@@ -1336,10 +1956,6 @@ body {
   gap: 20px;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .practice-container { grid-template-columns: 1fr; }
 }
 
 .question-area {
@@ -1390,33 +2006,20 @@ body {
   transform: translateY(-2px);
 }
 
-.answer-option:disabled { cursor: not-allowed; }
-.answer-option.correct { background: #d1fae5; border-color: var(--success-green); font-weight: bold; }
-.answer-option.incorrect { background: #fee2e2; border-color: var(--error-red); }
-
-.teddy-helper {
-  background: none;
-  backdrop-filter: blur(1px);
-  padding: 20px;
-  border-radius: 30px;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+.answer-option:disabled {
+  cursor: not-allowed;
 }
 
-.teddy-avatar { font-size: 60px; }
-
-.teddy-dialogue {
-  background: var(--light-purple);
-  padding: 15px;
-  border-radius: 10px;
-  width: 100%;
+.answer-option.correct {
+  background: #d1fae5;
+  border-color: var(--success-green);
+  font-weight: bold;
 }
 
-.teddy-dialogue p { margin: 0; line-height: 1.6; }
-.teddy-dialogue strong { color: var(--dark-purple); }
+.answer-option.incorrect {
+  background: #fee2e2;
+  border-color: var(--error-red);
+}
 
 .feedback {
   margin-top: 20px;
@@ -1426,79 +2029,21 @@ body {
   text-align: center;
 }
 
-.correct-feedback { background: #d1fae5; color: #065f46; font-weight: bold; }
-.incorrect-feedback { background: #fee2e2; color: #991b1b; }
-
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal.show { display: flex; }
-
-.modal-content {
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  max-width: 500px;
-  width: 90%;
-  text-align: center;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-}
-
-.modal-content h2 { color: var(--primary-purple); margin: 20px 0; }
-.modal-content p { margin: 15px 0; line-height: 1.6; }
-
-.completion-screen {
-  text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.completion-screen h1 { color: var(--primary-purple); margin-bottom: 30px; font-size: 2.5em; }
-.completion-screen p { font-size: 1.3em; margin: 15px 0; }
-.teddy-big { font-size: 100px; }
-.coming-soon { color: var(--text-light); font-style: italic; }
-
-.game-button {
-  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 10px;
-  font-size: 1.1rem;
+.correct-feedback {
+  background: #d1fae5;
+  color: #065f46;
   font-weight: bold;
-  font-family: inherit;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-  margin: 5px;
 }
 
-.game-button:hover { transform: translateY(-2px); }
-
-.game-button-secondary {
-  background: white;
-  color: var(--dark-purple);
-  border: 2px solid var(--light-purple);
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: bold;
-  font-family: inherit;
-  cursor: pointer;
-  margin: 5px;
+.incorrect-feedback {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-.game-button-secondary:hover { background: var(--light-purple); }
-
-.hint-menu { max-width: 600px; }
+/* Practice page hint menu */
+.hint-menu {
+  max-width: 600px;
+}
 
 .hint-options {
   display: flex;
@@ -1522,13 +2067,26 @@ body {
   background: var(--light-purple);
 }
 
-.hint-level { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
-.hint-description { font-size: 1.1em; margin-bottom: 5px; }
-.hint-cost { font-size: 0.9em; color: var(--text-light); font-style: italic; }
+.hint-level {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.hint-description {
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.hint-cost {
+  font-size: 0.9em;
+  color: var(--text-light);
+  font-style: italic;
+}
 
 
 /* ============================================================
-   WELCOME PAGE (index.html)
+   16. WELCOME PAGE (index.html)
    ============================================================ */
 
 .fullscreen-bg {
@@ -1561,11 +2119,6 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
 .dialogue {
   width: min(980px, calc(100% - 40px));
   margin: 0 auto 22px;
@@ -1590,1042 +2143,126 @@ body {
   flex-wrap: wrap;
 }
 
-.btn.primary {
-  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
-  color: white;
-  border: none;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-}
-/* ============================================================
-   ADD THIS TO THE END OF YOUR styles.css FILE
-   Gem Display for Farm HUD
-   ============================================================ */
-
-/* Gem display in HUD */
-.gem-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #a855f7, #7c3aed);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 1.1rem;
-  box-shadow: 0 3px 12px rgba(139, 92, 246, 0.4);
-}
-
-.gem-icon {
-  font-size: 1.3rem;
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
-}
-
-.gem-count {
-  min-width: 24px;
-  text-align: center;
-}
-
-/* Animation when gems are earned */
-@keyframes gemEarned {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-
-.gem-display.earned {
-  animation: gemEarned 0.4s ease-out;
-}
-
-/* Add this to your styles.css */
-
-@keyframes gem-bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-}
-
-@keyframes gem-shine {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(1.5) drop-shadow(0 0 10px gold); }
-    100% { filter: brightness(1); }
-}
-
-@keyframes gem-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Apply when gem is earned */
-.gem-earned {
-    animation: gem-bounce 0.5s ease-in-out, gem-shine 0.5s ease-in-out;
-}
-
-/* For the +1 popup number */
-@keyframes float-up {
-    0% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-}
-
-.gem-plus-one {
-    position: absolute;
-    color: gold;
-    font-size: 24px;
-    font-weight: bold;
-    animation: float-up 1s ease-out forwards;
-    pointer-events: none;
-}
 
 /* ============================================================
-   MAGICAL HINT SYSTEM - StudyPups
-   
-   Three levels of progressive hints with magical transformations:
-   Level 1: "What's the pattern?" - Question marks between numbers
-   Level 2: "Here's the rule!" - Fairy reveals the pattern (+2, +5, etc.)
-   Level 3: "You've got this!" - Final calculation help
-   
-   The fairy appears and magically transforms the hints!
+   17. MODALS & TRANSITIONS
    ============================================================ */
 
-/* ============================================================
-   TUTORIAL HINT SYSTEM - Complete
-   Three levels of progressive hints with magical transformations
-   ============================================================ */
-
-/* ===== HINT OVERLAY ===== */
-.hint-overlay {
+.modal {
+  display: none;
   position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  animation: overlayFadeIn 0.3s ease-out;
-}
-
-@keyframes overlayFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.hint-overlay-backdrop {
-  position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-/* ===== HINT BOX ===== */
-.hint-box {
-  position: relative;
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
   background: white;
+  padding: 40px;
   border-radius: 20px;
-  padding: 24px 28px;
-  max-width: 520px;
-  width: 100%;
-  max-height: calc(100vh - 40px);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: hintBoxPop 0.3s ease-out;
-  overflow: hidden;
-}
-
-@keyframes hintBoxPop {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* ===== HEADER - Changes per level ===== */
-.hint-box-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--light-purple);
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-.hint-box-icon {
-  font-size: 1.8rem;
-  transition: transform 0.3s ease;
-}
-
-.hint-box-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--dark-purple);
-  transition: color 0.3s ease;
-}
-
-/* Header variations by level */
-.hint-box.level-1 .hint-box-header { border-bottom-color: #fbbf24; }
-.hint-box.level-2 .hint-box-header { border-bottom-color: var(--primary-purple); }
-.hint-box.level-3 .hint-box-header { border-bottom-color: var(--success-green); }
-
-/* ===== SCROLLABLE CONTENT AREA ===== */
-.hint-box-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 0;
-  min-height: 0;
-  position: relative;
-}
-
-/* ===== FAIRY MAGIC CONTAINER ===== */
-.fairy-magic-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-/* The fairy sprite that appears during transformation */
-.hint-fairy {
-  width: 100px;
-  height: auto;
-  margin-bottom: 12px;
-  filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.4));
-  animation: fairyAppear 0.5s ease-out;
-}
-
-@keyframes fairyAppear {
-  0% { 
-    opacity: 0; 
-    transform: scale(0.5) translateY(20px); 
-  }
-  60% { 
-    opacity: 1; 
-    transform: scale(1.1) translateY(-5px); 
-  }
-  100% { 
-    opacity: 1; 
-    transform: scale(1) translateY(0); 
-  }
-}
-
-/* Fairy casting animation (subtle bob + glow) */
-.hint-fairy.casting {
-  animation: fairyCasting 1s ease-in-out infinite;
-}
-
-@keyframes fairyCasting {
-  0%, 100% { 
-    filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.4)); 
-    transform: translateY(0);
-  }
-  50% { 
-    filter: drop-shadow(0 4px 20px rgba(139, 92, 246, 0.8))
-            drop-shadow(0 0 30px rgba(255, 215, 0, 0.6)); 
-    transform: translateY(-3px);
-  }
-}
-
-/* ===== PATTERN DISPLAY BOX ===== */
-.hint-pattern-box {
-  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  border: 2px solid var(--accent-blue);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Sparkle overlay for magic effect */
-.hint-pattern-box::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.3), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-.hint-pattern-box.sparkling::before {
-  animation: sparkleFlash 0.8s ease-out;
-}
-
-@keyframes sparkleFlash {
-  0% { opacity: 0; }
-  30% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* Instruction text above pattern */
-.hint-instruction {
-  font-size: 0.95rem;
-  color: var(--text-light);
+  max-width: 500px;
+  width: 90%;
   text-align: center;
-  margin-bottom: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
-/* ===== PATTERN VISUAL (the numbers and operators) ===== */
-.hint-pattern-visual {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  font-size: 1.6rem;
-  font-weight: bold;
-  font-family: 'Arial', sans-serif;
-  margin: 12px 0;
-}
-
-/* Individual number in the pattern */
-.hint-pattern-number {
-  color: var(--text-dark);
-  padding: 4px 8px;
-  transition: all 0.3s ease;
-}
-
-/* The operator/mystery between numbers */
-.hint-pattern-operator {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  transition: all 0.4s ease;
-}
-
-/* Level 1: Mystery operators (red question marks) */
-.hint-pattern-operator.mystery {
-  background: linear-gradient(135deg, #fef2f2, #fee2e2);
-  border: 2px dashed #f87171;
-  color: #dc2626;
-}
-
-/* Level 2: Revealed operators (purple/blue with the rule) */
-.hint-pattern-operator.revealed {
-  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-  border: 2px solid var(--primary-purple);
-  color: var(--dark-purple);
-  animation: operatorReveal 0.5s ease-out;
-}
-
-@keyframes operatorReveal {
-  0% { 
-    transform: scale(0.8) rotateY(90deg); 
-    opacity: 0;
-  }
-  50% { 
-    transform: scale(1.15) rotateY(0deg); 
-  }
-  100% { 
-    transform: scale(1) rotateY(0deg); 
-    opacity: 1;
-  }
-}
-
-/* The blank/answer spot at the end */
-.hint-pattern-blank {
-  color: var(--accent-blue);
-  border-bottom: 3px solid var(--accent-blue);
-  padding: 4px 12px;
-  min-width: 40px;
-  text-align: center;
-}
-
-/* ===== EXPLANATION TEXT ===== */
-.hint-explanation {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--text-dark);
-  text-align: center;
-  font-family: 'Comic Neue', 'Trebuchet MS', sans-serif;
-  padding: 0 8px;
-}
-
-.hint-explanation strong {
+.modal-content h2 {
   color: var(--primary-purple);
+  margin: 20px 0;
 }
 
-.hint-explanation .keyword {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-weight: bold;
-  color: #92400e;
+.modal-content p {
+  margin: 15px 0;
+  line-height: 1.6;
 }
 
-/* ===== FINAL CALCULATION (Level 3) ===== */
-.hint-final-calc {
-  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-  border: 2px solid var(--success-green);
-  border-radius: 14px;
-  padding: 16px 20px;
-  text-align: center;
-  margin: 16px 0;
-  animation: calcAppear 0.4s ease-out;
-}
-
-@keyframes calcAppear {
-  from { 
-    transform: scale(0.95); 
-    opacity: 0; 
-  }
-  to { 
-    transform: scale(1); 
-    opacity: 1; 
-  }
-}
-
-.hint-final-calc-label {
-  font-size: 0.9rem;
-  color: #065f46;
-  margin-bottom: 8px;
-}
-
-.hint-final-calc-text {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #047857;
-  font-family: 'Arial', sans-serif;
-}
-
-/* ===== BUTTONS ===== */
-.hint-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
-  flex-shrink: 0;
-}
-
-.hint-btn {
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: bold;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-}
-
-.hint-btn-primary {
-  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
-  color: white;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-}
-
-.hint-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
-}
-
-.hint-btn-secondary {
-  background: white;
-  color: var(--dark-purple);
-  border: 2px solid var(--light-purple);
-}
-
-.hint-btn-secondary:hover {
-  background: var(--light-purple);
-}
-
-/* Level-specific button colors */
-.hint-btn-next-level {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #78350f;
-  border: none;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
-}
-
-.hint-btn-next-level:hover {
-  background: linear-gradient(135deg, #fcd34d, #fbbf24);
-  transform: translateY(-2px);
-}
-
-/* ===== SPARKLE PARTICLES ===== */
-.hint-sparkle-container {
+.transition-screen {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hint-sparkle {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: radial-gradient(circle, #ffd700, transparent 70%);
-  border-radius: 50%;
-  animation: sparkleFloat 1s ease-out forwards;
-}
-
-@keyframes sparkleFloat {
-  0% {
-    opacity: 1;
-    transform: scale(0) translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.5) translateY(-20px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) translateY(-40px);
-  }
-}
-
-/* ===== TUTORIAL HINT RESPONSIVE ===== */
-@media (max-width: 480px) {
-  .hint-box {
-    padding: 20px;
-  }
-  
-  .hint-pattern-visual {
-    font-size: 1.3rem;
-    gap: 4px;
-  }
-  
-  .hint-pattern-operator {
-    min-width: 36px;
-    padding: 4px 8px;
-    font-size: 0.95rem;
-  }
-  
-  .hint-fairy {
-    width: 80px;
-  }
-  
-  .hint-explanation {
-    font-size: 1rem;
-  }
-}
-
-
-/* ============================================================
-   FARM HINT SYSTEM - FIXED POSITIONING
-   Teddy appears BESIDE the hint box (not inside!)
-   ============================================================ */
-
-/* CRITICAL: Puzzle box must allow overflow */
-#puzzleBox,
-.puzzle-box {
-  position: relative;
-  overflow: visible !important; /* Don't clip Teddy! */
-}
-
-/* Hint Popup (appears on first error) */
-.hint-popup {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  border: 3px solid #9b59b6;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  animation: popup-appear 0.3s ease-out;
   z-index: 100;
-  max-width: 400px;
-}
-
-@keyframes popup-appear {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-.hint-popup-content {
-  text-align: center;
-}
-
-.hint-popup-content p {
-  font-size: 1.2em;
-  color: #333;
-  margin-bottom: 15px;
-  font-weight: 600;
-}
-
-.hint-popup-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.btn-hint-yes,
-.btn-hint-no {
-  padding: 10px 20px;
-  font-size: 1em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
-}
-
-.btn-hint-yes {
-  background: #9b59b6;
-  color: white;
-}
-
-.btn-hint-yes:hover {
-  background: #8e44ad;
-  transform: scale(1.05);
-}
-
-.btn-hint-no {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-hint-no:hover {
-  background: #7f8c8d;
-  transform: scale(1.05);
-}
-
-/* Hint Text Container - NO background/border here! */
-.puzzle-hint {
-  margin-top: 20px;
-  animation: hint-slide-in 0.4s ease-out;
-  position: relative;
-  z-index: 50;
-}
-
-@keyframes hint-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Teddy + Bubble Container (side by side layout) */
-.hint-with-teddy {
-  display: flex;
-  align-items: flex-end; /* Teddy's feet align with bubble bottom */
-  gap: 20px; /* Space between Teddy and bubble */
-  padding: 0; /* No padding - bubble will have its own */
-  position: relative;
-  justify-content: flex-start;
-}
-
-/* Teddy Image - BIG and prominent! */
-.hint-teddy {
-  width: 140px !important; /* Force override any conflicting styles */
-  height: 140px !important;
-  object-fit: contain;
-  flex-shrink: 0; /* Don't let Teddy shrink */
-  animation: teddy-bounce 0.6s ease-out;
-  margin-bottom: -20px; /* Sit at "ground level" */
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
-  position: relative;
-  z-index: 51;
-}
-
-@keyframes teddy-bounce {
-  0% { 
-    transform: translateY(30px) scale(0.6); 
-    opacity: 0; 
-  }
-  60% { 
-    transform: translateY(-10px) scale(1.1); 
-    opacity: 1; 
-  }
-  100% { 
-    transform: translateY(0) scale(1); 
-    opacity: 1; 
-  }
-}
-
-/* The hint speech bubble */
-.hint-bubble {
-  flex: 1;
-  max-width: 550px; /* Don't stretch too wide */
-  background: #fff3cd;
-  border: 3px solid #ffc107;
-  border-radius: 15px;
-  padding: 18px 22px;
-  position: relative;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  font-size: 1.1em;
-  color: #333;
-  line-height: 1.7;
-  font-weight: 500;
-  z-index: 50;
-}
-
-/* Speech bubble pointer (points LEFT at Teddy) */
-.hint-bubble::before {
-  content: "";
-  position: absolute;
-  left: -18px; /* Outside the bubble edge */
-  bottom: 45px; /* Align with middle-ish of bubble */
-  width: 0;
-  height: 0;
-  border-top: 16px solid transparent;
-  border-bottom: 16px solid transparent;
-  border-right: 18px solid #ffc107; /* Border color */
-  z-index: 49;
-}
-
-.hint-bubble::after {
-  content: "";
-  position: absolute;
-  left: -14px; /* Inner triangle for clean look */
-  bottom: 47px;
-  width: 0;
-  height: 0;
-  border-top: 14px solid transparent;
-  border-bottom: 14px solid transparent;
-  border-right: 14px solid #fff3cd; /* Background color */
-  z-index: 50;
-}
-
-/* Waiting Teddy (corner buddy when user says "I'll try again") */
-.teddy-waiting {
-  position: fixed;
-  bottom: 90px;
-  right: 25px;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 150;
-  animation: waiting-teddy-appear 0.4s ease-out;
-}
-
-@keyframes waiting-teddy-appear {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.teddy-wait-sprite {
-  width: 90px;
-  height: 90px;
-  object-fit: contain;
-  animation: teddy-patient-bob 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
-}
-
-@keyframes teddy-patient-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* ===== RESPONSIVE - Mobile/Tablet ===== */
-
-@media (max-width: 900px) {
-  .hint-teddy {
-    width: 110px !important;
-    height: 110px !important;
-  }
-  
-  .hint-bubble {
-    font-size: 1em;
-    padding: 15px 18px;
-    max-width: 450px;
-  }
-}
-
-@media (max-width: 768px) {
-  .hint-popup {
-    max-width: 90%;
-    padding: 15px;
-  }
-  
-  .hint-teddy {
-    width: 100px !important;
-    height: 100px !important;
-    margin-bottom: -15px;
-  }
-  
-  .hint-bubble {
-    font-size: 0.95em;
-    padding: 14px 16px;
-  }
-  
-  .teddy-wait-sprite {
-    width: 70px;
-    height: 70px;
-  }
-}
-
-@media (max-width: 480px) {
-  /* Stack Teddy ABOVE hint on tiny screens */
-  .hint-with-teddy {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .hint-teddy {
-    width: 120px !important;
-    height: 120px !important;
-    margin-bottom: 0;
-  }
-  
-  /* Flip speech bubble arrow to point UP at Teddy */
-  .hint-bubble::before {
-    left: 50%;
-    bottom: auto;
-    top: -16px;
-    transform: translateX(-50%);
-    border-left: 16px solid transparent;
-    border-right: 16px solid transparent;
-    border-bottom: 16px solid #ffc107;
-    border-top: none;
-  }
-  
-  .hint-bubble::after {
-    left: 50%;
-    bottom: auto;
-    top: -12px;
-    transform: translateX(-50%);
-    border-left: 14px solid transparent;
-    border-right: 14px solid transparent;
-    border-bottom: 14px solid #fff3cd;
-    border-top: none;
-  }
-  
-  .hint-bubble {
-    max-width: 90%;
-  }
-}
-
-
-/* ============================================================
-   GEM CELEBRATION ANIMATIONS
-   (Used in both tutorial and farm!)
-   ============================================================ */
-
-/* Gem counter bounce and shine */
-.gem-earned {
-  animation: gem-celebrate 0.6s ease-out;
-}
-
-@keyframes gem-celebrate {
-  0%, 100% {
-    transform: scale(1);
-    filter: brightness(1);
-  }
-  25% {
-    transform: scale(1.3);
-    filter: brightness(1.5) drop-shadow(0 0 15px gold);
-  }
-  50% {
-    transform: scale(1.1) rotate(10deg);
-  }
-  75% {
-    transform: scale(1.3) rotate(-10deg);
-  }
-}
-
-/* Floating "+X" text */
-.gem-plus-text {
-  font-size: 2em;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 
-    2px 2px 0 #ff8c00,
-    -1px -1px 0 #ff8c00,
-    1px -1px 0 #ff8c00,
-    -1px 1px 0 #ff8c00;
-  animation: float-up-gems 1.5s ease-out forwards;
-  pointer-events: none;
-}
-
-@keyframes float-up-gems {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-30px) scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-60px) scale(0.8);
-  }
-}
-
-/* Add sparkle to gem counter area */
-.gem-counter {
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-/* Optional: Simple sparkle effect */
-@keyframes sparkle-pulse {
-  0%, 100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* If you want to add sparkles around gems later */
-.gem-sparkle {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: gold;
-  border-radius: 50%;
-  animation: sparkle-pulse 0.6s ease-in-out;
-}
-
-/* ===== GEM RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .gem-plus-text {
-    font-size: 1.5em;
-  }
-}
-
-/* ============================================
-   TEDDY HELPER SYSTEM - CSS
-   "Help is always available"
-   ============================================ */
-
-/* ===== TEDDY HELPER CONTAINER ===== */
-.teddy-helper {
-  position: fixed;
-  bottom: 40px;
-  right: calc(50% - 450px - 140px);  /* 350px = half of dialogue box, 140px = Teddy's space */
-  z-index: 100;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  transition: transform 0.3s ease;
-}
-
-.teddy-helper:hover {
-  transform: scale(1.05);
-}
-
-.teddy-helper:active {
-  transform: scale(0.98);
-}
-
-/* ===== TEDDY SPRITE ===== */
-.teddy-helper-sprite {
-  width: 250px;
-  height: 250px;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-  transition: opacity 0.2s ease, transform 0.3s ease;
-  position: relative;
-  z-index: 2;
-}
-
-/* ===== COLLAR GLOW ===== */
-.teddy-collar-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: collarPulse 3s ease-in-out infinite;
-  z-index: 1;
-  pointer-events: none;
-}
-
-@keyframes collarPulse {
-  0%, 100% {
-    opacity: 0.5;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-}
-
-/* Brighter glow when hint is available (after wrong answer) */
-.teddy-helper.hint-available .teddy-collar-glow {
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.7) 0%, rgba(255, 165, 0, 0.3) 50%, transparent 70%);
-  animation: collarPulseBright 2s ease-in-out infinite;
-}
-
-@keyframes collarPulseBright {
-  0%, 100% {
-    opacity: 0.7;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.4);
-  }
-}
-
-/* Extra bright when actively helping */
-.teddy-helper.teddy-helping .teddy-collar-glow {
-  background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(255, 165, 0, 0.6) 40%, transparent 70%);
-  animation: collarGlowActive 1s ease-in-out infinite;
-}
-
-@keyframes collarGlowActive {
-  0%, 100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.6);
-  }
-}
-
-/* ===== TAP ME LABEL ===== */
-.teddy-helper-label {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 6px 14px;
+}
+
+.transition-text {
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+.loading-paw {
+  font-size: 3rem;
+  animation: pawWalk 0.5s ease-in-out infinite alternate;
+}
+
+.completion-screen {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-top: -10px;
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 3;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.teddy-helper:hover .teddy-helper-label {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9);
-  transform: scale(1.05);
+.completion-screen h1 {
+  color: var(--primary-purple);
+  margin-bottom: 30px;
+  font-size: 2.5em;
 }
 
-/* ===== CELEBRATION STATE ===== */
-.teddy-helper.teddy-celebrating .teddy-helper-sprite {
-  animation: teddyCelebrate 0.6s ease-out;
+.completion-screen p {
+  font-size: 1.3em;
+  margin: 15px 0;
+}
+
+.teddy-big {
+  font-size: 100px;
+}
+
+.coming-soon {
+  color: var(--text-light);
+  font-style: italic;
+}
+
+
+/* ============================================================
+   18. ANIMATIONS
+   ============================================================ */
+
+@keyframes characterBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes gemPulse {
+  0%, 100% { filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4)); }
+  50% { filter: drop-shadow(0 8px 40px rgba(139, 92, 246, 0.9)); }
+}
+
+@keyframes continuePulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes teddyIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes teddyExcited {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.15) rotate(-5deg); }
+  50% { transform: scale(1.15) rotate(5deg); }
+  75% { transform: scale(1.1) rotate(-3deg); }
+  100% { transform: scale(1.05) rotate(0deg); }
 }
 
 @keyframes teddyCelebrate {
@@ -2635,465 +2272,214 @@ body {
   75% { transform: translateY(-10px) rotate(-3deg); }
 }
 
-.teddy-helper.teddy-celebrating .teddy-helper-label {
-  background: linear-gradient(135deg, #10B981, #059669);
+@keyframes teddyBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-.teddy-helper.teddy-celebrating .teddy-collar-glow {
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.4) 50%, transparent 70%);
-  animation: celebrationGlow 0.5s ease-out 3;
+@keyframes collarPulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.4); }
 }
 
-@keyframes celebrationGlow {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-  50% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+@keyframes collarPulseBright {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
 }
 
-/* ============================================
-   HINT PANEL (Speech bubble from Teddy)
-   ============================================ */
-
-.teddy-hint-panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+@keyframes collarGlowActive {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.6); }
 }
 
-.teddy-hint-panel.panel-visible {
-  opacity: 1;
+@keyframes bubblePop {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(10px); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
 }
 
-.hint-panel-content {
-  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
-  border: 4px solid #FFD93D;
-  border-radius: 24px;
-  padding: 28px 32px;
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.25),
-    0 0 0 4px rgba(255, 217, 61, 0.3);
-  transform: scale(0.9) translateY(20px);
-  transition: transform 0.3s ease;
-  position: relative;
+@keyframes bubbleFade {
+  0% { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(-10px); }
 }
 
-.teddy-hint-panel.panel-visible .hint-panel-content {
-  transform: scale(1) translateY(0);
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Speech bubble pointer toward Teddy (bottom right) */
-.hint-panel-content::after {
-  content: "";
-  position: absolute;
-  bottom: -20px;
-  right: 60px;
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 20px solid #FFD93D;
+@keyframes hintBoxPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.hint-panel-content::before {
-  content: "";
-  position: absolute;
-  bottom: -14px;
-  right: 64px;
-  width: 0;
-  height: 0;
-  border-left: 16px solid transparent;
-  border-right: 16px solid transparent;
-  border-top: 16px solid #FFF3CD;
-  z-index: 1;
+@keyframes sparkleFlash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-.hint-panel-header {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #92400E;
-  margin-bottom: 16px;
-  text-align: center;
+@keyframes operatorReveal {
+  0% { transform: scale(0.8) rotateY(90deg); opacity: 0; }
+  50% { transform: scale(1.15) rotateY(0deg); }
+  100% { transform: scale(1) rotateY(0deg); opacity: 1; }
 }
 
-.hint-panel-message {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: #78350F;
-  margin-bottom: 24px;
-  text-align: center;
+@keyframes calcAppear {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.hint-panel-message strong {
-  color: #B45309;
-  background: rgba(251, 191, 36, 0.3);
-  padding: 2px 6px;
-  border-radius: 4px;
+@keyframes sparkleFloat {
+  0% { opacity: 1; transform: scale(0) translateY(0); }
+  50% { opacity: 1; transform: scale(1.5) translateY(-20px); }
+  100% { opacity: 0; transform: scale(0.5) translateY(-40px); }
 }
 
-.hint-panel-close {
-  display: block;
-  width: 100%;
-  padding: 14px 24px;
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+@keyframes gemEarned {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
 }
 
-.hint-panel-close:hover {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+@keyframes gem-celebrate {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  25% { transform: scale(1.3); filter: brightness(1.5) drop-shadow(0 0 15px gold); }
+  50% { transform: scale(1.1) rotate(10deg); }
+  75% { transform: scale(1.3) rotate(-10deg); }
 }
 
-.hint-panel-close:active {
-  transform: translateY(0);
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-50px); }
 }
 
-/* ============================================
-   RESPONSIVE ADJUSTMENTS
-   ============================================ */
+@keyframes float-up-gems {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 1; transform: translateY(-30px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+}
 
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.3) translateY(40px); }
+  50% { transform: scale(1.1) translateY(-10px); }
+  70% { transform: scale(0.95) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  70% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes rewardGlow {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
+  50% { filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.9)); }
+}
+
+@keyframes hintBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+@keyframes pawWalk {
+  0% { transform: translateX(-20px) rotate(-10deg); }
+  100% { transform: translateX(20px) rotate(10deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.8)); }
+  50% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 1)); }
+}
+
+
+/* ============================================================
+   19. RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+/* Tablet */
 @media (max-width: 768px) {
-  .teddy-helper {
-    bottom: 15px;
-    right: 15px;
+  :root {
+    --stage-left-x: 20%;
+    --stage-right-x: 80%;
+    --stage-left-elevated: 18%;
+    --teddy-decor-size: 140px;
+    --teddy-helper-size: 160px;
+    --teddy-bottom: 5%;
+    --teddy-right: 5%;
   }
   
-  .teddy-helper-sprite {
-    width: 100px;
-    height: 100px;
+  .dialogue-layer {
+    width: calc(100% - 30px);
+    bottom: 15px;
+  }
+  
+  .dialogue-layer.dialogue-mode {
+    padding: 16px 20px 20px;
+  }
+  
+  .dialogue-text {
+    font-size: 1.1rem;
+  }
+  
+  .size-large .character-sprite { height: 55vh; }
+  .size-xlarge .character-sprite { height: 65vh; }
+  .size-medium .character-sprite { height: 35vh; }
+  
+  .puzzle-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .rock-sprite {
+    height: 20vh;
   }
   
   .teddy-helper-label {
     font-size: 0.8rem;
-    padding: 5px 12px;
+    padding: 6px 12px;
   }
   
-  .hint-panel-content {
-    padding: 24px;
+  .helper-sprite {
+    height: 25vh;
+  }
+  
+  .helper-label {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+  
+  .practice-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .hint-box {
+    padding: 20px 24px;
     margin: 20px;
   }
   
-  .hint-panel-header {
-    font-size: 1.15rem;
+  .hint-pattern-visual {
+    font-size: 1.2rem;
   }
   
-  .hint-panel-message {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .teddy-helper {
-    bottom: 10px;
-    right: 10px;
+  .gem-plus-text {
+    font-size: 1.5em;
   }
   
-  .teddy-helper-sprite {
-    width: 85px;
-    height: 85px;
-  }
-  
-  .teddy-collar-glow {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .teddy-helper-label {
-    font-size: 0.75rem;
-    padding: 4px 10px;
-    margin-top: -8px;
-  }
-  
-  .hint-panel-content {
-    padding: 20px;
-    border-radius: 20px;
-  }
-  
-  /* Move speech bubble pointer for mobile */
-  .hint-panel-content::after {
-    right: 40px;
-  }
-  
-  .hint-panel-content::before {
-    right: 44px;
-  }
-}
-
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
-
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .teddy-collar-glow {
-    animation: none;
-    opacity: 0.6;
-  }
-  
-  .teddy-helper.hint-available .teddy-collar-glow,
-  .teddy-helper.teddy-helping .teddy-collar-glow {
-    animation: none;
-    opacity: 0.9;
-  }
-  
-  .teddy-helper-sprite {
-    transition: none;
-  }
-  
-  .teddy-helper.teddy-celebrating .teddy-helper-sprite {
-    animation: none;
-  }
-}
-
-/* Focus state for keyboard users */
-.teddy-helper:focus {
-  outline: 3px solid #8B5CF6;
-  outline-offset: 4px;
-  border-radius: 20px;
-}
-
-.teddy-helper:focus-visible {
-  outline: 3px solid #8B5CF6;
-  outline-offset: 4px;
-}
-
-/* ============================================
-   GAME MENU OVERLAY
-   Access from any page via top-left button
-   ============================================ */
-
-/* Menu Button (top-left corner) */
-.menu-btn {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 500;
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
-}
-
-.menu-btn:active {
-  transform: scale(0.98);
-}
-
-/* Menu Overlay (fullscreen) */
-.menu-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.menu-overlay.open {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Menu Panel */
-.menu-panel {
-  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
-  border-radius: 24px;
-  padding: 30px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  transform: scale(0.9) translateY(20px);
-  transition: transform 0.3s ease;
-}
-
-.menu-overlay.open .menu-panel {
-  transform: scale(1) translateY(0);
-}
-
-/* Menu Header */
-.menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 3px solid #E8D5A3;
-}
-
-.menu-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #5D4037;
-}
-
-.menu-close {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: #EF4444;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.menu-close:hover {
-  background: #DC2626;
-  transform: scale(1.1);
-}
-
-/* Location List */
-.menu-locations {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.menu-location {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 14px 18px;
-  background: white;
-  border-radius: 14px;
-  border: 3px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  color: inherit;
-}
-
-.menu-location:hover {
-  border-color: #8B5CF6;
-  transform: translateX(5px);
-}
-
-.menu-location.current {
-  border-color: #10B981;
-  background: #ECFDF5;
-}
-
-.menu-location.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.menu-location.locked:hover {
-  border-color: transparent;
-  transform: none;
-}
-
-.menu-location-icon {
-  font-size: 2rem;
-  width: 50px;
-  text-align: center;
-}
-
-.menu-location-info {
-  flex: 1;
-}
-
-.menu-location-name {
-  font-weight: bold;
-  color: #5D4037;
-  margin-bottom: 2px;
-}
-
-.menu-location-desc {
-  font-size: 0.85rem;
-  color: #757575;
-}
-
-.menu-location-badge {
-  font-size: 0.75rem;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: #E8F5E9;
-  color: #2E7D32;
-}
-
-.menu-location.current .menu-location-badge {
-  background: #10B981;
-  color: white;
-}
-
-.menu-location.locked .menu-location-badge {
-  background: #EEEEEE;
-  color: #757575;
-}
-
-/* Menu Footer */
-.menu-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 16px;
-  border-top: 2px solid #E8D5A3;
-}
-
-.menu-footer-btn {
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.menu-footer-btn.secondary {
-  background: white;
-  color: #5D4037;
-  border: 2px solid #E8D5A3;
-}
-
-.menu-footer-btn.secondary:hover {
-  background: #FFF9E6;
-  border-color: #D4A55A;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
   .menu-btn {
     width: 44px;
     height: 44px;
@@ -3114,144 +2500,50 @@ body {
     width: 40px;
   }
 }
-/* ============================================================
-   TEDDY ENCOURAGEMENT POPUP STYLES
-   Add these to your main styles.css file
-   ============================================================ */
 
-/* === Encouragement Popup Container === */
-.teddy-encouragement-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.2s ease;
-}
-
-.teddy-encouragement-popup.fade-out {
-  animation: fadeOut 0.3s ease forwards;
-}
-
-/* === Content Layout === */
-.teddy-encouragement-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* === Teddy Sprite === */
-.teddy-encouragement-sprite {
-  width: 120px;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.teddy-encouragement-sprite.bounce-in {
-  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-/* === Speech Bubble === */
-.teddy-encouragement-bubble {
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 3px solid #8B4513;
-  border-radius: 20px;
-  padding: 0.75rem 1.25rem;
-  max-width: 250px;
-  text-align: center;
-  position: relative;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.teddy-encouragement-bubble.pop-in {
-  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.15s both;
-}
-
-/* Speech bubble pointer */
-.teddy-encouragement-bubble::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 12px solid #8B4513;
-}
-
-.teddy-encouragement-bubble::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid #fff9e6;
-}
-
-/* === Text Style === */
-.teddy-encouragement-text {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  line-height: 1.4;
-}
-
-/* === Animations === */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) translateY(40px);
-  }
-  50% {
-    transform: scale(1.1) translateY(-10px);
-  }
-  70% {
-    transform: scale(0.95) translateY(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* === Mobile Adjustments === */
+/* Mobile */
 @media (max-width: 480px) {
+  :root {
+    --stage-left-x: 25%;
+    --stage-right-x: 75%;
+    --stage-left-elevated: 15%;
+    --teddy-decor-size: 100px;
+    --teddy-helper-size: 120px;
+  }
+  
+  .size-medium .character-sprite {
+    height: 30vh;
+  }
+  
+  .rock-sprite {
+    height: 15vh;
+  }
+  
+  .hint-box {
+    padding: 16px 20px;
+    width: 95%;
+  }
+  
+  .hint-pattern-visual {
+    font-size: 1.1rem;
+    gap: 4px;
+  }
+  
+  .hint-pattern-operator {
+    min-width: 36px;
+    padding: 4px 8px;
+    font-size: 0.95rem;
+  }
+  
+  .teddy-fun-bubble {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+  
+  .helper-sprite {
+    height: 20vh;
+  }
+  
   .teddy-encouragement-sprite {
     width: 100px;
   }
@@ -3264,544 +2556,6 @@ body {
   .teddy-encouragement-text {
     font-size: 1rem;
   }
-}
-/* ============================================================
-   FARM HINT SYSTEM STYLES
-   Add these to your main styles.css file
-   
-   Includes:
-   - 3-tier progressive hint overlay
-   - Multiplication visual helpers
-   - Skip counting display
-   - Teddy encouragement popup
-   ============================================================ */
-
-/* === HINT OVERLAY (shared with tutorial) === */
-.hint-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hint-overlay-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.hint-box {
-  position: relative;
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 4px solid #8B4513;
-  border-radius: 20px;
-  padding: 1.5rem;
-  max-width: 90%;
-  width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.8);
-  animation: hintBoxAppear 0.3s ease;
-}
-
-@keyframes hintBoxAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Level-based border colors */
-.hint-box.level-1 {
-  border-color: #7CB342; /* Green - starting hint */
-}
-
-.hint-box.level-2 {
-  border-color: #FFB300; /* Amber - more help */
-}
-
-.hint-box.level-3 {
-  border-color: #FF7043; /* Orange - full solution */
-}
-
-/* === HINT BOX HEADER === */
-.hint-box-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px dashed #ddd;
-}
-
-.hint-box-icon {
-  font-size: 1.5rem;
-}
-
-.hint-box-title {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #5D4037;
-}
-
-/* === HINT BOX CONTENT === */
-.hint-box-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Teddy helper image in hint */
-.hint-teddy-container {
-  display: flex;
-  justify-content: center;
-  margin: -0.5rem 0;
-}
-
-.hint-teddy {
-  width: 80px;
-  height: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.hint-teddy.casting {
-  animation: teddyBounce 0.6s ease;
-}
-
-@keyframes teddyBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* === PATTERN/PROBLEM BOX === */
-.hint-pattern-box {
-  background: #f5f5f5;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.hint-pattern-box.sparkling {
-  animation: sparkleGlow 0.4s ease;
-}
-
-@keyframes sparkleGlow {
-  0%, 100% { box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
-  50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
-}
-
-.hint-instruction {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.75rem;
-}
-
-/* === MULTIPLICATION VISUAL === */
-.multiplication-visual {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mult-problem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.mult-num {
-  background: #E3F2FD;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
-  border: 2px solid #64B5F6;
-}
-
-.mult-op {
-  color: #666;
-}
-
-.mult-answer {
-  background: #C8E6C9;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
-  border: 2px solid #66BB6A;
-  min-width: 50px;
-}
-
-.mult-answer.mystery {
-  background: #FFF3E0;
-  border-color: #FFB74D;
-  color: #E65100;
-}
-
-/* === SKIP COUNTING VISUAL === */
-.skip-count-visual {
-  background: #E8F5E9;
-  border-radius: 8px;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.skip-count-label {
-  font-size: 0.85rem;
-  color: #2E7D32;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.skip-count-numbers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1B5E20;
-}
-
-.skip-num {
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.skip-num.highlight {
-  background: #FFEB3B;
-  border: 2px solid #FBC02D;
-  font-weight: 700;
-  transform: scale(1.1);
-}
-
-/* === EXPLANATION TEXT === */
-.hint-explanation {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #444;
-}
-
-.hint-explanation .keyword {
-  background: linear-gradient(120deg, #ffd54f 0%, #ffd54f 100%);
-  background-size: 100% 40%;
-  background-position: 0 90%;
-  background-repeat: no-repeat;
-  font-weight: 600;
-}
-
-/* === FINAL CALCULATION === */
-.hint-final-calc {
-  background: linear-gradient(135deg, #E1F5FE, #B3E5FC);
-  border: 2px solid #03A9F4;
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.hint-final-calc-label {
-  font-size: 0.9rem;
-  color: #0277BD;
-  margin-bottom: 0.5rem;
-}
-
-.hint-final-calc-text {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #01579B;
-}
-
-.hint-final-calc-text strong {
-  color: #D32F2F;
-  font-size: 1.5rem;
-}
-
-/* === HINT BUTTONS === */
-.hint-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.hint-btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 25px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.hint-btn-primary {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  color: white;
-  box-shadow: 0 3px 0 #2E7D32;
-}
-
-.hint-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 #2E7D32;
-}
-
-.hint-btn-primary:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 #2E7D32;
-}
-
-.hint-btn-next-level {
-  background: linear-gradient(135deg, #FFB74D, #FFA726);
-  color: #5D4037;
-  box-shadow: 0 3px 0 #F57C00;
-}
-
-.hint-btn-next-level:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 #F57C00;
-}
-
-/* === SPARKLE EFFECTS === */
-.hint-sparkle-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hint-sparkle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: radial-gradient(circle, #FFD700 0%, transparent 70%);
-  border-radius: 50%;
-  animation: sparkleFloat 0.8s ease-out forwards;
-}
-
-@keyframes sparkleFloat {
-  0% {
-    opacity: 1;
-    transform: scale(0) translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.5) translateY(-20px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) translateY(-40px);
-  }
-}
-
-/* === TEDDY ENCOURAGEMENT POPUP === */
-.teddy-encouragement-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1100;
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.2s ease;
-}
-
-.teddy-encouragement-popup.fade-out {
-  animation: fadeOut 0.3s ease forwards;
-}
-
-.teddy-encouragement-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.teddy-encouragement-sprite {
-  width: 120px;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.teddy-encouragement-sprite.bounce-in {
-  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.teddy-encouragement-bubble {
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 3px solid #8B4513;
-  border-radius: 20px;
-  padding: 0.75rem 1.25rem;
-  max-width: 250px;
-  text-align: center;
-  position: relative;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.teddy-encouragement-bubble.pop-in {
-  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.15s both;
-}
-
-.teddy-encouragement-bubble::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 12px solid #8B4513;
-}
-
-.teddy-encouragement-bubble::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid #fff9e6;
-}
-
-.teddy-encouragement-text {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  line-height: 1.4;
-}
-
-/* === ANIMATIONS === */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) translateY(40px);
-  }
-  50% {
-    transform: scale(1.1) translateY(-10px);
-  }
-  70% {
-    transform: scale(0.95) translateY(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* === HINT OFFER POPUP === */
-.hint-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 3px solid #8B4513;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  animation: popIn 0.3s ease;
-}
-
-.hint-popup-content {
-  text-align: center;
-}
-
-.hint-popup-content p {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  margin-bottom: 1rem;
-}
-
-.hint-popup-buttons {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.btn-hint-yes {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-hint-no {
-  background: linear-gradient(135deg, #90A4AE, #78909C);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* === MOBILE ADJUSTMENTS === */
-@media (max-width: 480px) {
-  .hint-box {
-    width: 95%;
-    padding: 1rem;
-  }
   
   .mult-problem {
     font-size: 1.25rem;
@@ -3810,1347 +2564,30 @@ body {
   .skip-count-numbers {
     font-size: 1rem;
   }
-  
-  .teddy-encouragement-sprite {
-    width: 100px;
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  :root {
+    --stage-left-x: 18%;
+    --stage-right-x: 82%;
+    --stage-left-elevated: 22%;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .teddy-decor-sprite,
+  .teddy-helper-sprite,
+  .teddy-collar-glow {
+    animation: none;
   }
   
-  .teddy-encouragement-bubble {
-    max-width: 200px;
-    padding: 0.6rem 1rem;
-  }
-}
-
-/* ============================================================
-   FARM HINT SYSTEM STYLES
-   Add these to your main styles.css file
-   
-   Includes:
-   - 3-tier progressive hint overlay
-   - Multiplication visual helpers
-   - Skip counting display
-   - Teddy encouragement popup
-   ============================================================ */
-
-/* === HINT OVERLAY (shared with tutorial) === */
-.hint-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hint-overlay-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.hint-box {
-  position: relative;
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 4px solid #8B4513;
-  border-radius: 20px;
-  padding: 1.5rem;
-  max-width: 90%;
-  width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.8);
-  animation: hintBoxAppear 0.3s ease;
-}
-
-@keyframes hintBoxAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Level-based border colors */
-.hint-box.level-1 {
-  border-color: #7CB342; /* Green - starting hint */
-}
-
-.hint-box.level-2 {
-  border-color: #FFB300; /* Amber - more help */
-}
-
-.hint-box.level-3 {
-  border-color: #FF7043; /* Orange - full solution */
-}
-
-/* === HINT BOX HEADER === */
-.hint-box-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px dashed #ddd;
-}
-
-.hint-box-icon {
-  font-size: 1.5rem;
-}
-
-.hint-box-title {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #5D4037;
-}
-
-/* === HINT BOX CONTENT === */
-.hint-box-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Teddy helper image in hint */
-.hint-teddy-container {
-  display: flex;
-  justify-content: center;
-  margin: -0.5rem 0;
-}
-
-.hint-teddy {
-  width: 80px;
-  height: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.hint-teddy.casting {
-  animation: teddyBounce 0.6s ease;
-}
-
-@keyframes teddyBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* === PATTERN/PROBLEM BOX === */
-.hint-pattern-box {
-  background: #f5f5f5;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.hint-pattern-box.sparkling {
-  animation: sparkleGlow 0.4s ease;
-}
-
-@keyframes sparkleGlow {
-  0%, 100% { box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
-  50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
-}
-
-.hint-instruction {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.75rem;
-}
-
-/* === MULTIPLICATION VISUAL === */
-.multiplication-visual {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mult-problem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.mult-num {
-  background: #E3F2FD;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
-  border: 2px solid #64B5F6;
-}
-
-.mult-op {
-  color: #666;
-}
-
-.mult-answer {
-  background: #C8E6C9;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
-  border: 2px solid #66BB6A;
-  min-width: 50px;
-}
-
-.mult-answer.mystery {
-  background: #FFF3E0;
-  border-color: #FFB74D;
-  color: #E65100;
-}
-
-/* === SKIP COUNTING VISUAL === */
-.skip-count-visual {
-  background: #E8F5E9;
-  border-radius: 8px;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.skip-count-label {
-  font-size: 0.85rem;
-  color: #2E7D32;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.skip-count-numbers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1B5E20;
-}
-
-.skip-num {
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.skip-num.highlight {
-  background: #FFEB3B;
-  border: 2px solid #FBC02D;
-  font-weight: 700;
-  transform: scale(1.1);
-}
-
-/* === EXPLANATION TEXT === */
-.hint-explanation {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #444;
-}
-
-.hint-explanation .keyword {
-  background: linear-gradient(120deg, #ffd54f 0%, #ffd54f 100%);
-  background-size: 100% 40%;
-  background-position: 0 90%;
-  background-repeat: no-repeat;
-  font-weight: 600;
-}
-
-/* === FINAL CALCULATION === */
-.hint-final-calc {
-  background: linear-gradient(135deg, #E1F5FE, #B3E5FC);
-  border: 2px solid #03A9F4;
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.hint-final-calc-label {
-  font-size: 0.9rem;
-  color: #0277BD;
-  margin-bottom: 0.5rem;
-}
-
-.hint-final-calc-text {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #01579B;
-}
-
-.hint-final-calc-text strong {
-  color: #D32F2F;
-  font-size: 1.5rem;
-}
-
-/* === HINT BUTTONS === */
-.hint-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.hint-btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 25px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.hint-btn-primary {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  color: white;
-  box-shadow: 0 3px 0 #2E7D32;
-}
-
-.hint-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 #2E7D32;
-}
-
-.hint-btn-primary:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 #2E7D32;
-}
-
-.hint-btn-next-level {
-  background: linear-gradient(135deg, #FFB74D, #FFA726);
-  color: #5D4037;
-  box-shadow: 0 3px 0 #F57C00;
-}
-
-.hint-btn-next-level:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 #F57C00;
-}
-
-/* === SPARKLE EFFECTS === */
-.hint-sparkle-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hint-sparkle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: radial-gradient(circle, #FFD700 0%, transparent 70%);
-  border-radius: 50%;
-  animation: sparkleFloat 0.8s ease-out forwards;
-}
-
-@keyframes sparkleFloat {
-  0% {
-    opacity: 1;
-    transform: scale(0) translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.5) translateY(-20px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) translateY(-40px);
-  }
-}
-
-/* === TEDDY ENCOURAGEMENT POPUP === */
-.teddy-encouragement-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1100;
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.2s ease;
-}
-
-.teddy-encouragement-popup.fade-out {
-  animation: fadeOut 0.3s ease forwards;
-}
-
-.teddy-encouragement-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.teddy-encouragement-sprite {
-  width: 120px;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.teddy-encouragement-sprite.bounce-in {
-  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.teddy-encouragement-bubble {
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 3px solid #8B4513;
-  border-radius: 20px;
-  padding: 0.75rem 1.25rem;
-  max-width: 250px;
-  text-align: center;
-  position: relative;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.teddy-encouragement-bubble.pop-in {
-  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.15s both;
-}
-
-.teddy-encouragement-bubble::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 12px solid #8B4513;
-}
-
-.teddy-encouragement-bubble::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid #fff9e6;
-}
-
-.teddy-encouragement-text {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  line-height: 1.4;
-}
-
-/* === ANIMATIONS === */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) translateY(40px);
-  }
-  50% {
-    transform: scale(1.1) translateY(-10px);
-  }
-  70% {
-    transform: scale(0.95) translateY(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* === HINT OFFER POPUP === */
-.hint-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 3px solid #8B4513;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  animation: popIn 0.3s ease;
-}
-
-.hint-popup-content {
-  text-align: center;
-}
-
-.hint-popup-content p {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  margin-bottom: 1rem;
-}
-
-.hint-popup-buttons {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.btn-hint-yes {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-hint-no {
-  background: linear-gradient(135deg, #90A4AE, #78909C);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* === MOBILE ADJUSTMENTS === */
-@media (max-width: 480px) {
-  .hint-box {
-    width: 95%;
-    padding: 1rem;
+  .teddy-helper.teddy-celebrating .teddy-helper-sprite {
+    animation: none;
   }
   
-  .mult-problem {
-    font-size: 1.25rem;
+  .teddy-decor-sprite {
+    transition: none;
   }
-  
-  .skip-count-numbers {
-    font-size: 1rem;
-  }
-  
-  .teddy-encouragement-sprite {
-    width: 100px;
-  }
-  
-  .teddy-encouragement-bubble {
-    max-width: 200px;
-    padding: 0.6rem 1rem;
-  }
-}
-
-/* === DECORATIVE TEDDY (always visible, clickable for fun!) === */
-.teddy-decor {
-  position: absolute;
-  bottom: 15%;
-  right: 5%;
-  z-index: 15;
-  cursor: pointer;
-  pointer-events: auto; /* Explicitly enable clicks */
-}
-
-.teddy-decor-sprite {
-  width: 300px;
-  height: auto;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-  animation: teddyIdle 3s ease-in-out infinite;
-  transition: transform 0.2s ease;
-}
-
-.teddy-decor:hover .teddy-decor-sprite {
-  transform: scale(1.05);
-}
-
-.teddy-decor-sprite.teddy-excited {
-  animation: teddyExcited 0.3s ease;
-}
-
-@keyframes teddyExcited {
-  0% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.1) rotate(-5deg); }
-  50% { transform: scale(1.1) rotate(5deg); }
-  75% { transform: scale(1.1) rotate(-3deg); }
-  100% { transform: scale(1.05) rotate(0deg); }
-}
-
-@keyframes teddyIdle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-/* Speech bubble for fun responses */
-.teddy-fun-bubble {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 3px solid #8B4513;
-  border-radius: 16px;
-  padding: 0.6rem 1rem;
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #5D4037;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: bubblePop 0.3s ease;
-  z-index: 20;
-}
-
-.teddy-fun-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  right: 30px;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 10px solid #8B4513;
-}
-
-.teddy-fun-bubble::before {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  right: 32px;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid #fff9e6;
-  z-index: 1;
-}
-
-.teddy-fun-bubble.fade-out {
-  animation: bubbleFade 0.3s ease forwards;
-}
-
-@keyframes bubblePop {
-  0% { opacity: 0; transform: scale(0.8) translateY(10px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@keyframes bubbleFade {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.8) translateY(-10px); }
-}
-
-/* When Teddy helper is active, it replaces decorative Teddy in same spot */
-.teddy-helper {
-  position: absolute;
-  bottom: 15%;
-  right: 5%;
-  z-index: 50;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.teddy-helper-sprite {
-  width: 300px;
-  height: auto;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.teddy-helper:hover .teddy-helper-sprite {
-  transform: scale(1.05);
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
-}
-
-.teddy-helper-label {
-  background: linear-gradient(135deg, #fff9e6, #fff);
-  border: 2px solid #8B4513;
-  border-radius: 12px;
-  padding: 0.3rem 0.75rem;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #5D4037;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.teddy-collar-glow {
-  position: absolute;
-  bottom: 45%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 20px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: collarPulse 2s ease-in-out infinite;
-}
-
-@keyframes collarPulse {
-  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
-  50% { opacity: 0.8; transform: translateX(-50%) scale(1.3); }
-}
-
-.teddy-celebrating .teddy-helper-sprite {
-  animation: celebrateBounce 0.5s ease infinite;
-}
-
-@keyframes celebrateBounce {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-15px) rotate(3deg); }
-}
-
-/* ============================================================
-   FARM HINT SYSTEM STYLES
-   Add these to your main styles.css file
-   
-   Includes:
-   - 3-tier progressive hint overlay
-   - Multiplication visual helpers
-   - Skip counting display
-   - Teddy encouragement popup
-   ============================================================ */
-
-/* === HINT OVERLAY (shared with tutorial) === */
-.hint-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hint-overlay-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.hint-box {
-  position: relative;
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 4px solid #8B4513;
-  border-radius: 20px;
-  padding: 1.5rem;
-  max-width: 90%;
-  width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.8);
-  animation: hintBoxAppear 0.3s ease;
-}
-
-@keyframes hintBoxAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Level-based border colors */
-.hint-box.level-1 {
-  border-color: #7CB342; /* Green - starting hint */
-}
-
-.hint-box.level-2 {
-  border-color: #FFB300; /* Amber - more help */
-}
-
-.hint-box.level-3 {
-  border-color: #FF7043; /* Orange - full solution */
-}
-
-/* === HINT BOX HEADER === */
-.hint-box-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px dashed #ddd;
-}
-
-.hint-box-icon {
-  font-size: 1.5rem;
-}
-
-.hint-box-title {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #5D4037;
-}
-
-/* === HINT BOX CONTENT === */
-.hint-box-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Teddy helper image in hint */
-.hint-teddy-container {
-  display: flex;
-  justify-content: center;
-  margin: -0.5rem 0;
-}
-
-.hint-teddy {
-  width: 80px;
-  height: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.hint-teddy.casting {
-  animation: teddyBounce 0.6s ease;
-}
-
-@keyframes teddyBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* === PATTERN/PROBLEM BOX === */
-.hint-pattern-box {
-  background: #f5f5f5;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.hint-pattern-box.sparkling {
-  animation: sparkleGlow 0.4s ease;
-}
-
-@keyframes sparkleGlow {
-  0%, 100% { box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
-  50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
-}
-
-.hint-instruction {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.75rem;
-}
-
-/* === MULTIPLICATION VISUAL === */
-.multiplication-visual {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mult-problem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.mult-num {
-  background: #E3F2FD;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
-  border: 2px solid #64B5F6;
-}
-
-.mult-op {
-  color: #666;
-}
-
-.mult-answer {
-  background: #C8E6C9;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
-  border: 2px solid #66BB6A;
-  min-width: 50px;
-}
-
-.mult-answer.mystery {
-  background: #FFF3E0;
-  border-color: #FFB74D;
-  color: #E65100;
-}
-
-/* === SKIP COUNTING VISUAL === */
-.skip-count-visual {
-  background: #E8F5E9;
-  border-radius: 8px;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.skip-count-label {
-  font-size: 0.85rem;
-  color: #2E7D32;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.skip-count-numbers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1B5E20;
-}
-
-.skip-num {
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.skip-num.highlight {
-  background: #FFEB3B;
-  border: 2px solid #FBC02D;
-  font-weight: 700;
-  transform: scale(1.1);
-}
-
-/* === EXPLANATION TEXT === */
-.hint-explanation {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #444;
-}
-
-.hint-explanation .keyword {
-  background: linear-gradient(120deg, #ffd54f 0%, #ffd54f 100%);
-  background-size: 100% 40%;
-  background-position: 0 90%;
-  background-repeat: no-repeat;
-  font-weight: 600;
-}
-
-/* === FINAL CALCULATION === */
-.hint-final-calc {
-  background: linear-gradient(135deg, #E1F5FE, #B3E5FC);
-  border: 2px solid #03A9F4;
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.hint-final-calc-label {
-  font-size: 0.9rem;
-  color: #0277BD;
-  margin-bottom: 0.5rem;
-}
-
-.hint-final-calc-text {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #01579B;
-}
-
-.hint-final-calc-text strong {
-  color: #D32F2F;
-  font-size: 1.5rem;
-}
-
-/* === HINT BUTTONS === */
-.hint-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.hint-btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 25px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.hint-btn-primary {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  color: white;
-  box-shadow: 0 3px 0 #2E7D32;
-}
-
-.hint-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 #2E7D32;
-}
-
-.hint-btn-primary:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 #2E7D32;
-}
-
-.hint-btn-next-level {
-  background: linear-gradient(135deg, #FFB74D, #FFA726);
-  color: #5D4037;
-  box-shadow: 0 3px 0 #F57C00;
-}
-
-.hint-btn-next-level:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 #F57C00;
-}
-
-/* === SPARKLE EFFECTS === */
-.hint-sparkle-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hint-sparkle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: radial-gradient(circle, #FFD700 0%, transparent 70%);
-  border-radius: 50%;
-  animation: sparkleFloat 0.8s ease-out forwards;
-}
-
-@keyframes sparkleFloat {
-  0% {
-    opacity: 1;
-    transform: scale(0) translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.5) translateY(-20px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) translateY(-40px);
-  }
-}
-
-/* === TEDDY ENCOURAGEMENT POPUP === */
-.teddy-encouragement-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1100;
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.2s ease;
-}
-
-.teddy-encouragement-popup.fade-out {
-  animation: fadeOut 0.3s ease forwards;
-}
-
-.teddy-encouragement-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.teddy-encouragement-sprite {
-  width: 120px;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.teddy-encouragement-sprite.bounce-in {
-  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.teddy-encouragement-bubble {
-  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-  border: 3px solid #8B4513;
-  border-radius: 20px;
-  padding: 0.75rem 1.25rem;
-  max-width: 250px;
-  text-align: center;
-  position: relative;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.teddy-encouragement-bubble.pop-in {
-  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.15s both;
-}
-
-.teddy-encouragement-bubble::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 12px solid #8B4513;
-}
-
-.teddy-encouragement-bubble::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid #fff9e6;
-}
-
-.teddy-encouragement-text {
-  font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  line-height: 1.4;
-}
-
-/* === ANIMATIONS === */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) translateY(40px);
-  }
-  50% {
-    transform: scale(1.1) translateY(-10px);
-  }
-  70% {
-    transform: scale(0.95) translateY(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* === HINT OFFER POPUP === */
-.hint-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 3px solid #8B4513;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  animation: popIn 0.3s ease;
-}
-
-.hint-popup-content {
-  text-align: center;
-}
-
-.hint-popup-content p {
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #5D4037;
-  margin-bottom: 1rem;
-}
-
-.hint-popup-buttons {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.btn-hint-yes {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-hint-no {
-  background: linear-gradient(135deg, #90A4AE, #78909C);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* === MOBILE ADJUSTMENTS === */
-@media (max-width: 480px) {
-  .hint-box {
-    width: 95%;
-    padding: 1rem;
-  }
-  
-  .mult-problem {
-    font-size: 1.25rem;
-  }
-  
-  .skip-count-numbers {
-    font-size: 1rem;
-  }
-  
-  .teddy-encouragement-sprite {
-    width: 100px;
-  }
-  
-  .teddy-encouragement-bubble {
-    max-width: 200px;
-    padding: 0.6rem 1rem;
-  }
-}
-
-
-
-/* When Teddy helper is active, it replaces decorative Teddy in same spot */
-.teddy-helper {
-  position: absolute;
-  bottom: 15%;
-  right: 5%;
-  z-index: 50;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.teddy-helper-sprite {
-  width: 300px;
-  height: auto;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.teddy-helper:hover .teddy-helper-sprite {
-  transform: scale(1.05);
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
-}
-
-.teddy-helper-label {
-  background: linear-gradient(135deg, #fff9e6, #fff);
-  border: 2px solid #8B4513;
-  border-radius: 12px;
-  padding: 0.3rem 0.75rem;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #5D4037;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.teddy-collar-glow {
-  position: absolute;
-  bottom: 45%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 20px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: collarPulse 2s ease-in-out infinite;
-}
-
-@keyframes collarPulse {
-  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
-  50% { opacity: 0.8; transform: translateX(-50%) scale(1.3); }
-}
-
-.teddy-celebrating .teddy-helper-sprite {
-  animation: celebrateBounce 0.5s ease infinite;
-}
-
-@keyframes celebrateBounce {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-15px) rotate(3deg); }
 }
