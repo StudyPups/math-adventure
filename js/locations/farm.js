@@ -2,8 +2,8 @@
 // Game engine for Buttercup's Farm location
 // NOW WITH: 3-tier progressive hints matching tutorial + Teddy encouragement! 🎉
 
-import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./shared.js";
-import { farmScenes, getScene, STARTING_SCENE } from "../data/farm-scenes.js";
+import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
+import { farmScenes, getScene, STARTING_SCENE } from "../../data/farm-scenes.js";
 
 
 // ============================================

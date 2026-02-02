@@ -1,0 +1,78 @@
+/* ============================================================
+   10. HUD (Heads-Up Display) (z-index: 30)
+   ============================================================ */
+
+.hud-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+}
+
+.hud-title {
+  background: linear-gradient(135deg, #d4a55a, #b8923e);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.05rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+}
+
+.hud-home-btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.hud-home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #e0b060, #c9a048);
+}
+
+.hud-btn {
+  background: linear-gradient(135deg, #6b8e6b, #4a6b4a);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+}
+
+.hud-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* --- Gem Display --- */
+.gem-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 3px 12px rgba(139, 92, 246, 0.4);
+}
+
+.gem-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+}
+
+.gem-count {
+  min-width: 24px;
+  text-align: center;
+}

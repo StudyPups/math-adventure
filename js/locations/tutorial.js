@@ -3,9 +3,9 @@
 // Scene-based tutorial engine for StudyPups
 // Two modes: dialogue-mode (floating card) vs scene-mode (just buttons)
 
-import { showHintOverlay, closeHintOverlay, resetHintLevel, setTeddyEncouragementEnabled } from './hint-system.js';
-import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./shared.js";
-import { tutorialScenes, getScene, STARTING_SCENE } from "../data/tutorial-scenes.js";
+import { showHintOverlay, closeHintOverlay, resetHintLevel, setTeddyEncouragementEnabled } from '../core/hint-system.js';
+import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
+import { tutorialScenes, getScene, STARTING_SCENE } from "../../data/tutorial-scenes.js";
 
 onReady(() => {
   log("Tutorial Engine loaded ✅");

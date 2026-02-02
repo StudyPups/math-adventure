@@ -1,0 +1,202 @@
+/* studypup.css */
+
+/* ============================================================
+   STUDYPUP HELPER SYSTEM
+   
+   Generic styles for ALL StudyPups (Teddy, GeoPup, AlgeBark, etc.)
+   The specific pup is determined by JS - CSS just handles layout/animation
+   
+   Three contexts:
+   A) .studypup-decor - Decorative, always visible, clickable for fun
+   B) .studypup-helper - Appears during puzzles, clickable for hints
+   C) .studypup-sidebar - Practice page companion
+   ============================================================ */
+
+   /* ============================================================
+   11b. TEDDY SYSTEM - SINGLE SOURCE OF TRUTH
+   
+   Three contexts:
+   A) .teddy-decor - Decorative, always visible, clickable for fun
+   B) .teddy-helper - Appears during puzzles, clickable for hints
+   C) .teddy-sidebar - Practice page emoji + dialogue box
+   ============================================================ */
+
+/* --- A) DECORATIVE TEDDY (non-puzzle scenes) --- */
+.teddy-decor {
+  position: absolute;
+  bottom: var(--teddy-bottom);
+  right: var(--teddy-right);
+  z-index: 15;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.teddy-decor-sprite {
+  width: var(--teddy-decor-size);
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  animation: teddyIdle 3s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.teddy-decor:hover .teddy-decor-sprite {
+  transform: scale(1.08);
+}
+
+.teddy-decor-sprite.teddy-excited {
+  animation: teddyExcited 0.4s ease;
+}
+
+/* --- B) HELPER TEDDY (during puzzles) --- */
+.teddy-helper {
+  position: absolute;
+  bottom: var(--teddy-bottom);
+  right: var(--teddy-right);
+  z-index: 50;
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.teddy-helper-sprite {
+  width: var(--teddy-helper-size);
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.teddy-helper:hover .teddy-helper-sprite {
+  transform: scale(1.08);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+.teddy-helper-label {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+.teddy-helper:hover .teddy-helper-label {
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  transform: scale(1.05);
+}
+
+.teddy-collar-glow {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: collarPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Helper states */
+.teddy-helper.hint-available .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.7) 0%, rgba(255, 165, 0, 0.3) 50%, transparent 70%);
+  animation: collarPulseBright 2s ease-in-out infinite;
+}
+
+.teddy-helper.teddy-helping .teddy-collar-glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(255, 165, 0, 0.6) 40%, transparent 70%);
+  animation: collarGlowActive 1s ease-in-out infinite;
+}
+
+.teddy-helper.teddy-celebrating .teddy-helper-sprite {
+  animation: teddyCelebrate 0.6s ease-out;
+}
+
+.teddy-helper.teddy-celebrating .teddy-helper-label {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+/* --- TEDDY SPEECH BUBBLE (fun responses) --- */
+.teddy-fun-bubble {
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+  border: 3px solid #8B4513;
+  border-radius: 16px;
+  padding: 10px 16px;
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5D4037;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: bubblePop 0.3s ease;
+  z-index: 20;
+}
+
+.teddy-fun-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid #8B4513;
+}
+
+.teddy-fun-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #fff9e6;
+  z-index: 1;
+}
+
+.teddy-fun-bubble.fade-out {
+  animation: bubbleFade 0.3s ease forwards;
+}
+
+/* --- C) TEDDY SIDEBAR (Practice page) --- */
+.teddy-sidebar {
+  background: none;
+  backdrop-filter: blur(1px);
+  padding: 20px;
+  border-radius: 30px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.teddy-sidebar-avatar {
+  font-size: 60px;
+}
+
+.teddy-sidebar-dialogue {
+  background: var(--light-purple);
+  padding: 15px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.teddy-sidebar-dialogue p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.teddy-sidebar-dialogue strong {
+  color: var(--dark-purple);
+}

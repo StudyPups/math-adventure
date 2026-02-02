@@ -1,0 +1,97 @@
+/* ============================================================
+   11a. TUTORIAL HELPER (Fairy) - Clickable hint character
+   Used in tutorial.html during puzzle scenes
+   ============================================================ */
+
+   /* --- Hint Fairy (in hint box) --- */
+.hint-fairy {
+  max-height: 85px;  /* Constrain fairy size in hint box */
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(139, 92, 246, 0.3));
+}
+
+/* --- Fairy Magic Container (centers fairy in hint box) --- */
+.fairy-magic-container {
+  display: flex;
+  justify-content: center;
+  margin: -0.5rem 0;
+}
+
+.hint-fairy.casting {
+  animation: fairyFloat 1.5s ease-in-out infinite;
+}
+
+@keyframes fairyFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.helper-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.helper-container {
+  position: absolute;
+  bottom: 5%;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: -10px 0 5px 0; 
+}
+
+.helper-container.pos-left {
+  left: 3%;
+}
+
+.helper-container.pos-right {
+  right: 3%;
+}
+
+.helper-sprite {
+  height: 30vh;
+  width: auto;
+  object-fit: contain;
+   justify-content: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  animation: helperGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes helperGlow {
+  0%, 100% { 
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3)) 
+            drop-shadow(0 0 8px rgba(139, 92, 246, 0.3)); 
+  }
+  50% { 
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3)) 
+            drop-shadow(0 0 20px rgba(139, 92, 246, 0.7)); 
+  }
+}
+
+.helper-container:hover .helper-sprite {
+  transform: scale(1.05);
+}
+
+.helper-label {
+  background: var(--primary-purple);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-top: 8px;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+.helper-container:hover .helper-label {
+  background: var(--dark-purple);
+  transform: scale(1.05);
+}

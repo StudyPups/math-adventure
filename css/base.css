@@ -1,0 +1,621 @@
+*/* ==========================================================
+   STUDYPUPS GAME STYLES
+   
+   TABLE OF CONTENTS:
+   1. CSS Variables & Reset
+   2. Typography & Base
+   3. Game Screen & Layers
+   4. Background Layer
+   5. Character Layer & Positioning
+   6. Environment Layer (rocks, vines)
+   7. Dialogue Layer
+   8. Puzzle System
+   9. Buttons
+   
+   ============================================================ */
+
+
+/* ============================================================
+   1. CSS VARIABLES & RESET
+   ============================================================ */
+
+:root {
+  /* === BRAND COLORS === */
+  --primary-purple: #8b5cf6;
+  --light-purple: #c4b5fd;
+  --dark-purple: #6d28d9;
+  --accent-blue: #3b82f6;
+  --light-blue: #dbeafe;
+  
+  /* === FEEDBACK COLORS === */
+  --success-green: #4caf50;
+  --error-red: #ef4444;
+  --warning-amber: #f59e0b;
+  
+  /* === TEXT COLORS === */
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --white: #ffffff;
+  
+  /* === DIALOGUE STYLING === */
+  --dialogue-bg: rgba(255, 248, 235, 0.97);
+  --dialogue-border: #c9a55c;
+  --button-blue: #4a90c2;
+  --button-blue-dark: #2d6a9f;
+  
+  /* === STAGE POSITIONING === */
+  --stage-left-x: 15%;
+  --stage-left-ground: 5%;
+  --stage-left-elevated: 20%;
+  --stage-center-x: 50%;
+  --stage-center-ground: 5%;
+  --stage-right-x: 85%;
+  --stage-right-ground: 5%;
+  --rock-offset-y: 0%;
+  
+  /* === TEDDY SIZING (Single source of truth!) === */
+  --teddy-decor-size: 180px;
+  --teddy-helper-size: 200px;
+  --teddy-bottom: 8%;
+  --teddy-right: 8%;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   2. TYPOGRAPHY & BASE
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap");
+
+body {
+  font-family: "Comic Neue", "Trebuchet MS", cursive, sans-serif;
+  overflow: hidden;
+  background: #1a1a2e;
+}
+
+
+/* ============================================================
+   3. GAME SCREEN & LAYERS
+   ============================================================ */
+
+.game-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   4. BACKGROUND LAYER (z-index: 0)
+   ============================================================ */
+
+.background-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #87CEEB;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+/* ============================================================
+   5. CHARACTER LAYER & POSITIONING (z-index: 10)
+   ============================================================ */
+
+.character-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.character-container {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.character-sprite {
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
+}
+
+/* --- Stage Positioning (new system) --- */
+.character-container.pos-stage-left {
+  left: var(--stage-left-x);
+  bottom: var(--stage-left-ground);
+  transform: translateX(-50%);
+}
+
+.character-container.pos-stage-left-elevated {
+  left: var(--stage-left-x);
+  bottom: var(--stage-left-elevated);
+  transform: translateX(-50%);
+}
+
+.character-container.pos-stage-center {
+  left: var(--stage-center-x);
+  bottom: var(--stage-center-ground);
+  transform: translateX(-50%);
+}
+
+.character-container.pos-stage-right {
+  left: var(--stage-right-x);
+  bottom: var(--stage-right-ground);
+  transform: translateX(-50%);
+}
+
+/* --- Legacy Positioning (backwards compatibility) --- */
+.character-container.pos-center {
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.character-container.pos-left {
+  bottom: 5%;
+  left: 5%;
+}
+
+.character-container.pos-right {
+  bottom: 5%;
+  right: 5%;
+}
+
+.character-container.pos-center-left {
+  bottom: 5%;
+  left: 25%;
+  transform: translateX(-50%);
+}
+
+.character-container.pos-center-right {
+  bottom: 5%;
+  right: 25%;
+  transform: translateX(50%);
+}
+
+.character-container.pos-right-high {
+  bottom: 25%;
+  right: 8%;
+}
+
+/* --- Character Sizes --- */
+.size-small .character-sprite { height: 25vh; }
+.size-medium .character-sprite { height: 40vh; }
+.size-large .character-sprite { height: 70vh; }
+.size-xlarge .character-sprite { height: 80vh; }
+
+/* --- Character Animations --- */
+.anim-bounce {
+  animation: characterBounce 0.8s ease-in-out infinite;
+}
+
+.character-clickable {
+  cursor: pointer;
+  animation: gemPulse 1.5s ease-in-out infinite;
+}
+
+
+/* ============================================================
+   6. ENVIRONMENT LAYER (z-index: 8)
+   ============================================================ */
+
+.environment-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.environment-element {
+  position: absolute;
+}
+
+.environment-element.pos-stage-left-base {
+  left: var(--stage-left-x);
+  bottom: var(--rock-offset-y);
+  transform: translateX(-50%);
+}
+
+.environment-element.pos-right-base {
+  right: 8%;
+  bottom: 0;
+}
+
+.rock-sprite {
+  height: 25vh;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+/* --- Vines --- */
+.vine-container {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+
+.vine {
+  height: 200px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transition: all 0.6s ease;
+}
+
+.vine.snapped {
+  opacity: 0.15;
+  transform: scale(0.4) rotate(30deg) translateY(60px);
+  filter: grayscale(80%);
+}
+
+
+/* ============================================================
+   7. DIALOGUE LAYER (z-index: 20)
+   ============================================================ */
+
+.dialogue-layer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: min(700px, calc(100% - 40px));
+}
+
+/* --- Dialogue Mode (with card) --- */
+.dialogue-layer.dialogue-mode {
+  background: var(--dialogue-bg);
+  border: 3px solid var(--dialogue-border);
+  border-radius: 20px;
+  padding: 16px 24px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.dialogue-layer.dialogue-mode .dialogue-text {
+  display: block;
+}
+
+.dialogue-layer.dialogue-mode .choices-container {
+  margin-top: 16px;
+}
+
+/* --- Scene Mode (no card) --- */
+.dialogue-layer.scene-mode {
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.dialogue-layer.scene-mode .dialogue-text,
+.dialogue-layer.scene-mode .speaker-info,
+.dialogue-layer.scene-mode .vine-progress {
+  display: none;
+}
+
+.dialogue-layer.hidden {
+  display: none;
+}
+
+/* --- Speaker Info --- */
+.speaker-info {
+  margin-bottom: 8px;
+}
+
+.speaker-portrait {
+  display: none;
+}
+
+.speaker-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--dialogue-border);
+}
+
+/* --- Dialogue Text --- */
+.dialogue-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+  text-align: center;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.dialogue-text em {
+  color: var(--primary-purple);
+  font-style: italic;
+}
+
+.dialogue-text .sparkle {
+  color: var(--warning-amber);
+  font-weight: bold;
+}
+
+.dialogue-text.action-style {
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--dark-purple);
+}
+
+/* --- Continue Indicator --- */
+.dialogue-continue {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.dialogue-continue-btn {
+  background: transparent;
+  border: none;
+  color: var(--dialogue-border);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 8px 16px;
+  animation: continuePulse 1.5s ease-in-out infinite;
+}
+
+.dialogue-continue-btn:hover {
+  color: var(--primary-purple);
+}
+
+/* --- Vine Progress Dots --- */
+.vine-progress {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.vine-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: 2px solid #9ca3af;
+  transition: all 0.3s ease;
+}
+
+.vine-dot.active {
+  background: var(--warning-amber);
+  border-color: #d97706;
+}
+
+.vine-dot.cleared {
+  background: var(--success-green);
+  border-color: #16a34a;
+}
+
+/* --- Choices Container --- */
+.choices-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+
+/* ============================================================
+   8. PUZZLE SYSTEM
+   ============================================================ */
+
+.puzzle-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 22;
+  width: min(550px, calc(100% - 80px));
+}
+
+.puzzle-box {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 3px solid var(--accent-blue);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: visible !important;
+}
+
+.puzzle-instruction {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 8px;
+  font-family: 'Arial', sans-serif;
+}
+
+.puzzle-question {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 16px;
+  background: var(--light-blue);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 2px;
+  color: var(--text-dark);
+}
+
+.puzzle-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.answer-btn {
+  font-family: 'Arial', sans-serif;
+  font-size: 1.15rem;
+  font-weight: bold;
+  padding: 14px 18px;
+  background: white;
+  border: 3px solid var(--light-purple);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.answer-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--primary-purple);
+  transform: translateY(-2px);
+}
+
+.answer-btn:disabled {
+  cursor: not-allowed;
+}
+
+.answer-btn.correct {
+  background: #d1fae5;
+  border-color: var(--success-green);
+}
+
+.answer-btn.incorrect {
+  background: #fee2e2;
+  border-color: var(--error-red);
+}
+
+.puzzle-hint {
+  margin-top: 14px;
+  padding: 12px;
+  background: #fef3c7;
+  border-radius: 10px;
+  border-left: 4px solid var(--warning-amber);
+  color: #92400e;
+  text-align: center;
+}
+
+/* --- Input Box (name entry) --- */
+.input-box {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0;
+}
+
+.text-input {
+  font-size: 1.15rem;
+  padding: 12px 20px;
+  border: 3px solid var(--light-purple);
+  border-radius: 12px;
+  width: 260px;
+  text-align: center;
+  font-family: inherit;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+}
+
+
+/* ============================================================
+   9. BUTTONS
+   ============================================================ */
+
+.btn {
+  padding: 14px 28px;
+  border-radius: 12px;
+  border: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--button-blue), var(--button-blue-dark));
+  color: white;
+}
+
+.btn-choice {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-dark);
+  border: 2px solid var(--light-purple);
+  min-width: 180px;
+}
+
+.btn-choice:hover:not(:disabled) {
+  background: white;
+  border-color: var(--primary-purple);
+}
+
+.btn-primary-large {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  padding: 16px 36px;
+  font-size: 1.2rem;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.game-button {
+  background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  margin: 5px;
+}
+
+.game-button:hover {
+  transform: translateY(-2px);
+}
+
+.game-button-secondary {
+  background: white;
+  color: var(--dark-purple);
+  border: 2px solid var(--light-purple);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.game-button-secondary:hover {
+  background: var(--light-purple);
+}
+
