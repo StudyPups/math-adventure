@@ -312,7 +312,7 @@ body {
 
 .dialogue-layer.scene-mode .dialogue-text,
 .dialogue-layer.scene-mode .speaker-info,
-.dialogue-layer.scene-mode .vine-progress {
+.dialogue-layer.scene-mode .level-progress {
   display: none;
 }
 
@@ -384,8 +384,8 @@ body {
   color: var(--primary-purple);
 }
 
-/* --- Vine Progress Dots --- */
-.vine-progress {
+/* --- level progress  --- */
+.level-progress {
   display: flex;
   justify-content: center;
   gap: 10px;

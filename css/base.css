@@ -305,7 +305,7 @@ body {
 
 .dialogue-layer.scene-mode .dialogue-text,
 .dialogue-layer.scene-mode .speaker-info,
-.dialogue-layer.scene-mode .vine-progress {
+.dialogue-layer.scene-mode .level-progress {
   display: none;
 }
 
@@ -377,15 +377,16 @@ body {
   color: var(--primary-purple);
 }
 
-/* --- Vine Progress Dots --- */
-.vine-progress {
+/* --- Level Progress Dots --- */
+/* Shows progress through multi-step challenges (e.g., "2 of 3 complete") */
+.level-progress {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin: 12px 0;
 }
 
-.vine-dot {
+.progress-dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -394,12 +395,12 @@ body {
   transition: all 0.3s ease;
 }
 
-.vine-dot.active {
+.progress-dot.active {
   background: var(--warning-amber);
   border-color: #d97706;
 }
 
-.vine-dot.cleared {
+.progress-dot.cleared {
   background: var(--success-green);
   border-color: #16a34a;
 }

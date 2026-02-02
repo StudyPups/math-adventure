@@ -95,3 +95,30 @@
   background: var(--dark-purple);
   transform: scale(1.05);
 }
+
+/* --- Vines --- */
+.vine-container {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+
+.vine {
+  height: 200px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transition: all 0.6s ease;
+}
+
+.vine.snapped {
+  opacity: 0.15;
+  transform: scale(0.4) rotate(30deg) translateY(60px);
+  filter: grayscale(80%);
+}
+.dialogue-layer.scene-mode .dialogue-text,
+.dialogue-layer.scene-mode .speaker-info,
+.dialogue-layer.scene-mode .level-progress {
+  display: none;
+}
