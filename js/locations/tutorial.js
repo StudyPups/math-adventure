@@ -27,7 +27,7 @@ onReady(() => {
   const speakerInfo = document.getElementById("speakerInfo");
   const speakerName = document.getElementById("speakerName");
   const dialogueText = document.getElementById("dialogueText");
-  const vineProgress = document.getElementById("vineProgress");
+ const levelProgress = document.getElementById("levelProgress");
   const inputBox = document.getElementById("inputBox");
   const choicesContainer = document.getElementById("choicesContainer");
   const skipBtn = document.getElementById("skipBtn");
@@ -122,7 +122,7 @@ onReady(() => {
     inputBox.innerHTML = "";
     inputBox.hidden = true;
     vineContainer.hidden = true;
-    vineProgress.hidden = true;
+    levelProgress.hidden = true;
     speakerName.textContent = "";
     dialogueText.textContent = "";
     dialogueText.className = "dialogue-text";
@@ -235,9 +235,9 @@ onReady(() => {
     resetHintLevel();
     
     // Show vines and progress
-    vineContainer.hidden = false;
-    vineProgress.hidden = false;
-    updateVineProgress();
+vineContainer.hidden = false;
+levelProgress.hidden = false;
+updateLevelProgress();
 
     // Show helper character (clickable for hints) - pass puzzle for hint data
     if (scene.helper && scene.puzzle) {
@@ -626,27 +626,27 @@ onReady(() => {
   }
 
   function snapVine(vineNumber) {
-    vinesSnapped = Math.max(vinesSnapped, vineNumber);
-    for (let i = 1; i <= vinesSnapped; i++) {
-      const vine = document.getElementById(`vine${i}`);
-      if (vine) vine.classList.add("snapped");
-    }
-    updateVineProgress();
-    log("Vines snapped:", vinesSnapped, "/", TOTAL_VINES);
+  vinesSnapped = Math.max(vinesSnapped, vineNumber);
+  for (let i = 1; i <= vinesSnapped; i++) {
+    const vine = document.getElementById(`vine${i}`);
+    if (vine) vine.classList.add("snapped");
   }
+  updateLevelProgress();
+  log("Vines snapped:", vinesSnapped, "/", TOTAL_VINES);
+}
 
-  function updateVineProgress() {
-    const dots = vineProgress.querySelectorAll(".vine-dot");
-    dots.forEach((dot, index) => {
-      const vineNum = index + 1;
-      dot.classList.remove("active", "cleared");
-      if (vineNum <= vinesSnapped) {
-        dot.classList.add("cleared");
-      } else if (vineNum === vinesSnapped + 1) {
-        dot.classList.add("active");
-      }
-    });
-  }
+function updateLevelProgress() {
+  const dots = levelProgress.querySelectorAll(".progress-dot");
+  dots.forEach((dot, index) => {
+    const stepNum = index + 1;
+    dot.classList.remove("active", "cleared");
+    if (stepNum <= vinesSnapped) {
+      dot.classList.add("cleared");
+    } else if (stepNum === vinesSnapped + 1) {
+      dot.classList.add("active");
+    }
+  });
+}
 
   //// Map/Menu button click handler
 const homeBtn = document.getElementById("homeBtn");

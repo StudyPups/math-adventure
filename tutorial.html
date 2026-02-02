@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/studypup.css">
 <link rel="stylesheet" href="css/locations/tutorial.css">
 
+
 </head>
 <body>
   <!-- 
@@ -46,12 +47,19 @@
       <!-- Helper character inserted dynamically -->
     </div>
 
-    <!-- LAYER 3a: PUZZLE BOX (separate from dialogue) -->
+   <!-- LAYER 3a: PUZZLE BOX (separate from dialogue) -->
     <div class="puzzle-layer" id="puzzleLayer" hidden>
       <div class="puzzle-box" id="puzzleBox"></div>
     </div>
 
-    <!-- LAYER 3b: Dialogue Box -->
+    <!-- LAYER 3b: Level Progress (for multi-step challenges) -->
+    <div class="level-progress" id="levelProgress" hidden>
+      <span class="progress-dot" data-step="1"></span>
+      <span class="progress-dot" data-step="2"></span>
+      <span class="progress-dot" data-step="3"></span>
+    </div>
+
+    <!-- LAYER 3c: Dialogue Box -->
     <div class="dialogue-layer" id="dialogueLayer">
       <!-- Speaker info (portrait + name) -->
       <div class="speaker-info" id="speakerInfo">
@@ -62,15 +70,14 @@
       <!-- Main dialogue text -->
       <div class="dialogue-text" id="dialogueText"></div>
 
-      <div class="level-progress" id="levelProgress">
-  <span class="progress-dot" data-step="1"></span>
-  <span class="progress-dot" data-step="2"></span>
-  <span class="progress-dot" data-step="3"></span>
-</div>
-
       <!-- Text input (for name entry) -->
       <div class="input-box" id="inputBox" hidden></div>
 
+      <!-- Choice buttons -->
+      <div class="choices-container" id="choicesContainer"></div>
+    </div>
+
+    
       <!-- Choice buttons -->
       <div class="choices-container" id="choicesContainer"></div>
     </div>

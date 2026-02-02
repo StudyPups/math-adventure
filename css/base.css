@@ -380,10 +380,18 @@ body {
 /* --- Level Progress Dots --- */
 /* Shows progress through multi-step challenges (e.g., "2 of 3 complete") */
 .level-progress {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin: 12px 0;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .progress-dot {

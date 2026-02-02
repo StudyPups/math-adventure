@@ -118,7 +118,6 @@
   filter: grayscale(80%);
 }
 .dialogue-layer.scene-mode .dialogue-text,
-.dialogue-layer.scene-mode .speaker-info,
-.dialogue-layer.scene-mode .level-progress {
+.dialogue-layer.scene-mode .speaker-info {
   display: none;
 }
