@@ -1292,7 +1292,7 @@ body {
   border: 2px solid var(--success-green);
   border-radius: 14px;
   padding: 16px 20px;
-  margin-bottom: 8px; 
+  margin-bottom: 10px; 
   text-align: center;
   margin: 16px 0;
   animation: calcAppear 0.4s ease-out;
