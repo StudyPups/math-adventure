@@ -32,7 +32,7 @@ const SAVE_KEY_BASE = "studypups_save";
 const CURRENT_PROFILE_KEY = "studypups_current_profile_id";
 
 // Build a save key that is different for each profile
-function getSaveKey() {
+export function getSaveKey() {
   const profileId = localStorage.getItem(CURRENT_PROFILE_KEY);
   return profileId ? `${SAVE_KEY_BASE}_${profileId}` : SAVE_KEY_BASE;
 }
@@ -77,13 +77,15 @@ export function createNewGameState() {
   };
 }
 
+
+
 /**
  * Save game state to localStorage
  */
 export function saveGameState(state) {
   try {
-    state.lastPlayed = new Date().toISOString();
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    const toSave = { ...state, lastPlayed: new Date().toISOString() };
+    localStorage.setItem(getSaveKey(), JSON.stringify(toSave));
     log("Game saved ✅");
     return true;
   } catch (error) {
@@ -109,6 +111,7 @@ export function loadGameState() {
     return null;
   }
 }
+
 
 /**
  * Clear saved game (for testing/reset)

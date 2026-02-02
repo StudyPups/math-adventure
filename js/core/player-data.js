@@ -35,6 +35,7 @@ function profileKey(profileId) {
  */
 export function createNewPlayer(name = "") {
   const now = new Date().toISOString();
+
   return {
     // Identity
     profileId: uid(),
@@ -48,8 +49,11 @@ export function createNewPlayer(name = "") {
 
     // Suggested save shape for your map/levels:
     unlockedLocations: ["tutorial"], // e.g. ["tutorial","farm","shop"]
-    locationProgress: {
-      // "farm": { highestLevelUnlocked: 3, levels: { "1": {...}, "2": {...} } }
+
+    // New future-proof progress system
+    progress: {
+      locations: {},  // farm/cafe/etc will be created automatically
+      mastery: {}     // foundation check flags live here
     },
 
     // Currency & Items
@@ -187,8 +191,9 @@ export function recordLevelAttempt({ locationId, levelId, correct, attempts = 1,
   p.hintsUsed += Number(hintsUsed) || 0;
 
   // progress bucket
-  p.locationProgress[locationId] ||= { highestLevelUnlocked: 1, levels: {} };
-  const loc = p.locationProgress[locationId];
+p.progress.locations[locationId] ||= { highestLevelUnlocked: 1, levels: {} };
+const loc = p.progress.locations[locationId];
+
   loc.levels[levelId] ||= { firstCompletedAt: null, bestScore: 0, attempts: 0, completions: 0 };
 
   const lvl = loc.levels[levelId];
@@ -211,5 +216,6 @@ export function recordLevelAttempt({ locationId, levelId, correct, attempts = 1,
 
   p.glimmers = Math.max(0, (Number(p.glimmers) || 0) + reward);
   savePlayer(p);
-  return { reward, glimmers: p.glimmers, progress: p.locationProgress[locationId] };
+return { reward, glimmers: p.glimmers, progress: p.progress.locations[locationId] };
+
 }
