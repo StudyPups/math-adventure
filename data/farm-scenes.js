@@ -131,7 +131,7 @@ export const farmScenes = {
       image: "assets/images/characters/FarmerButtercup/Buttercup-thinking.png",
       position: "left"
     },
-    dialogue: "I've got 5 pens, and each pen needs 2 sheep. How many sheep do I need altogether?",
+    
     puzzle: () => ({
   ...makeFarmMultiplicationPuzzle(),
   onCorrect: "puzzle-1-success"

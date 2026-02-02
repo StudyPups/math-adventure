@@ -21,6 +21,7 @@ export function makeFarmMultiplicationPuzzle() {
 
   return {
     type: "multiplication",
+    dialogue: `I've got ${a} pens, and each pen needs ${b} sheep. How many sheep do I need altogether?`,
     question: `${a} × ${b} = ?`,
     options: options.map((value, index) => ({
       id: String.fromCharCode(97 + index), // a, b, c, d

@@ -860,30 +860,34 @@ onReady(() => {
 
   // --- PUZZLE LAYOUT ---
   
-  function renderPuzzleLayout(scene) {
-    dialogueLayer.classList.add("dialogue-mode");
+ function renderPuzzleLayout(scene) {
+  dialogueLayer.classList.add("dialogue-mode");
 
-    if (scene.speaker && scene.speaker.image) {
-      renderCharacters([{
-        id: "speaker",
-        image: scene.speaker.image,
-        position: "stage-left",
-        size: "medium"
-      }]);
-      
-      speakerName.textContent = scene.speaker.name || "";
-    }
-
-    if (scene.dialogue) {
-      dialogueText.innerHTML = formatDialogue(scene.dialogue);
-    }
-
-    if (scene.puzzle) {
-      renderPuzzle(scene.puzzle);
-      // Show Teddy helper for puzzles!
-      showTeddyHelper(scene.puzzle);
-    }
+  if (scene.speaker && scene.speaker.image) {
+    renderCharacters([{
+      id: "speaker",
+      image: scene.speaker.image,
+      position: "stage-left",
+      size: "medium"
+    }]);
+    speakerName.textContent = scene.speaker.name || "";
   }
+
+  const puzzleData = (typeof scene.puzzle === "function")
+    ? scene.puzzle()
+    : scene.puzzle;
+
+  if (scene.dialogue || puzzleData?.dialogue) {
+    const text = scene.dialogue || puzzleData.dialogue;
+    dialogueText.innerHTML = formatDialogue(text);
+  }
+
+  if (scene.puzzle) {
+    renderPuzzle(puzzleData);
+    showTeddyHelper(puzzleData);
+  }
+}
+
 
   // --- TRANSITION ---
   
@@ -947,6 +951,8 @@ onReady(() => {
 
   function renderPuzzle(puzzle) {
     puzzleBox.hidden = false;
+
+     puzzleBox.innerHTML = "";
 
     const questionEl = document.createElement("div");
     questionEl.className = "puzzle-question";
