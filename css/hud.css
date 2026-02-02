@@ -53,6 +53,8 @@
   transform: translateY(-2px);
 }
 
+
+
 /* --- Gem Display --- */
 .gem-display {
   display: flex;
@@ -76,6 +78,8 @@
   min-width: 24px;
   text-align: center;
 }
+
+
 /* ============================================================
    13. GEM SYSTEM & CELEBRATIONS
    ============================================================ */

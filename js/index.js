@@ -26,24 +26,18 @@ function renderJoinedClass() {
     return;
   }
 
-  const neighbourhoodId = localStorage.getItem(
-    `studypups_neighbourhood_for_${profileId}`
+  const code = localStorage.getItem(
+    `studypups_neighbourhood_code_for_${profileId}`
   );
-  localStorage.setItem(
-  `studypups_neighbourhood_code_for_${profileId}`,
-  neighbourhood.class_code
-);
 
-
-  if (!neighbourhoodId) {
-    el.textContent = "Class: (not joined)";
+  if (!code) {
+   el.textContent = "📬 Post Office: P.O. Box";
     return;
   }
 
-  const code = localStorage.getItem(`studypups_neighbourhood_code_for_${profileId}`);
-el.textContent = code ? `🏡 Neighbourhood: ${code}` : "🏡 Neighbourhood: (not joined)";
-
+el.textContent = `📬 Post Office: ${code}`;
 }
+
 
 
 function updateWelcomeUI() {
