@@ -25,7 +25,18 @@ export function log(...args) {
 /**
  * LocalStorage key for game saves
  */
-const SAVE_KEY = "studypups_save";
+// Base key (we’ll add the profile id onto the end)
+const SAVE_KEY_BASE = "studypups_save";
+
+// This is the key we set when we pick a profile
+const CURRENT_PROFILE_KEY = "studypups_current_profile_id";
+
+// Build a save key that is different for each profile
+function getSaveKey() {
+  const profileId = localStorage.getItem(CURRENT_PROFILE_KEY);
+  return profileId ? `${SAVE_KEY_BASE}_${profileId}` : SAVE_KEY_BASE;
+}
+
 
 /**
  * Create a fresh game state
@@ -86,7 +97,7 @@ export function saveGameState(state) {
  */
 export function loadGameState() {
   try {
-    const saved = localStorage.getItem(SAVE_KEY);
+    const saved = localStorage.getItem(getSaveKey());
     if (saved) {
       const state = JSON.parse(saved);
       log("Game loaded ✅", state.playerName || "(no name yet)");
@@ -104,7 +115,7 @@ export function loadGameState() {
  */
 export function clearGameState() {
   try {
-    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem(getSaveKey());
     log("Game data cleared");
     return true;
   } catch (error) {
@@ -117,7 +128,7 @@ export function clearGameState() {
  * Check if this is a new player (no save exists)
  */
 export function isNewPlayer() {
-  return !localStorage.getItem(SAVE_KEY);
+  return !localStorage.getItem(getSaveKey());
 }
 // ============================================
 // GAME MENU SYSTEM
@@ -226,11 +237,15 @@ export function initGameMenu(currentPage = "") {
       </div>
       
       <div class="menu-footer">
-        <button class="menu-footer-btn secondary" disabled>
-          👤 Switch Profile (Coming Soon)
-        </button>
-      </div>
-    </div>
+  <button class="menu-footer-btn" id="backToWelcomeBtn">
+    🏠 Back to Welcome
+  </button>
+
+  <button class="menu-footer-btn secondary" disabled>
+    👤 Switch Profile (Coming Soon)
+  </button>
+</div>
+
   `;
   
   // Add to page
@@ -258,6 +273,8 @@ export function initGameMenu(currentPage = "") {
     if (e.key === "Escape" && menuOverlay.classList.contains("open")) {
       menuOverlay.classList.remove("open");
     }
+
+   
   });
   
   // =============================================
@@ -271,6 +288,12 @@ export function initGameMenu(currentPage = "") {
   window.closeGameMenu = () => {
     menuOverlay.classList.remove("open");
   };
+
+   const backBtn = document.getElementById("backToWelcomeBtn");
+backBtn?.addEventListener("click", () => {
+  window.location.href = "index.html";
+});
+
   
   log("Game menu initialized ✅");
 }

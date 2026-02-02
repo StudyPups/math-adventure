@@ -1,8 +1,11 @@
+import { makeFarmMultiplicationPuzzle } from "../../js/generators/multiplication.js";
+
 // data/farm-scenes.js
 // Scene data for Buttercup's Farm location
 // Math focus: Skip counting, multiplication, grouping (confidence builders!)
 
 export const farmScenes = {
+  
   
   // ===================
   // SCENE 1: Arrival at Farm
@@ -26,6 +29,9 @@ export const farmScenes = {
       { text: "Hello! Are you Farmer Buttercup?", next: "buttercup-intro" }
     ]
   },
+
+
+
 
   // ===================
   // SCENE 2: Buttercup Introduces Herself
@@ -126,20 +132,11 @@ export const farmScenes = {
       position: "left"
     },
     dialogue: "I've got 5 pens, and each pen needs 2 sheep. How many sheep do I need altogether?",
-    puzzle: {
-      type: "multiplication",
-      question: "5 pens × 2 sheep = ?",
-      options: [
-        { id: "a", text: "7" },
-        { id: "b", text: "10" },
-        { id: "c", text: "12" },
-        { id: "d", text: "8" }
-      ],
-      correctId: "b",
-      hintOnWrong: "Try counting by 2s: 2, 4, 6, 8... keep going until you've counted 5 times!",
-      reward: 3,
-      onCorrect: "puzzle-1-success"
-    }
+    puzzle: () => ({
+  ...makeFarmMultiplicationPuzzle(),
+  onCorrect: "puzzle-1-success"
+}),
+
   },
 
   "puzzle-1-success": {
