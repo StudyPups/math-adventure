@@ -1,0 +1,57 @@
+/* ============================================================
+   16. WELCOME PAGE (index.html)
+   ============================================================ */
+
+.fullscreen-bg {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-color: #87CEEB;
+  display: flex;
+  flex-direction: column;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  z-index: 100;
+}
+
+.menu-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.teddy-welcome {
+  font-size: 120px;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  animation: float 3s ease-in-out infinite;
+}
+
+.dialogue {
+  width: min(980px, calc(100% - 40px));
+  margin: 0 auto 22px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.dialogue p {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.dialogue .actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
