@@ -1,7 +1,12 @@
 // js/index.js
 // Main menu / landing page logic
 
+import { supabase } from "./core/backend.js";
+console.log("Supabase client ready:", !!supabase);
+
 import { onReady, log } from "./core/shared.js";
+
+
 import {
   getCurrentPlayer,
   listProfiles,
@@ -9,6 +14,37 @@ import {
   setCurrentProfile,
   deleteProfile
 } from "./core/player-data.js";
+
+
+function renderJoinedClass() {
+  const el = document.getElementById("joinedClassLabel");
+  if (!el) return;
+
+  const profileId = localStorage.getItem("studypups_current_profile_id");
+  if (!profileId) {
+    el.textContent = "";
+    return;
+  }
+
+  const neighbourhoodId = localStorage.getItem(
+    `studypups_neighbourhood_for_${profileId}`
+  );
+  localStorage.setItem(
+  `studypups_neighbourhood_code_for_${profileId}`,
+  neighbourhood.class_code
+);
+
+
+  if (!neighbourhoodId) {
+    el.textContent = "Class: (not joined)";
+    return;
+  }
+
+  const code = localStorage.getItem(`studypups_neighbourhood_code_for_${profileId}`);
+el.textContent = code ? `🏡 Neighbourhood: ${code}` : "🏡 Neighbourhood: (not joined)";
+
+}
+
 
 function updateWelcomeUI() {
   const player = getCurrentPlayer();
@@ -106,6 +142,7 @@ function openProfilesMenu() {
 }
 
 onReady(() => {
+  renderJoinedClass();
   log("Menu loaded ✅");
 
   const enterBtn = document.getElementById("enterBtn");
@@ -128,3 +165,56 @@ onReady(() => {
     openProfilesMenu();
   });
 });
+
+
+
+// ---- Neighbourhood lookup (test only) ----
+
+async function findNeighbourhoodByCode(code) {
+  const { data, error } = await supabase
+    .from("neighbourhoods")
+    .select("*")
+    .eq("class_code", code)
+    .single();
+
+  if (error) {
+    console.error("Neighbourhood not found:", error.message);
+    return null;
+  }
+
+  console.log("Neighbourhood found:", data);
+  return data;
+}
+
+async function joinNeighbourhoodFlow() {
+  const code = window.prompt("Enter class code (e.g. TEST123):");
+  if (!code) return;
+
+  const neighbourhood = await findNeighbourhoodByCode(code.trim());
+  if (!neighbourhood) {
+    window.alert("Sorry, that class code was not found.");
+    return;
+  }
+
+  const profileId = localStorage.getItem("studypups_current_profile_id");
+  if (!profileId) {
+    window.alert("Please pick a profile first, then try again.");
+    return;
+  }
+
+  // Save the joined neighbourhood id for THIS profile (local for now)
+  localStorage.setItem(
+    `studypups_neighbourhood_for_${profileId}`,
+    neighbourhood.id
+  );
+
+  window.alert(`Joined class ${neighbourhood.class_code}!`);
+  console.log("Joined neighbourhood id:", neighbourhood.id, "for profile:", profileId);
+}
+
+// TEMP: allow running from the browser console
+window.joinNeighbourhoodFlow = joinNeighbourhoodFlow;
+
+
+// TEMP test (remove later)
+//findNeighbourhoodByCode("TEST123");
