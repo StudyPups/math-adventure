@@ -1,7 +1,7 @@
 // js/index.js
 // Main menu / landing page logic
 
-import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./shared.js";
+import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "./core/shared.js";
 
 onReady(() => {
   log("Menu loaded ✅");
