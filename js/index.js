@@ -171,26 +171,38 @@ const MAX_LETTERBOX = 50;
 async function ensureLetterboxNumber(neighbourhoodId, profileId) {
   // 1) Are we already a member?
   const { data: existing, error: existingErr } = await supabase
-    .from("neighbourhood_members")
-    .select("letterbox_number")
-    .eq("neighbourhood_id", neighbourhoodId)
-    .eq("profile_id", profileId)
-    .maybeSingle();
+  .from("neighbourhood_members")
+  .select("letterbox_number, is_active")
+  .eq("neighbourhood_id", neighbourhoodId)
+  .eq("profile_id", profileId)
+  .maybeSingle();
 
-  if (existingErr) {
-    console.error(existingErr);
-    return null;
+
+
+ if (existing) {
+  // If they existed but were inactive, reactivate
+  if (existing.is_active === false) {
+    const { error: reactErr } = await supabase
+      .from("neighbourhood_members")
+      .update({ is_active: true })
+      .eq("neighbourhood_id", neighbourhoodId)
+      .eq("profile_id", profileId);
+
+    if (reactErr) {
+      console.error(reactErr);
+      return null;
+    }
   }
 
-  if (existing) {
-    return existing.letterbox_number;
+  return existing.letterbox_number;
   }
 
   // 2) Count current members to assign next number
   const { count, error: countErr } = await supabase
     .from("neighbourhood_members")
     .select("*", { count: "exact", head: true })
-    .eq("neighbourhood_id", neighbourhoodId);
+    .eq("neighbourhood_id", neighbourhoodId)
+.eq("is_active", true);
 
   if (countErr) {
     console.error(countErr);
@@ -279,10 +291,10 @@ async function leaveNeighbourhoodFlow() {
   if (!ok) return;
 
   const { error } = await supabase
-    .from("neighbourhood_members")
-    .delete()
-    .eq("neighbourhood_id", neighbourhoodId)
-    .eq("profile_id", profileId);
+  .from("neighbourhood_members")
+  .update({ is_active: false })
+  .eq("neighbourhood_id", neighbourhoodId)
+  .eq("profile_id", profileId);
 
   if (error) {
     console.error(error);
