@@ -16,7 +16,7 @@ import {
 } from "./core/player-data.js";
 
 
-function renderJoinedClass() {
+ function renderJoinedClass() {
   const el = document.getElementById("joinedClassLabel");
   if (!el) return;
 
@@ -31,11 +31,11 @@ function renderJoinedClass() {
   );
 
   if (!code) {
-   el.textContent = "📬 Post Office: P.O. Box";
+    el.textContent = "📬 Post Office: P.O. Box";
     return;
   }
 
-el.textContent = `📬 Post Office: ${code}`;
+  el.textContent = `📬 Post Office: ${code}`;
 }
 
 
@@ -201,8 +201,12 @@ async function joinNeighbourhoodFlow() {
     `studypups_neighbourhood_for_${profileId}`,
     neighbourhood.id
   );
-
-  window.alert(`Joined class ${neighbourhood.class_code}!`);
+  
+// ✅ ALSO save the class code for the label
+const cleaned = code.trim().toUpperCase();
+localStorage.setItem(`studypups_neighbourhood_code_for_${profileId}`, cleaned);
+alert(`Joined class ${cleaned}!`);
+  renderJoinedClass();
   console.log("Joined neighbourhood id:", neighbourhood.id, "for profile:", profileId);
 }
 
