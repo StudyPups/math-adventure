@@ -275,15 +275,17 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  width: min(700px, calc(100% - 40px));
+  width: fit-content;
+  max-width: min(700px, calc(100% - 40px));
+  min-width: min(280px, calc(100% - 40px));
 }
 
 /* --- Dialogue Mode (with card) --- */
 .dialogue-layer.dialogue-mode {
   background: var(--dialogue-bg);
   border: 3px solid var(--dialogue-border);
-  border-radius: 20px;
-  padding: 16px 24px 20px;
+  border-radius: 16px;
+  padding: 12px 18px 14px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
@@ -292,7 +294,7 @@ body {
 }
 
 .dialogue-layer.dialogue-mode .choices-container {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 /* --- Scene Mode (no card) --- */
@@ -315,7 +317,7 @@ body {
 
 /* --- Speaker Info --- */
 .speaker-info {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .speaker-portrait {
@@ -330,12 +332,12 @@ body {
 
 /* --- Dialogue Text --- */
 .dialogue-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.5;
   color: var(--text-dark);
   text-align: center;
   font-family: 'Georgia', 'Times New Roman', serif;
-  max-width: 600px;
+  max-width: 550px;
   margin: 0 auto;
 }
 
@@ -359,7 +361,7 @@ body {
 .dialogue-continue {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .dialogue-continue-btn {
