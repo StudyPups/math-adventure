@@ -83,10 +83,109 @@
       <div class="choices-container" id="choicesContainer"></div>
     </div>
 
-    <!-- LAYER 4: HUD -->
+    <!-- LAYER 4: HUD (Simplified Organic Design) -->
     <div class="hud-layer">
-      <button class="hud-title hud-home-btn" id="homeBtn" title="Open map">🗺️ Complexa Meadows</button>
-      <button class="hud-btn" id="skipBtn">Skip →</button>
+      <!-- Left side: Menu button -->
+      <button class="hud-menu-btn" id="menuBtn" title="Menu">
+        <span class="menu-icon">☰</span>
+      </button>
+
+      <!-- Center: Location/Status -->
+      <div class="hud-status" id="hudStatus">
+        <span class="hud-location">Whispering Woods</span>
+      </div>
+
+      <!-- Right side: Mailbox & Gems -->
+      <div class="hud-right">
+        <button class="hud-mailbox" id="mailboxBtn" title="Mailbox">
+          <span class="mailbox-icon">📬</span>
+          <span class="mailbox-badge" id="mailBadge" hidden>!</span>
+        </button>
+        <div class="gem-display" id="gemDisplay">
+          <span class="gem-icon">💎</span>
+          <span class="gem-count" id="gemCount">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Menu Overlay -->
+    <div class="game-menu-overlay" id="gameMenuOverlay" hidden>
+      <div class="game-menu-panel">
+        <button class="game-menu-close" id="closeGameMenu">&times;</button>
+
+        <!-- Player Info -->
+        <div class="game-menu-header" id="gameMenuHeader">
+          <div class="menu-player-avatar">P</div>
+          <div class="menu-player-info">
+            <div class="menu-player-name">Player</div>
+            <div class="menu-player-neighbourhood">P.O. Box</div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="game-menu-section">
+          <h3 class="game-menu-heading">Explore</h3>
+          <a href="map.html" class="game-menu-item">
+            <span class="menu-item-icon">🗺️</span>
+            <span class="menu-item-text">World Map</span>
+          </a>
+          <a href="home.html" class="game-menu-item">
+            <span class="menu-item-icon">🏠</span>
+            <span class="menu-item-text">My Home</span>
+          </a>
+          <button class="game-menu-item" id="exploreNeighbourhoodBtn">
+            <span class="menu-item-icon">🏘️</span>
+            <span class="menu-item-text">Visit Neighbours</span>
+            <span class="menu-item-badge">Coming Soon</span>
+          </button>
+        </div>
+
+        <!-- Locations -->
+        <div class="game-menu-section">
+          <h3 class="game-menu-heading">Locations</h3>
+          <a href="tutorial.html" class="game-menu-item current">
+            <span class="menu-item-icon">🌲</span>
+            <span class="menu-item-text">Whispering Woods</span>
+          </a>
+          <a href="farm.html" class="game-menu-item">
+            <span class="menu-item-icon">🌻</span>
+            <span class="menu-item-text">Buttercup's Farm</span>
+          </a>
+          <div class="game-menu-item locked">
+            <span class="menu-item-icon">☕</span>
+            <span class="menu-item-text">Cozy Cafe</span>
+            <span class="menu-item-badge">Locked</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="game-menu-footer">
+          <button class="game-menu-btn" id="gameSettingsBtn">
+            <span>⚙️</span> Settings
+          </button>
+          <button class="game-menu-btn" id="switchProfileGameBtn">
+            <span>👤</span> Switch Profile
+          </button>
+          <a href="index.html" class="game-menu-btn">
+            <span>🚪</span> Exit to Title
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mailbox Modal (Stub) -->
+    <div class="mailbox-overlay" id="mailboxOverlay" hidden>
+      <div class="mailbox-panel">
+        <button class="mailbox-close" id="closeMailbox">&times;</button>
+        <h2 class="mailbox-title">📬 Your Mailbox</h2>
+        <div class="mailbox-content" id="mailboxContent">
+          <div class="mailbox-empty">
+            <span class="mailbox-empty-icon">📭</span>
+            <p>No new mail!</p>
+            <p class="mailbox-hint">Messages from friends, teachers, and game characters will appear here.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
