@@ -65,15 +65,21 @@
         </p>
 
         <div class="row">
-          <label for="classCode"><strong>Class code:</strong></label>
-          <input id="classCode" type="text" placeholder="e.g. SP-NCVRNS" />
-          <button class="btn primary" id="loadBtn" type="button">
-            Load
-          </button>
-          <button class="btn" id="backBtn" type="button">
-            Back to game
-          </button>
-        </div>
+  <label for="classCode"><strong>Class code:</strong></label>
+  <input id="classCode" type="text" placeholder="e.g. SP-NCVRNS" />
+  <button class="btn primary" id="loadBtn" type="button">
+    Load
+  </button>
+
+  <label class="small" style="display:flex; align-items:center; gap:6px;">
+    <input type="checkbox" id="showInactive" />
+    Show inactive
+  </label>
+
+  <button class="btn" id="backBtn" type="button">
+    Back to game
+  </button>
+</div>
 
         <div id="status" class="small"></div>
 

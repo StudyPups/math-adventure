@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const backBtn = document.getElementById("backBtn");
   const statusEl = document.getElementById("status");
   const resultsEl = document.getElementById("results");
+  const showInactiveEl = document.getElementById("showInactive");
 
   backBtn?.addEventListener("click", () => {
     window.location.href = "index.html";
@@ -87,6 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2) Load members
     try {
       const members = await listMembers(neighbourhood.id);
+      const showInactive = !!showInactiveEl?.checked;
+const visibleMembers = showInactive
+  ? members
+  : members.filter((m) => m.is_active !== false);
 
       const activeCount = members.filter((m) => m.is_active !== false).length;
       setStatus(
@@ -94,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `Class ${neighbourhood.class_code}: ${activeCount} active member(s)`
       );
 
-      renderMembers(resultsEl, members);
+      renderMembers(resultsEl, visibleMembers);
     } catch (err) {
       console.error(err);
       setStatus(statusEl, "Could not load members. Check console.");
