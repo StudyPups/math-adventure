@@ -1,0 +1,684 @@
+/* ============================================================
+   STUDYPUPS MOBILE ENHANCEMENTS
+
+   Comprehensive mobile support for phones and tablets.
+   This file enhances the existing responsive design with:
+   - Safe area support for notches/home indicators
+   - Touch-friendly minimum tap targets (44px)
+   - Improved layouts for narrow screens
+   - Landscape orientation handling
+   - Better text readability on small screens
+
+   ============================================================ */
+
+/* ============================================================
+   1. SAFE AREA SUPPORT (Notches & Home Indicators)
+   ============================================================ */
+
+/* Enable safe area insets for modern iOS devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .game-screen,
+  .fullscreen-bg {
+    /* Account for notch at top */
+    padding-top: env(safe-area-inset-top);
+    /* Account for home indicator at bottom */
+    padding-bottom: env(safe-area-inset-bottom);
+    /* Account for side notches in landscape */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* HUD needs extra top padding for notch */
+  .hud-layer {
+    padding-top: calc(15px + env(safe-area-inset-top));
+    padding-left: calc(20px + env(safe-area-inset-left));
+    padding-right: calc(20px + env(safe-area-inset-right));
+  }
+
+  /* Dialogue needs bottom safe area */
+  .dialogue-layer {
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  /* Menu button respects safe area */
+  .menu-btn {
+    top: calc(15px + env(safe-area-inset-top));
+    left: calc(15px + env(safe-area-inset-left));
+  }
+}
+
+
+/* ============================================================
+   2. TOUCH-FRIENDLY ENHANCEMENTS
+   ============================================================ */
+
+/* Ensure minimum 44px touch targets for all interactive elements */
+@media (pointer: coarse) {
+  /* Buttons need larger touch targets */
+  .btn,
+  .game-button,
+  .game-button-secondary,
+  .answer-btn,
+  .answer-option,
+  .btn-choice,
+  .hint-btn,
+  .menu-footer-btn {
+    min-height: 48px;
+    min-width: 48px;
+    /* Add touch feedback */
+    -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  }
+
+  /* Dialogue continue button */
+  .dialogue-continue-btn {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+
+  /* Menu items need larger touch targets */
+  .menu-location {
+    min-height: 60px;
+    padding: 16px 18px;
+  }
+
+  /* Menu close button */
+  .menu-close {
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+  }
+
+  /* Helper click areas */
+  .helper-container,
+  .teddy-decor,
+  .teddy-helper {
+    /* Increase tap area */
+    padding: 10px;
+    margin: -10px;
+  }
+
+  /* Choice buttons in dialogue */
+  .choices-container .btn-choice {
+    padding: 16px 24px;
+    min-height: 52px;
+  }
+
+  /* Disable hover effects on touch devices (they cause sticky states) */
+  .btn:hover,
+  .game-button:hover,
+  .answer-btn:hover,
+  .menu-location:hover {
+    transform: none;
+  }
+
+  /* Use active state instead for touch feedback */
+  .btn:active,
+  .game-button:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+
+  .answer-btn:active:not(:disabled) {
+    transform: scale(0.98);
+    background: rgba(139, 92, 246, 0.15);
+  }
+
+  .menu-location:active:not(.locked) {
+    transform: translateX(3px);
+    border-color: #8B5CF6;
+  }
+}
+
+
+/* ============================================================
+   3. SMALL PHONE ENHANCEMENTS (max-width: 375px)
+   Very small phones like iPhone SE, older Android devices
+   ============================================================ */
+
+@media (max-width: 375px) {
+  :root {
+    --stage-left-x: 28%;
+    --stage-right-x: 72%;
+    --teddy-decor-size: 80px;
+    --teddy-helper-size: 100px;
+  }
+
+  /* Smaller base font for very small screens */
+  body {
+    font-size: 14px;
+  }
+
+  /* HUD adjustments */
+  .hud-layer {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hud-title {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+
+  .gem-display {
+    font-size: 0.95rem;
+    padding: 8px 12px;
+  }
+
+  /* Dialogue adjustments */
+  .dialogue-layer {
+    width: calc(100% - 16px);
+    bottom: 10px;
+  }
+
+  .dialogue-layer.dialogue-mode {
+    padding: 12px 14px 16px;
+    border-radius: 16px;
+  }
+
+  .dialogue-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .speaker-name {
+    font-size: 0.95rem;
+  }
+
+  /* Smaller choice buttons */
+  .choices-container {
+    gap: 8px;
+  }
+
+  .btn-choice {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    min-width: 140px;
+  }
+
+  /* Puzzle box */
+  .puzzle-layer {
+    width: calc(100% - 24px);
+  }
+
+  .puzzle-box {
+    padding: 14px;
+  }
+
+  .puzzle-question {
+    font-size: 1.2rem;
+    padding: 12px;
+  }
+
+  .answer-btn {
+    font-size: 1rem;
+    padding: 12px 14px;
+  }
+
+  /* Character sizing */
+  .size-small .character-sprite { height: 20vh; }
+  .size-medium .character-sprite { height: 25vh; }
+  .size-large .character-sprite { height: 45vh; }
+
+  /* Menu button */
+  .menu-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    top: 10px;
+    left: 10px;
+  }
+
+  /* Menu panel */
+  .menu-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .menu-title {
+    font-size: 1.2rem;
+  }
+
+  .menu-location {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .menu-location-icon {
+    font-size: 1.4rem;
+    width: 36px;
+  }
+
+  .menu-location-name {
+    font-size: 0.9rem;
+  }
+
+  .menu-location-desc {
+    font-size: 0.75rem;
+  }
+
+  /* Hint box */
+  .hint-box {
+    padding: 14px 16px;
+    width: 98%;
+    max-width: none;
+  }
+
+  .hint-box-title {
+    font-size: 1.1rem;
+  }
+
+  .hint-explanation {
+    font-size: 0.9rem;
+  }
+
+  /* Helper sprites */
+  .helper-sprite {
+    height: 18vh;
+  }
+
+  .helper-label {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  /* Teddy speech bubble */
+  .teddy-fun-bubble {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    max-width: 150px;
+    white-space: normal;
+  }
+}
+
+
+/* ============================================================
+   4. LANDSCAPE ORIENTATION HANDLING
+   ============================================================ */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Reduce vertical space usage in landscape */
+  .hud-layer {
+    padding: 8px 15px;
+  }
+
+  .hud-title {
+    padding: 6px 14px;
+    font-size: 0.9rem;
+  }
+
+  .gem-display {
+    padding: 6px 12px;
+    font-size: 0.95rem;
+  }
+
+  /* Characters need to be shorter in landscape */
+  .size-small .character-sprite { height: 35vh; }
+  .size-medium .character-sprite { height: 50vh; }
+  .size-large .character-sprite { height: 70vh; }
+  .size-xlarge .character-sprite { height: 80vh; }
+
+  /* Dialogue takes less vertical space */
+  .dialogue-layer {
+    bottom: 8px;
+  }
+
+  .dialogue-layer.dialogue-mode {
+    padding: 10px 20px 14px;
+  }
+
+  .dialogue-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  /* Choice buttons in a row */
+  .choices-container {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .btn-choice {
+    padding: 10px 18px;
+    min-width: auto;
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  /* Puzzle box centered and smaller */
+  .puzzle-layer {
+    width: min(450px, calc(100% - 120px));
+  }
+
+  .puzzle-box {
+    padding: 14px;
+  }
+
+  .puzzle-question {
+    font-size: 1.2rem;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Puzzle options in 2x2 grid */
+  .puzzle-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .answer-btn {
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  /* Teddy/Helper positioning for landscape */
+  :root {
+    --teddy-decor-size: 100px;
+    --teddy-helper-size: 120px;
+    --teddy-bottom: 5%;
+    --teddy-right: 3%;
+  }
+
+  /* Helper sprite sizing */
+  .helper-sprite {
+    height: 40vh;
+  }
+
+  /* Hint box in landscape - side panel style */
+  .hint-box {
+    max-height: 85vh;
+    width: 350px;
+  }
+
+  /* Menu panel narrower in landscape */
+  .menu-panel {
+    max-width: 400px;
+    max-height: 90vh;
+  }
+}
+
+/* Very short landscape (phones rotated) */
+@media (orientation: landscape) and (max-height: 400px) {
+  .size-medium .character-sprite { height: 60vh; }
+  .size-large .character-sprite { height: 80vh; }
+
+  .dialogue-layer.dialogue-mode {
+    padding: 8px 16px 10px;
+  }
+
+  .dialogue-text {
+    font-size: 0.9rem;
+  }
+
+  .btn-choice {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  /* Hide level progress dots in very short landscape */
+  .level-progress {
+    display: none;
+  }
+}
+
+
+/* ============================================================
+   5. IMPROVED MOBILE HUD
+   ============================================================ */
+
+@media (max-width: 600px) {
+  .hud-layer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 15px;
+  }
+
+  /* Stack HUD items vertically on very narrow screens */
+  .hud-title {
+    order: 1;
+    flex: 1 1 100%;
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .gem-display {
+    order: 2;
+  }
+
+  .hud-btn {
+    order: 3;
+  }
+
+  /* Neighbourhood label adjustments */
+  .neighbourhood-label {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
+
+
+/* ============================================================
+   6. TEXT READABILITY IMPROVEMENTS
+   ============================================================ */
+
+@media (max-width: 480px) {
+  /* Prevent text from being too small */
+  .dialogue-text {
+    font-size: max(1rem, 16px);
+  }
+
+  .puzzle-question {
+    font-size: max(1.2rem, 18px);
+  }
+
+  .answer-btn,
+  .answer-option {
+    font-size: max(1rem, 16px);
+  }
+
+  /* Improve line spacing for readability */
+  .dialogue-text,
+  .hint-explanation {
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+
+  /* Ensure speaker names are readable */
+  .speaker-name {
+    font-size: max(0.95rem, 15px);
+  }
+}
+
+
+/* ============================================================
+   7. MOBILE SCROLLING & OVERFLOW
+   ============================================================ */
+
+/* Prevent bounce/overscroll on iOS */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth scrolling for menus */
+.menu-panel,
+.hint-box {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Prevent pull-to-refresh interfering with game */
+.game-screen {
+  touch-action: pan-x pan-y;
+}
+
+
+/* ============================================================
+   8. MOBILE-SPECIFIC ANIMATIONS
+   ============================================================ */
+
+/* Reduce motion on mobile for performance */
+@media (max-width: 480px) {
+  /* Simpler animations for better performance */
+  .teddy-decor-sprite,
+  .teddy-helper-sprite {
+    animation-duration: 4s; /* Slower = less CPU */
+  }
+
+  .character-clickable {
+    animation-duration: 2s;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ============================================================
+   9. TABLET OPTIMIZATIONS (600px - 900px)
+   ============================================================ */
+
+@media (min-width: 600px) and (max-width: 900px) {
+  /* Tablet gets a nice middle ground */
+  :root {
+    --teddy-decor-size: 150px;
+    --teddy-helper-size: 170px;
+  }
+
+  .dialogue-layer {
+    width: min(600px, calc(100% - 40px));
+  }
+
+  .puzzle-layer {
+    width: min(480px, calc(100% - 60px));
+  }
+
+  /* Two-column puzzle options work on tablet */
+  .puzzle-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Choices can be side by side on tablet */
+  .choices-container {
+    flex-wrap: wrap;
+  }
+
+  .btn-choice {
+    min-width: 160px;
+  }
+}
+
+
+/* ============================================================
+   10. FOCUS STATES FOR ACCESSIBILITY
+   ============================================================ */
+
+/* Visible focus states for keyboard/switch navigation */
+@media (max-width: 768px) {
+  .btn:focus-visible,
+  .game-button:focus-visible,
+  .answer-btn:focus-visible,
+  .menu-location:focus-visible,
+  .menu-btn:focus-visible {
+    outline: 3px solid var(--primary-purple);
+    outline-offset: 3px;
+  }
+
+  /* Remove outline for mouse/touch users */
+  .btn:focus:not(:focus-visible),
+  .game-button:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+
+/* ============================================================
+   11. INPUT IMPROVEMENTS
+   ============================================================ */
+
+@media (max-width: 480px) {
+  /* Text inputs need to be larger on mobile */
+  .text-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 14px 18px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* Input box full width on mobile */
+  .input-box {
+    padding: 0 10px;
+  }
+}
+
+
+/* ============================================================
+   12. HINT SYSTEM MOBILE ENHANCEMENTS
+   ============================================================ */
+
+@media (max-width: 480px) {
+  /* Full-width hint overlay */
+  .hint-overlay {
+    padding: 10px;
+    align-items: flex-end; /* Slide up from bottom */
+  }
+
+  .hint-box {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 75vh;
+    margin-bottom: 0;
+  }
+
+  .hint-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hint-btn {
+    width: 100%;
+    padding: 14px 20px;
+  }
+
+  /* Pattern visual needs smaller text */
+  .hint-pattern-visual {
+    font-size: 1rem;
+  }
+
+  .hint-pattern-operator {
+    min-width: 32px;
+    padding: 4px 6px;
+    font-size: 0.85rem;
+  }
+}
+
+
+/* ============================================================
+   13. ENCOURAGEMENT POPUP MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .teddy-encouragement-sprite {
+    width: 90px;
+  }
+
+  .teddy-encouragement-bubble {
+    max-width: 85%;
+    padding: 0.6rem 1rem;
+  }
+
+  .teddy-encouragement-text {
+    font-size: 0.95rem;
+  }
+}
