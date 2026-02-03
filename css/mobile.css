@@ -35,9 +35,9 @@
     padding-right: calc(20px + env(safe-area-inset-right));
   }
 
-  /* Dialogue needs bottom safe area */
+  /* Dialogue needs bottom safe area - increased for better visibility */
   .dialogue-layer {
-    bottom: calc(20px + env(safe-area-inset-bottom));
+    bottom: calc(25px + env(safe-area-inset-bottom));
   }
 
   /* Menu button respects safe area */
@@ -167,18 +167,19 @@
 
   /* Dialogue adjustments */
   .dialogue-layer {
-    width: calc(100% - 16px);
-    bottom: 10px;
+    max-width: calc(100% - 16px);
+    min-width: min(240px, calc(100% - 16px));
+    bottom: 15px;
   }
 
   .dialogue-layer.dialogue-mode {
-    padding: 12px 14px 16px;
-    border-radius: 16px;
+    padding: 10px 12px 12px;
+    border-radius: 14px;
   }
 
   .dialogue-text {
     font-size: 0.95rem;
-    line-height: 1.5;
+    line-height: 1.4;
   }
 
   .speaker-name {
@@ -215,10 +216,23 @@
     padding: 12px 14px;
   }
 
-  /* Character sizing */
-  .size-small .character-sprite { height: 20vh; }
-  .size-medium .character-sprite { height: 25vh; }
-  .size-large .character-sprite { height: 45vh; }
+  /* Character sizing - smaller on very small phones */
+  .size-small .character-sprite { height: 18vh; }
+  .size-medium .character-sprite { height: 22vh; }
+  .size-large .character-sprite { height: 40vh; }
+
+  /* Raise character positions to avoid dialogue overlap */
+  .character-container.pos-stage-center,
+  .character-container.pos-center {
+    bottom: 18%;
+  }
+
+  .character-container.pos-stage-left,
+  .character-container.pos-stage-right,
+  .character-container.pos-left,
+  .character-container.pos-right {
+    bottom: 12%;
+  }
 
   /* Menu button */
   .menu-btn {
@@ -456,6 +470,33 @@
     font-size: 14px;
     padding: 10px 16px;
   }
+
+  /* Dialogue responsive adjustments for mobile */
+  .dialogue-layer {
+    max-width: calc(100% - 24px);
+    bottom: 16px;
+  }
+
+  .dialogue-layer.dialogue-mode {
+    padding: 10px 16px 12px;
+  }
+
+  /* Character positioning - raise to avoid dialogue overlap */
+  .size-medium .character-sprite { height: 35vh; }
+  .size-large .character-sprite { height: 55vh; }
+
+  .character-container.pos-stage-center,
+  .character-container.pos-center {
+    bottom: 15%;
+  }
+
+  /* Teddy/StudyPup positioning */
+  :root {
+    --teddy-decor-size: 120px;
+    --teddy-helper-size: 140px;
+    --teddy-bottom: 12%;
+    --teddy-right: 5%;
+  }
 }
 
 
@@ -481,13 +522,40 @@
   /* Improve line spacing for readability */
   .dialogue-text,
   .hint-explanation {
-    line-height: 1.6;
+    line-height: 1.5;
     letter-spacing: 0.01em;
   }
 
   /* Ensure speaker names are readable */
   .speaker-name {
     font-size: max(0.95rem, 15px);
+  }
+
+  /* Ensure dialogue fits within viewport with continue button visible */
+  .dialogue-layer {
+    bottom: 18px;
+    max-height: calc(40vh - 20px);
+    overflow-y: auto;
+  }
+
+  .dialogue-layer.dialogue-mode {
+    padding: 10px 14px 12px;
+  }
+
+  /* Tighter choices container */
+  .dialogue-layer.dialogue-mode .choices-container {
+    margin-top: 10px;
+  }
+
+  /* Ensure continue button has enough space and is always visible */
+  .dialogue-continue {
+    margin-top: 6px;
+    padding-bottom: 2px;
+  }
+
+  .dialogue-continue-btn {
+    padding: 8px 14px;
+    font-size: 0.9rem;
   }
 }
 
