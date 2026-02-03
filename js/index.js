@@ -420,9 +420,9 @@ onReady(() => {
     openProfileModal();
   });
 
-  // Status display click - open settings
-  const statusDisplay = document.getElementById("statusDisplay");
-  statusDisplay?.addEventListener("click", () => {
+  // Settings button click - open settings
+  const settingsBtn = document.getElementById("settingsBtn");
+  settingsBtn?.addEventListener("click", () => {
     openSettingsModal();
   });
 

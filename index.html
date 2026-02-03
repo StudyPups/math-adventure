@@ -18,11 +18,20 @@
     class="fullscreen-bg"
     style="background-image: url('assets/images/backgrounds/scene1.png');"
   >
-    <!-- Minimal top bar - just the title -->
+    <!-- Top bar with teacher/parent login -->
     <div class="welcome-header">
-      <div class="welcome-title">
-        <img src="assets/images/ui/paw-icon.png" alt="" class="title-paw" onerror="this.style.display='none'">
-        <span>StudyPups</span>
+      <button class="settings-btn" id="settingsBtn" type="button" aria-label="Settings">
+        <span class="settings-icon">⚙️</span>
+      </button>
+      <div class="login-links">
+        <a href="teacher.html" class="login-link teacher-login">
+          <span class="login-icon">🏫</span>
+          <span class="login-text">Teacher Login</span>
+        </a>
+        <a href="parent.html" class="login-link parent-login">
+          <span class="login-icon">👪</span>
+          <span class="login-text">Parent Login</span>
+        </a>
       </div>
     </div>
 
@@ -43,17 +52,6 @@
       </div>
     </div>
 
-    <!-- Bottom info bar - shows current status -->
-    <div class="welcome-footer">
-      <div class="status-display" id="statusDisplay">
-        <span class="status-icon">📬</span>
-        <span class="status-text" id="statusText">Welcome, adventurer!</span>
-      </div>
-      <a href="teacher.html" class="teacher-link" id="teacherLink">
-        <span class="teacher-icon">🏫</span>
-        <span class="teacher-text">Teacher Portal</span>
-      </a>
-    </div>
   </div>
 
   <!-- Profile Selection Modal -->
