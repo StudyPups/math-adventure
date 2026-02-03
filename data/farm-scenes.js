@@ -1,4 +1,4 @@
-import { makeFarmMultiplicationPuzzle } from "../../js/generators/multiplication.js";
+import { makeFarmMultiplicationPuzzle } from "../js/generators/multiplication.js";
 
 // data/farm-scenes.js
 // Scene data for Buttercup's Farm location
