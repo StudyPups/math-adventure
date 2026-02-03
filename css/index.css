@@ -607,6 +607,139 @@
    RESPONSIVE
    ============================================================ */
 
+/* Very small phones (iPhone SE, older devices) */
+@media (max-width: 375px) {
+  .welcome-header {
+    padding: 12px;
+  }
+
+  .welcome-title {
+    font-size: 1rem;
+    padding: 8px 16px;
+    gap: 6px;
+  }
+
+  .title-paw {
+    width: 22px;
+    height: 22px;
+  }
+
+  .welcome-backpack {
+    width: 120px;
+  }
+
+  .prompt-text {
+    font-size: 0.9rem;
+    padding: 8px 14px;
+  }
+
+  .welcome-footer {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .status-display,
+  .teacher-link {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  .status-text {
+    font-size: 0.85rem;
+  }
+
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-card {
+    padding: 16px;
+    border-radius: 18px;
+    max-height: 90vh;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .modal-desc {
+    font-size: 0.9rem;
+  }
+
+  .profile-list {
+    max-height: 200px;
+  }
+
+  .profile-item {
+    padding: 10px 12px;
+  }
+
+  .profile-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+
+  .profile-name {
+    font-size: 0.95rem;
+  }
+
+  .profile-neighbourhood {
+    font-size: 0.8rem;
+  }
+
+  .profile-play-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .form-input {
+    padding: 12px 14px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .btn-modal {
+    padding: 12px 18px;
+    font-size: 0.95rem;
+  }
+
+  .modal-hint {
+    font-size: 0.8rem;
+  }
+
+  /* Settings modal */
+  .settings-modal {
+    max-width: 100%;
+  }
+
+  .setting-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .setting-row label {
+    flex: 1 1 100%;
+    margin-bottom: 4px;
+  }
+
+  .volume-slider {
+    flex: 1;
+    width: 100px;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+  }
+
+  .btn-settings {
+    width: 100%;
+  }
+}
+
+/* Small phones */
 @media (max-width: 480px) {
   .welcome-header {
     padding: 16px;
@@ -656,9 +789,28 @@
     height: 38px;
     font-size: 1rem;
   }
+
+  .form-input {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
 }
 
-/* Larger screens */
+/* Tablets */
+@media (min-width: 600px) and (max-width: 900px) {
+  .welcome-backpack {
+    width: 180px;
+  }
+
+  .modal-card {
+    max-width: 380px;
+  }
+
+  .profile-list {
+    max-height: 300px;
+  }
+}
+
+/* Larger screens (tablets landscape, laptops, monitors) */
 @media (min-width: 768px) {
   .welcome-backpack {
     width: 220px;
@@ -672,4 +824,140 @@
   .welcome-footer {
     padding: 20px 40px;
   }
+
+  .modal-card {
+    max-width: 420px;
+  }
 }
+
+/* Large screens (monitors) */
+@media (min-width: 1024px) {
+  .welcome-backpack {
+    width: 250px;
+  }
+
+  .welcome-title {
+    font-size: 1.5rem;
+    padding: 14px 32px;
+  }
+
+  .prompt-text {
+    font-size: 1.3rem;
+  }
+
+  .welcome-footer {
+    padding: 24px 60px;
+  }
+}
+
+/* Landscape orientation on phones */
+@media (orientation: landscape) and (max-height: 500px) {
+  .welcome-header {
+    padding: 8px 16px;
+  }
+
+  .welcome-title {
+    font-size: 1rem;
+    padding: 8px 16px;
+  }
+
+  .welcome-backpack {
+    width: 100px;
+  }
+
+  .backpack-prompt {
+    margin-top: 8px;
+  }
+
+  .prompt-text {
+    font-size: 0.9rem;
+    padding: 6px 14px;
+  }
+
+  .welcome-footer {
+    flex-direction: row;
+    padding: 8px 16px;
+  }
+
+  .status-display,
+  .teacher-link {
+    width: auto;
+    padding: 8px 14px;
+  }
+
+  .modal-card {
+    max-height: 90vh;
+  }
+
+  .profile-list {
+    max-height: 150px;
+  }
+}
+
+/* Touch device enhancements */
+@media (pointer: coarse) {
+  .backpack-container {
+    /* Larger tap target */
+    padding: 20px;
+    margin: -20px;
+  }
+
+  .status-display,
+  .teacher-link {
+    min-height: 48px;
+  }
+
+  .profile-item,
+  .btn-modal,
+  .btn-settings {
+    min-height: 48px;
+  }
+
+  .modal-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Disable hover effects on touch */
+  .backpack-container:hover {
+    transform: none;
+  }
+
+  .backpack-container:active {
+    transform: scale(0.98);
+  }
+
+  .status-display:hover,
+  .teacher-link:hover {
+    transform: none;
+  }
+
+  .status-display:active,
+  .teacher-link:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .welcome-header {
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-left: calc(20px + env(safe-area-inset-left));
+    padding-right: calc(20px + env(safe-area-inset-right));
+  }
+
+  .welcome-footer {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    padding-left: calc(24px + env(safe-area-inset-left));
+    padding-right: calc(24px + env(safe-area-inset-right));
+  }
+
+  .modal-overlay {
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    padding-left: calc(20px + env(safe-area-inset-left));
+    padding-right: calc(20px + env(safe-area-inset-right));
+  }
+}
+
