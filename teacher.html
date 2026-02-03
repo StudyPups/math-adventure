@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyPups — Teacher Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Small extra styling for this page only */
+      .teacher-wrap {
+        max-width: 720px;
+        margin: 40px auto;
+        padding: 16px;
+      }
+      .teacher-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      input[type="text"] {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        min-width: 220px;
+      }
+      .small {
+        font-size: 14px;
+        opacity: 0.85;
+      }
+      .list {
+        margin-top: 12px;
+      }
+      .list-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        margin-bottom: 8px;
+      }
+      .tag {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="teacher-wrap">
+      <div class="teacher-card">
+        <h2 style="margin-top: 0">🏫 Teacher Dashboard (MVP)</h2>
+        <p class="small">
+          Enter your class code to see the anonymous house list.
+        </p>
+
+        <div class="row">
+          <label for="classCode"><strong>Class code:</strong></label>
+          <input id="classCode" type="text" placeholder="e.g. SP-NCVRNS" />
+          <button class="btn primary" id="loadBtn" type="button">
+            Load
+          </button>
+          <button class="btn" id="backBtn" type="button">
+            Back to game
+          </button>
+        </div>
+
+        <div id="status" class="small"></div>
+
+        <div id="results" class="list"></div>
+      </div>
+    </div>
+
+    <script type="module" src="js/teacher.js"></script>
+  </body>
+</html>
