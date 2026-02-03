@@ -4,11 +4,213 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Melody's Shop - StudyPups</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/hud.css">
-<link rel="stylesheet" href="css/dialogue.css">
-<link rel="stylesheet" href="css/puzzle.css">
-<link rel="stylesheet" href="css/hint-system.css">
-<link rel="stylesheet" href="css/studypup.css">
-<link rel="stylesheet" href="css/shop.css"
->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/hud.css">
+  <link rel="stylesheet" href="css/dialogue.css">
+  <link rel="stylesheet" href="css/studypup.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+  <!--
+    MELODY'S SHOP
+    The magical shop where players spend glimmers!
+    Features: Browse items, cart system, purchase, Now Hiring jobs menu
+  -->
+  <div class="game-screen" id="gameScreen">
+
+    <!-- LAYER 1: Background -->
+    <div class="background-layer" id="backgroundLayer"></div>
+
+    <!-- LAYER 2: Shop Interior -->
+    <div class="shop-interior" id="shopInterior">
+
+      <!-- Melody Character (shopkeeper) -->
+      <div class="melody-container" id="melodyContainer">
+        <img
+          src="assets/images/characters/Fairy/fairy-helpful.png"
+          alt="Melody the Fairy"
+          class="melody-sprite"
+          id="melodySprite"
+          onerror="this.style.display='none'"
+        >
+      </div>
+
+      <!-- Melody's Speech Bubble -->
+      <div class="melody-dialogue" id="melodyDialogue">
+        <div class="melody-dialogue-text" id="melodyDialogueText">
+          Welcome to my shop!
+        </div>
+        <button class="melody-dialogue-btn" id="melodyDialogueBtn">Continue</button>
+      </div>
+
+    </div>
+
+    <!-- LAYER 3: Shop UI -->
+    <div class="shop-ui" id="shopUI">
+
+      <!-- Category Tabs -->
+      <div class="category-tabs" id="categoryTabs">
+        <!-- Categories will be inserted dynamically -->
+      </div>
+
+      <!-- Items Grid -->
+      <div class="items-container" id="itemsContainer">
+        <div class="items-grid" id="itemsGrid">
+          <!-- Items will be inserted dynamically -->
+        </div>
+      </div>
+
+      <!-- Cart Panel (slides in from right) -->
+      <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+          <h3 class="cart-title">🛒 Your Cart</h3>
+          <button class="cart-close-btn" id="cartCloseBtn">✕</button>
+        </div>
+
+        <div class="cart-items" id="cartItems">
+          <!-- Cart items will be inserted dynamically -->
+          <div class="cart-empty" id="cartEmpty">
+            Your cart is empty!<br>
+            <span class="cart-empty-hint">Browse the shop and add items you like!</span>
+          </div>
+        </div>
+
+        <div class="cart-footer">
+          <div class="cart-total" id="cartTotal">
+            <span class="cart-total-label">Total:</span>
+            <span class="cart-total-amount">
+              <span class="gem-icon">💎</span>
+              <span id="cartTotalGlimmers">0</span>
+            </span>
+          </div>
+
+          <div class="cart-balance" id="cartBalance">
+            You have: <span class="gem-icon">💎</span><span id="playerGlimmers">0</span>
+          </div>
+
+          <div class="cart-status" id="cartStatus">
+            <!-- Affordability message will go here -->
+          </div>
+
+          <div class="cart-actions">
+            <button class="btn btn-checkout" id="checkoutBtn" disabled>
+              ✨ Purchase
+            </button>
+            <button class="btn btn-earn-more" id="earnMoreBtn">
+              💼 Earn More
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LAYER 4: HUD -->
+    <div class="hud-layer">
+      <button class="hud-title hud-home-btn" id="homeBtn" title="Open map">
+        🗺️ Melody's Shop
+      </button>
+      <div class="hud-right">
+        <button class="cart-toggle-btn" id="cartToggleBtn">
+          🛒 <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <div class="gem-display" id="gemDisplay">
+          <span class="gem-icon">💎</span>
+          <span class="gem-count" id="gemCount">0</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: Item Detail -->
+  <div class="modal item-modal" id="itemModal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content item-modal-content">
+      <button class="modal-close" id="modalClose">✕</button>
+
+      <div class="item-detail-icon" id="itemDetailIcon">🎀</div>
+      <h2 class="item-detail-name" id="itemDetailName">Item Name</h2>
+      <p class="item-detail-desc" id="itemDetailDesc">Item description goes here.</p>
+
+      <div class="item-detail-price" id="itemDetailPrice">
+        <span class="gem-icon">💎</span>
+        <span id="itemDetailPriceAmount">0</span>
+      </div>
+
+      <div class="item-detail-actions">
+        <button class="btn btn-add-cart" id="addToCartBtn">
+          🛒 Add to Cart
+        </button>
+        <button class="btn btn-buy-now" id="buyNowBtn">
+          ✨ Buy Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Now Hiring (Jobs) -->
+  <div class="modal jobs-modal" id="jobsModal">
+    <div class="modal-backdrop" id="jobsModalBackdrop"></div>
+    <div class="modal-content jobs-modal-content">
+      <div class="jobs-header">
+        <h2 class="jobs-title">💼 Now Hiring!</h2>
+        <button class="modal-close" id="jobsModalClose">✕</button>
+      </div>
+
+      <p class="jobs-intro">
+        Earn more glimmers by helping out around Complexa Meadows!
+      </p>
+
+      <div class="jobs-list" id="jobsList">
+        <!-- Jobs will be inserted dynamically -->
+      </div>
+
+      <div class="jobs-footer">
+        <button class="btn btn-back-to-shop" id="backToShopBtn">
+          🏪 Back to Shop
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Purchase Success -->
+  <div class="modal success-modal" id="successModal">
+    <div class="modal-backdrop" id="successModalBackdrop"></div>
+    <div class="modal-content success-modal-content">
+      <div class="success-sparkles">✨</div>
+      <h2 class="success-title">Purchase Complete!</h2>
+      <div class="success-message" id="successMessage">
+        Melody's message will appear here!
+      </div>
+      <div class="success-items" id="successItems">
+        <!-- Purchased items will be shown here -->
+      </div>
+      <button class="btn btn-success-continue" id="successContinueBtn">
+        ✨ Continue Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Gift Received (for new StudyPup collars) -->
+  <div class="modal gift-modal" id="giftModal">
+    <div class="modal-backdrop" id="giftModalBackdrop"></div>
+    <div class="modal-content gift-modal-content">
+      <div class="gift-sparkles">🎁✨🎁</div>
+      <h2 class="gift-title">A Gift From Melody!</h2>
+      <div class="gift-message" id="giftMessage">
+        Melody's gift message will appear here!
+      </div>
+      <div class="gift-item" id="giftItem">
+        <div class="gift-item-icon" id="giftItemIcon">✨</div>
+        <div class="gift-item-name" id="giftItemName">Magic Collar</div>
+      </div>
+      <button class="btn btn-gift-accept" id="giftAcceptBtn">
+        Thank you, Melody! ✨
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="js/locations/shop.js"></script>
+</body>
+</html>

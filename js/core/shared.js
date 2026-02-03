@@ -201,6 +201,15 @@ export function initGameMenu(currentPage = "") {
       locked: false
     },
     {
+      id: "shop",
+      href: "shop.html",
+      icon: "🏪",
+      name: "Melody's Shop",
+      desc: "Spend Glimmers & Get Items",
+      badge: "Available",
+      locked: false
+    },
+    {
       id: "cafe",
       href: "#",
       icon: "☕",
