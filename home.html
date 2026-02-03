@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Home - StudyPups</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/hud.css">
+  <link rel="stylesheet" href="css/dialogue.css">
+  <link rel="stylesheet" href="css/studypup.css">
+  <link rel="stylesheet" href="css/locations/home.css">
+</head>
+<body>
+  <!--
+    MY HOME
+    The cozy customizable home for StudyPups!
+    Features: Drag-drop decoration, pup feeding, social visits, letterbox
+  -->
+  <div class="game-screen" id="gameScreen">
+
+    <!-- LAYER 1: Room Background (walls, floor, side wall) -->
+    <div class="room-container" id="roomContainer">
+
+      <!-- Back Wall -->
+      <div class="room-layer room-back-wall" id="roomBackWall">
+        <!-- Wall decor items will be placed here -->
+        <div class="wall-decor-zone" id="wallDecorZone" data-zone="wall"></div>
+      </div>
+
+      <!-- Side Wall (for depth - left side) -->
+      <div class="room-layer room-side-wall" id="roomSideWall">
+        <div class="side-wall-decor-zone" id="sideWallDecorZone" data-zone="side-wall"></div>
+      </div>
+
+      <!-- Floor -->
+      <div class="room-layer room-floor" id="roomFloor">
+        <!-- Floor items will be placed here -->
+        <div class="floor-zone" id="floorZone" data-zone="floor"></div>
+      </div>
+
+      <!-- Placed Items Layer -->
+      <div class="room-layer placed-items-layer" id="placedItemsLayer">
+        <!-- All placed furniture/decor items render here -->
+      </div>
+
+      <!-- StudyPups Layer -->
+      <div class="room-layer studypups-layer" id="studypupsLayer">
+        <!-- Wandering pups will be here -->
+      </div>
+
+      <!-- Drop Preview (shown when dragging) -->
+      <div class="drop-preview" id="dropPreview"></div>
+
+    </div>
+
+    <!-- LAYER 2: Feeding Station (always visible) -->
+    <div class="feeding-station" id="feedingStation">
+      <div class="food-bowl" id="foodBowl" data-item="food-bowl">
+        <div class="bowl-fill" id="bowlFill"></div>
+        <div class="bowl-icon">🍽️</div>
+        <div class="bowl-label">Food</div>
+      </div>
+      <div class="water-bowl" id="waterBowl" data-item="water-bowl">
+        <div class="bowl-fill water" id="waterFill"></div>
+        <div class="bowl-icon">💧</div>
+        <div class="bowl-label">Water</div>
+      </div>
+      <div class="feeding-reminder" id="feedingReminder">
+        <!-- Reminder message when food/water is low -->
+      </div>
+    </div>
+
+    <!-- LAYER 3: HUD -->
+    <div class="hud-layer">
+      <button class="hud-title hud-home-btn" id="homeBtn" title="Open map">
+        🗺️ My Home
+      </button>
+      <div class="hud-right">
+        <button class="mode-toggle-btn" id="modeToggleBtn" title="Toggle Edit Mode">
+          🎨 Decorate
+        </button>
+        <button class="social-btn" id="socialBtn" title="Visit Friends">
+          👋 Visit
+        </button>
+        <button class="letterbox-btn" id="letterboxBtn" title="Letterbox">
+          📬 <span class="letter-count" id="letterCount">0</span>
+        </button>
+        <div class="gem-display" id="gemDisplay">
+          <span class="gem-icon">💎</span>
+          <span class="gem-count" id="gemCount">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYER 4: Edit Mode Panel (slides in from bottom) -->
+    <div class="edit-panel" id="editPanel">
+      <div class="edit-panel-header">
+        <div class="edit-tabs">
+          <button class="edit-tab active" data-tab="interior" id="tabInterior">
+            🏠 Interior
+          </button>
+          <button class="edit-tab" data-tab="furniture" id="tabFurniture">
+            🪑 Furniture
+          </button>
+          <button class="edit-tab" data-tab="decor" id="tabDecor">
+            🖼️ Decor
+          </button>
+          <button class="edit-tab" data-tab="pup-items" id="tabPupItems">
+            🐕 Pup Items
+          </button>
+        </div>
+        <button class="edit-panel-close" id="editPanelClose">✕</button>
+      </div>
+
+      <!-- Interior Tab (Walls & Floors) -->
+      <div class="edit-tab-content active" id="contentInterior" data-tab="interior">
+        <div class="interior-section">
+          <h4>Walls</h4>
+          <div class="option-grid" id="wallOptions">
+            <!-- Wall options inserted dynamically -->
+          </div>
+        </div>
+        <div class="interior-section">
+          <h4>Floors</h4>
+          <div class="option-grid" id="floorOptions">
+            <!-- Floor options inserted dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Furniture Tab -->
+      <div class="edit-tab-content" id="contentFurniture" data-tab="furniture">
+        <div class="inventory-grid" id="furnitureGrid">
+          <!-- Furniture items from inventory -->
+        </div>
+        <div class="empty-inventory" id="emptyFurniture">
+          No furniture yet! Visit Melody's Shop to buy some.
+          <a href="shop.html" class="shop-link">🏪 Go to Shop</a>
+        </div>
+      </div>
+
+      <!-- Decor Tab -->
+      <div class="edit-tab-content" id="contentDecor" data-tab="decor">
+        <div class="inventory-grid" id="decorGrid">
+          <!-- Decor items from inventory -->
+        </div>
+        <div class="empty-inventory" id="emptyDecor">
+          No decorations yet! Visit Melody's Shop to buy some.
+          <a href="shop.html" class="shop-link">🏪 Go to Shop</a>
+        </div>
+      </div>
+
+      <!-- Pup Items Tab -->
+      <div class="edit-tab-content" id="contentPupItems" data-tab="pup-items">
+        <div class="inventory-grid" id="pupItemsGrid">
+          <!-- Pup-specific items (beds, bowls, etc.) -->
+        </div>
+        <div class="empty-inventory" id="emptyPupItems">
+          No pup items yet! Visit Melody's Shop to buy some.
+          <a href="shop.html" class="shop-link">🏪 Go to Shop</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teddy Helper (Tutorial & Tips) -->
+    <div class="teddy-helper home-teddy" id="teddyHelper">
+      <img
+        src="assets/images/characters/Teddy/teddy-sit.png"
+        alt="Teddy"
+        class="teddy-sprite"
+        id="teddySprite"
+        onerror="this.style.display='none'"
+      >
+      <div class="teddy-speech" id="teddySpeech">
+        <div class="teddy-speech-text" id="teddySpeechText"></div>
+        <button class="teddy-speech-btn" id="teddySpeechBtn">Got it!</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: Pup Interaction -->
+  <div class="modal pup-modal" id="pupModal">
+    <div class="modal-backdrop" id="pupModalBackdrop"></div>
+    <div class="modal-content pup-modal-content">
+      <button class="modal-close" id="pupModalClose">✕</button>
+      <div class="pup-modal-sprite" id="pupModalSprite">🐕</div>
+      <h2 class="pup-modal-name" id="pupModalName">Teddy</h2>
+      <div class="pup-modal-status" id="pupModalStatus">
+        <div class="status-item">
+          <span class="status-icon">😊</span>
+          <span class="status-label">Happiness</span>
+          <div class="status-bar">
+            <div class="status-fill happiness" id="pupHappiness"></div>
+          </div>
+        </div>
+        <div class="status-item">
+          <span class="status-icon">⚡</span>
+          <span class="status-label">Energy</span>
+          <div class="status-bar">
+            <div class="status-fill energy" id="pupEnergy"></div>
+          </div>
+        </div>
+      </div>
+      <div class="pup-modal-actions">
+        <button class="btn btn-pet" id="petPupBtn">🤗 Pet</button>
+        <button class="btn btn-treat" id="giveTreatBtn">🦴 Give Treat</button>
+      </div>
+      <div class="pup-modal-equipped" id="pupEquipped">
+        <!-- Show equipped items on this pup -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Social Visit -->
+  <div class="modal visit-modal" id="visitModal">
+    <div class="modal-backdrop" id="visitModalBackdrop"></div>
+    <div class="modal-content visit-modal-content">
+      <div class="visit-header">
+        <h2 class="visit-title">👋 Visit Neighbors</h2>
+        <button class="modal-close" id="visitModalClose">✕</button>
+      </div>
+      <div class="visit-intro">
+        Visit friends in your neighborhood to see their homes!
+      </div>
+      <div class="neighbors-list" id="neighborsList">
+        <!-- Neighbors will be listed here -->
+        <div class="no-neighbors" id="noNeighbors">
+          You're not in a neighborhood yet!<br>
+          <span class="hint">Ask your teacher for a neighborhood code.</span>
+        </div>
+      </div>
+      <div class="visit-footer">
+        <button class="btn btn-back" id="visitBackBtn">🏠 Back to My Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Letterbox -->
+  <div class="modal letterbox-modal" id="letterboxModal">
+    <div class="modal-backdrop" id="letterboxModalBackdrop"></div>
+    <div class="modal-content letterbox-modal-content">
+      <div class="letterbox-header">
+        <h2 class="letterbox-title">📬 My Letterbox</h2>
+        <button class="modal-close" id="letterboxModalClose">✕</button>
+      </div>
+
+      <div class="letterbox-tabs">
+        <button class="letterbox-tab active" data-tab="inbox" id="inboxTab">
+          📥 Inbox
+        </button>
+        <button class="letterbox-tab" data-tab="send" id="sendTab">
+          📤 Send
+        </button>
+        <button class="letterbox-tab" data-tab="memory" id="memoryTab">
+          📖 Memory Book
+        </button>
+      </div>
+
+      <!-- Inbox -->
+      <div class="letterbox-content active" id="inboxContent" data-tab="inbox">
+        <div class="messages-list" id="messagesList">
+          <!-- Messages will be listed here -->
+        </div>
+        <div class="no-messages" id="noMessages">
+          No new messages yet!<br>
+          <span class="hint">Messages from friends will appear here.</span>
+        </div>
+      </div>
+
+      <!-- Send -->
+      <div class="letterbox-content" id="sendContent" data-tab="send">
+        <div class="send-to">
+          <label>Send to:</label>
+          <select id="sendToSelect">
+            <option value="">Choose a neighbor...</option>
+          </select>
+        </div>
+
+        <div class="message-presets" id="messagePresets">
+          <label>Choose a message:</label>
+          <div class="preset-grid" id="presetGrid">
+            <!-- Preset messages -->
+          </div>
+        </div>
+
+        <div class="custom-message-section" id="customMessageSection" style="display: none;">
+          <label>Or write your own (150 characters max):</label>
+          <textarea id="customMessage" maxlength="150" placeholder="Write a kind message..."></textarea>
+          <div class="custom-warning">
+            <span class="warning-icon">👀</span>
+            Your teacher can see all custom messages.
+          </div>
+        </div>
+
+        <div class="stationery-select" id="stationerySelect">
+          <label>Choose stationery:</label>
+          <div class="stationery-grid" id="stationeryGrid">
+            <!-- Available stationery from inventory -->
+          </div>
+        </div>
+
+        <button class="btn btn-send" id="sendMessageBtn" disabled>
+          📨 Send Message
+        </button>
+      </div>
+
+      <!-- Memory Book -->
+      <div class="letterbox-content" id="memoryContent" data-tab="memory">
+        <div class="memory-list" id="memoryList">
+          <!-- Saved messages and likes -->
+        </div>
+        <div class="no-memories" id="noMemories">
+          Your memory book is empty!<br>
+          <span class="hint">Save messages you receive to keep them here forever.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Item Tooltip (on hover/click) -->
+  <div class="item-tooltip" id="itemTooltip">
+    <div class="tooltip-icon" id="tooltipIcon">🪴</div>
+    <div class="tooltip-name" id="tooltipName">Item Name</div>
+    <div class="tooltip-hint" id="tooltipHint">Click to move or remove</div>
+  </div>
+
+  <!-- MODAL: Viewing Friend's Home -->
+  <div class="visiting-banner" id="visitingBanner" style="display: none;">
+    <span class="visiting-text">Visiting <strong id="visitingName">Friend</strong>'s Home</span>
+    <button class="btn btn-like" id="likeHomeBtn">❤️ Like</button>
+    <button class="btn btn-leave-message" id="leaveMessageBtn">💬 Leave Message</button>
+    <button class="btn btn-go-home" id="goHomeBtn">🏠 Go Home</button>
+  </div>
+
+  <!-- MODAL: Achievement View (when visiting) -->
+  <div class="achievement-popup" id="achievementPopup" style="display: none;">
+    <div class="achievement-icon" id="achievementIcon">🏆</div>
+    <div class="achievement-name" id="achievementName">Achievement</div>
+    <div class="achievement-desc" id="achievementDesc">How they earned it</div>
+    <button class="achievement-close" id="achievementClose">✕</button>
+  </div>
+
+  <!-- First Visit Tutorial Overlay -->
+  <div class="tutorial-overlay" id="tutorialOverlay" style="display: none;">
+    <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+    <div class="tutorial-message" id="tutorialMessage">
+      <div class="tutorial-text" id="tutorialText"></div>
+      <button class="btn tutorial-next" id="tutorialNext">Next</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/locations/home.js"></script>
+</body>
+</html>
