@@ -1016,3 +1016,383 @@
   margin-top: 4px;
 }
 
+
+/* ============================================================
+   RESPONSIVE HUD STYLES
+   ============================================================ */
+
+/* Very small phones */
+@media (max-width: 375px) {
+  .hud-layer {
+    padding: 10px 12px;
+  }
+
+  .hud-menu-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+  }
+
+  .hud-status {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 18px;
+  }
+
+  .hud-mailbox {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  .mailbox-icon {
+    font-size: 1.1rem;
+  }
+
+  .gem-display {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+
+  /* Game menu */
+  .game-menu-panel {
+    width: calc(100vw - 24px);
+    max-width: 280px;
+    padding: 18px;
+  }
+
+  .menu-player-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+  }
+
+  .menu-player-name {
+    font-size: 1rem;
+  }
+
+  .game-menu-heading {
+    font-size: 0.75rem;
+  }
+
+  .game-menu-item {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .menu-item-icon {
+    font-size: 1.1rem;
+    width: 24px;
+  }
+
+  .menu-item-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .game-menu-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Mailbox */
+  .mailbox-panel {
+    padding: 18px;
+    width: calc(100vw - 24px);
+  }
+
+  .mailbox-title {
+    font-size: 1.1rem;
+  }
+
+  .mailbox-empty-icon {
+    font-size: 2.5rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .hud-layer {
+    padding: 12px 15px;
+  }
+
+  .hud-menu-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .hud-status {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    max-width: 180px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .hud-location {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hud-right {
+    gap: 8px;
+  }
+
+  .hud-mailbox {
+    width: 40px;
+    height: 40px;
+  }
+
+  .gem-display {
+    padding: 6px 12px;
+    font-size: 0.95rem;
+  }
+
+  /* Game menu */
+  .game-menu-overlay {
+    padding: 12px;
+  }
+
+  .game-menu-panel {
+    width: calc(100vw - 24px);
+    max-width: 300px;
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .game-menu-header {
+    gap: 12px;
+    padding-bottom: 14px;
+  }
+
+  .menu-player-avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .game-menu-section {
+    margin-bottom: 14px;
+  }
+
+  .game-menu-item {
+    padding: 11px 13px;
+    margin-bottom: 6px;
+    border-radius: 10px;
+  }
+
+  .game-menu-footer {
+    padding-top: 14px;
+  }
+
+  .game-menu-btn {
+    padding: 10px 14px;
+    font-size: 0.88rem;
+  }
+
+  /* Mailbox */
+  .mailbox-panel {
+    width: calc(100vw - 40px);
+    max-width: 360px;
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .mailbox-content {
+    min-height: 120px;
+  }
+
+  .mailbox-empty {
+    padding: 24px 16px;
+  }
+}
+
+/* Medium screens - tablets */
+@media (min-width: 600px) and (max-width: 900px) {
+  .hud-status {
+    padding: 10px 22px;
+    font-size: 1rem;
+  }
+
+  .game-menu-panel {
+    width: 300px;
+  }
+
+  .mailbox-panel {
+    max-width: 380px;
+  }
+}
+
+/* Landscape on phones */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hud-layer {
+    padding: 8px 15px;
+  }
+
+  .hud-menu-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+
+  .hud-status {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+  }
+
+  .hud-mailbox {
+    width: 36px;
+    height: 36px;
+  }
+
+  .gem-display {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+  }
+
+  /* Game menu slides from left in landscape */
+  .game-menu-panel {
+    max-height: 95vh;
+    width: 280px;
+    padding: 16px;
+  }
+
+  .game-menu-header {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .menu-player-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .menu-player-name {
+    font-size: 0.95rem;
+  }
+
+  .game-menu-item {
+    padding: 9px 11px;
+    margin-bottom: 5px;
+  }
+
+  .menu-item-icon {
+    font-size: 1.1rem;
+  }
+
+  .game-menu-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Mailbox centered */
+  .mailbox-panel {
+    max-height: 90vh;
+    max-width: 350px;
+  }
+
+  .mailbox-content {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}
+
+/* Very short landscape */
+@media (orientation: landscape) and (max-height: 400px) {
+  .hud-layer {
+    padding: 6px 12px;
+  }
+
+  .hud-menu-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .hud-status {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+  }
+
+  .hud-mailbox {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mailbox-icon {
+    font-size: 1rem;
+  }
+
+  .gem-display {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Touch device enhancements for HUD */
+@media (pointer: coarse) {
+  .hud-menu-btn,
+  .hud-mailbox {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .game-menu-item {
+    min-height: 48px;
+  }
+
+  .game-menu-btn {
+    min-height: 44px;
+  }
+
+  .game-menu-close,
+  .mailbox-close {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Disable hover effects, use active instead */
+  .hud-menu-btn:hover,
+  .hud-mailbox:hover {
+    transform: none;
+  }
+
+  .hud-menu-btn:active,
+  .hud-mailbox:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+
+  .game-menu-item:hover:not(.locked) {
+    transform: none;
+    border-color: transparent;
+  }
+
+  .game-menu-item:active:not(.locked) {
+    transform: translateX(3px);
+    border-color: #8B5CF6;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .hud-layer {
+    padding-top: calc(15px + env(safe-area-inset-top));
+    padding-left: calc(20px + env(safe-area-inset-left));
+    padding-right: calc(20px + env(safe-area-inset-right));
+  }
+
+  .game-menu-overlay {
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-left: calc(20px + env(safe-area-inset-left));
+  }
+
+  .mailbox-overlay {
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+
