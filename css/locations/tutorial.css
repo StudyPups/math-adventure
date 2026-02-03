@@ -121,3 +121,24 @@
 .dialogue-layer.scene-mode .speaker-info {
   display: none;
 }
+
+/* --- Combined Scene Image (Teddy + Fairy together) --- */
+.character-container.pos-scene-combined {
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.character-container.pos-scene-combined .character-sprite {
+  max-height: 85%;
+  max-width: 90%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: bottom center;
+}
