@@ -20,28 +20,13 @@ export const tutorialScenes = {
     //
     // The fairy and rock are grouped together so they move as one unit!
     
+    // Combined image of Teddy and Fairy together - simplifies responsive positioning
     characters: [
       {
-        id: "fairy",
-        image: "assets/images/characters/Fairy/fairy-concern-down.png",
-        position: "stage-left-elevated",  // NEW: Left side, sitting on rock
-        size: "medium"
-      },
-      {
-        id: "teddy",
-        image: "assets/images/characters/Teddy/teddy-vines.png",
-        position: "stage-right",  // NEW: Right side, ground level
-        size: "medium"
-      }
-    ],
-    
-    // The rock is now part of a "stage-left-base" position
-    // so it always appears beneath the fairy
-    environmentElements: [
-      {
-        id: "rock",
-        image: "assets/images/environmental-elements/tall-rock.png",
-        position: "stage-left-base"  // NEW: Anchors to same spot as fairy
+        id: "scene-combined",
+        image: "assets/images/characters/vines-tutorial.png",
+        position: "scene-combined",
+        size: "large"
       }
     ],
     
