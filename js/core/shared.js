@@ -183,6 +183,15 @@ export function initGameMenu(currentPage = "") {
   // Define all game locations
   const locations = [
     {
+      id: "home",
+      href: "home.html",
+      icon: "🏠",
+      name: "My Home",
+      desc: "Decorate & Play with Pups",
+      badge: "Available",
+      locked: false
+    },
+    {
       id: "tutorial",
       href: "tutorial.html",
       icon: "🌲",
