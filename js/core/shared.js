@@ -1,9 +1,35 @@
 // js/shared.js
 // Shared utilities for StudyPups game
 
-/**
- * Wrapper for DOMContentLoaded - ensures DOM is ready
- */
+import { supabase } from "./backend.js";
+
+async function syncStatsToBackend(state) {
+  // Need a profile selected
+  const profileId = localStorage.getItem("studypups_current_profile_id");
+  if (!profileId) return;
+
+  // Only sync if the profile is in a class (teacher analytics)
+  const neighbourhoodId = localStorage.getItem(
+    `studypups_neighbourhood_for_${profileId}`
+  );
+  if (!neighbourhoodId) return;
+
+  const payload = {
+    profile_id: profileId,
+    neighbourhood_id: neighbourhoodId,
+    stats: state.stats ?? {},
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from("profile_progress")
+    .upsert(payload, { onConflict: "profile_id" });
+
+  if (error) {
+    console.error("Failed to sync stats:", error);
+  }
+}
+
 export function onReady(callback) {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", callback);
