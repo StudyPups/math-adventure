@@ -1,5 +1,5 @@
 // js/index.js
-// Main menu / landing page logic
+// Main menu / landing page logic - Simplified Navigation
 
 import { supabase } from "./core/backend.js";
 console.log("Supabase client ready:", !!supabase);
@@ -14,142 +14,207 @@ import {
   deleteProfile
 } from "./core/player-data.js";
 
-/**
- * Show the joined class + letterbox in the top UI label.
- */
-function renderJoinedClass() {
-  const el = document.getElementById("joinedClassLabel");
-  if (!el) return;
+// ============================================================
+// STATE
+// ============================================================
 
-  const profileId = localStorage.getItem("studypups_current_profile_id");
-  if (!profileId) {
-    el.textContent = "";
-    return;
-  }
+let pendingProfileName = "";
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+
+/**
+ * Get the neighbourhood display text for a profile
+ */
+function getNeighbourhoodDisplay(profileId) {
+  if (!profileId) return "No neighbourhood";
 
   const code = localStorage.getItem(`studypups_neighbourhood_code_for_${profileId}`);
-  if (!code) {
-    el.textContent = "📬 Post Office: P.O. Box";
-    return;
-  }
-
   const letterbox = localStorage.getItem(`studypups_letterbox_for_${profileId}`);
 
-  if (letterbox) {
-    el.textContent = `📬 Post Office: ${code} • House #${letterbox}`;
-  } else {
-    el.textContent = `📬 Post Office: ${code}`;
+  if (!code) {
+    return "P.O. Box (No neighbourhood)";
   }
+
+  if (letterbox) {
+    return `${code} • House #${letterbox}`;
+  }
+
+  return code;
 }
 
-function updateWelcomeUI() {
+/**
+ * Update the status bar at the bottom of the welcome screen
+ */
+function updateStatusDisplay() {
+  const statusText = document.getElementById("statusText");
+  const statusIcon = document.getElementById("statusDisplay")?.querySelector(".status-icon");
+
+  if (!statusText) return;
+
   const player = getCurrentPlayer();
 
-  // Top-left title
-  const titleEl = document.querySelector(".hud-title");
-  if (titleEl) {
-    titleEl.textContent = player ? `🐾 StudyPups — ${player.playerName}` : "🐾 StudyPups";
+  if (player) {
+    const neighbourhood = getNeighbourhoodDisplay(player.profileId);
+    statusText.textContent = `${player.playerName} • ${neighbourhood}`;
+    if (statusIcon) statusIcon.textContent = "📬";
+  } else {
+    statusText.textContent = "Welcome, adventurer!";
+    if (statusIcon) statusIcon.textContent = "📬";
   }
-
-  // Welcome text
-  const menuText = document.getElementById("menuText");
-  if (menuText) {
-    menuText.textContent = player
-      ? `Welcome back, ${player.playerName}! Ready to start your magical maths adventure?`
-      : "Welcome! Ready to start your magical maths adventure?";
-  }
-
-  // Always update the Post Office label too
-  renderJoinedClass();
 }
 
-function ensureProfileExists() {
-  let player = getCurrentPlayer();
-  if (player) return player;
+/**
+ * Render the profile list in the modal
+ */
+function renderProfileList() {
+  const profileList = document.getElementById("profileList");
+  if (!profileList) return;
 
-  const name =
-    prompt("Create a player profile!\n\nWhat name should we use?", "Player") || "Player";
-  player = createProfileAndSetCurrent(name.trim() || "Player");
-  updateWelcomeUI();
-  return player;
-}
-
-function openProfilesMenu() {
   const profiles = listProfiles();
+  const currentId = localStorage.getItem("studypups_current_profile_id");
 
-  // If no profiles exist yet, just create one
-  if (!profiles.length) {
-    alert("No profiles yet — let's make one!");
-    ensureProfileExists();
+  if (profiles.length === 0) {
+    profileList.innerHTML = `
+      <div class="profile-empty">
+        <div class="profile-empty-icon">🎒</div>
+        <p>No profiles yet!</p>
+        <p>Create one to start your adventure.</p>
+      </div>
+    `;
     return;
   }
 
-  // Build a simple menu list
-  const lines = profiles.map((p, i) => `${i + 1}) ${p.playerName}`).join("\n");
+  profileList.innerHTML = profiles.map(p => {
+    const isSelected = p.profileId === currentId;
+    const neighbourhood = getNeighbourhoodDisplay(p.profileId);
+    const initial = (p.playerName || "P")[0].toUpperCase();
 
-  const choice = prompt(
-    "Profiles\n\n" +
-      lines +
-      "\n\nType a number to switch profiles.\n" +
-      "Type N to make a new profile.\n" +
-      "Type D to delete a profile.",
-    "1"
-  );
-
-  if (!choice) return;
-  const c = choice.trim().toUpperCase();
-
-  // New profile
-  if (c === "N") {
-    const name = prompt("New profile name:", "Player") || "Player";
-    createProfileAndSetCurrent(name.trim() || "Player");
-    updateWelcomeUI();
-    return;
-  }
-
-  // Delete profile
-  if (c === "D") {
-    const delChoice = prompt("Delete which profile?\n\n" + lines + "\n\nType a number:", "1");
-    if (!delChoice) return;
-
-    const idx = Number(delChoice) - 1;
-    if (Number.isNaN(idx) || idx < 0 || idx >= profiles.length) {
-      alert("That number didn't match a profile.");
-      return;
-    }
-
-    const target = profiles[idx];
-    const ok = confirm(`Delete "${target.playerName}"?\n\n(This cannot be undone)`);
-    if (!ok) return;
-
-    deleteProfile(target.profileId);
-    ensureProfileExists(); // make sure at least one exists
-    updateWelcomeUI();
-    return;
-  }
-
-  // Switch profile by number
-  const idx = Number(c) - 1;
-  if (Number.isNaN(idx) || idx < 0 || idx >= profiles.length) {
-    alert("That choice didn’t match a profile.");
-    return;
-  }
-
-  setCurrentProfile(profiles[idx].profileId);
-  updateWelcomeUI();
+    return `
+      <div class="profile-item ${isSelected ? 'selected' : ''}" data-profile-id="${p.profileId}">
+        <div class="profile-avatar">${initial}</div>
+        <div class="profile-info">
+          <div class="profile-name">${escapeHtml(p.playerName)}</div>
+          <div class="profile-neighbourhood">${escapeHtml(neighbourhood)}</div>
+        </div>
+        <button class="profile-play-btn" data-action="play" data-profile-id="${p.profileId}">
+          Play
+        </button>
+      </div>
+    `;
+  }).join("");
 }
 
-function generateClassCode() {
-  // Example output: SP-4K7Q2D
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let out = "SP-";
-  for (let i = 0; i < 6; i++) {
-    out += chars[Math.floor(Math.random() * chars.length)];
+/**
+ * Update settings modal with current profile info
+ */
+function updateSettingsDisplay() {
+  const profileDisplay = document.getElementById("currentProfileDisplay");
+  if (!profileDisplay) return;
+
+  const player = getCurrentPlayer();
+  const nameEl = profileDisplay.querySelector(".profile-name");
+  const neighbourhoodEl = profileDisplay.querySelector(".profile-neighbourhood");
+
+  if (player) {
+    nameEl.textContent = player.playerName;
+    neighbourhoodEl.textContent = getNeighbourhoodDisplay(player.profileId);
+  } else {
+    nameEl.textContent = "Not logged in";
+    neighbourhoodEl.textContent = "—";
   }
-  return out;
 }
 
-// ---- Neighbourhood lookup (MVP) ----
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str || "";
+  return div.innerHTML;
+}
+
+// ============================================================
+// MODAL MANAGEMENT
+// ============================================================
+
+function showModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.hidden = false;
+  }
+}
+
+function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.hidden = true;
+  }
+}
+
+function showStep(stepId) {
+  // Hide all steps
+  document.querySelectorAll(".modal-step").forEach(step => {
+    step.hidden = true;
+  });
+  // Show the requested step
+  const step = document.getElementById(stepId);
+  if (step) {
+    step.hidden = false;
+  }
+}
+
+// ============================================================
+// PROFILE MODAL FLOWS
+// ============================================================
+
+function openProfileModal() {
+  renderProfileList();
+  showStep("stepSelectProfile");
+  showModal("profileModal");
+}
+
+function closeProfileModal() {
+  hideModal("profileModal");
+  pendingProfileName = "";
+}
+
+function startCreateProfile() {
+  pendingProfileName = "";
+  const nameInput = document.getElementById("newProfileName");
+  if (nameInput) {
+    nameInput.value = "";
+  }
+  document.getElementById("confirmCreateProfile").disabled = true;
+  showStep("stepCreateProfile");
+}
+
+function goToNeighbourhoodStep() {
+  const nameInput = document.getElementById("newProfileName");
+  pendingProfileName = (nameInput?.value || "Player").trim();
+
+  // Clear the neighbourhood code input
+  const codeInput = document.getElementById("neighbourhoodCode");
+  if (codeInput) codeInput.value = "";
+
+  showStep("stepJoinNeighbourhood");
+}
+
+function startGame(profileId) {
+  if (profileId) {
+    setCurrentProfile(profileId);
+  }
+  updateStatusDisplay();
+  closeProfileModal();
+
+  // Navigate to tutorial
+  window.location.href = "tutorial.html";
+}
+
+// ============================================================
+// NEIGHBOURHOOD JOINING
+// ============================================================
 
 async function findNeighbourhoodByCode(code) {
   const { data, error } = await supabase
@@ -171,30 +236,27 @@ const MAX_LETTERBOX = 50;
 async function ensureLetterboxNumber(neighbourhoodId, profileId) {
   // 1) Are we already a member?
   const { data: existing, error: existingErr } = await supabase
-  .from("neighbourhood_members")
-  .select("letterbox_number, is_active")
-  .eq("neighbourhood_id", neighbourhoodId)
-  .eq("profile_id", profileId)
-  .maybeSingle();
+    .from("neighbourhood_members")
+    .select("letterbox_number, is_active")
+    .eq("neighbourhood_id", neighbourhoodId)
+    .eq("profile_id", profileId)
+    .maybeSingle();
 
+  if (existing) {
+    // If they existed but were inactive, reactivate
+    if (existing.is_active === false) {
+      const { error: reactErr } = await supabase
+        .from("neighbourhood_members")
+        .update({ is_active: true })
+        .eq("neighbourhood_id", neighbourhoodId)
+        .eq("profile_id", profileId);
 
-
- if (existing) {
-  // If they existed but were inactive, reactivate
-  if (existing.is_active === false) {
-    const { error: reactErr } = await supabase
-      .from("neighbourhood_members")
-      .update({ is_active: true })
-      .eq("neighbourhood_id", neighbourhoodId)
-      .eq("profile_id", profileId);
-
-    if (reactErr) {
-      console.error(reactErr);
-      return null;
+      if (reactErr) {
+        console.error(reactErr);
+        return null;
+      }
     }
-  }
-
-  return existing.letterbox_number;
+    return existing.letterbox_number;
   }
 
   // 2) Count current members to assign next number
@@ -202,7 +264,7 @@ async function ensureLetterboxNumber(neighbourhoodId, profileId) {
     .from("neighbourhood_members")
     .select("*", { count: "exact", head: true })
     .eq("neighbourhood_id", neighbourhoodId)
-.eq("is_active", true);
+    .eq("is_active", true);
 
   if (countErr) {
     console.error(countErr);
@@ -213,7 +275,7 @@ async function ensureLetterboxNumber(neighbourhoodId, profileId) {
 
   if (nextNumber > MAX_LETTERBOX) {
     alert(
-      `This class is full (max ${MAX_LETTERBOX} students for MVP). Ask the teacher to create another class code.`
+      `This class is full (max ${MAX_LETTERBOX} students). Ask the teacher to create another class code.`
     );
     return null;
   }
@@ -239,163 +301,247 @@ async function ensureLetterboxNumber(neighbourhoodId, profileId) {
   return inserted.letterbox_number;
 }
 
-async function joinNeighbourhoodFlow() {
-  const codeInput = window.prompt("Enter class code (e.g. SP-ABC123):");
-  if (!codeInput) return;
+async function joinNeighbourhoodAndStart() {
+  const codeInput = document.getElementById("neighbourhoodCode");
+  const code = (codeInput?.value || "").trim().toUpperCase();
 
-  const cleaned = codeInput.trim().toUpperCase();
+  if (!code) {
+    alert("Please enter a class code, or click 'Use a P.O. Box' if you don't have one.");
+    return;
+  }
 
-  const neighbourhood = await findNeighbourhoodByCode(cleaned);
+  // Create the profile first
+  const profile = createProfileAndSetCurrent(pendingProfileName || "Player");
+
+  // Try to join the neighbourhood
+  const neighbourhood = await findNeighbourhoodByCode(code);
   if (!neighbourhood) {
-    window.alert("Sorry, that class code was not found.");
+    alert("Sorry, that class code was not found. Check with your teacher and try again.");
+    // Still start the game, just without a neighbourhood
+    startGame(profile.profileId);
     return;
   }
 
-  const profileId = localStorage.getItem("studypups_current_profile_id");
-  if (!profileId) {
-    window.alert("Please pick a profile first, then try again.");
+  // Get letterbox number
+  const letterboxNumber = await ensureLetterboxNumber(neighbourhood.id, profile.profileId);
+  if (!letterboxNumber) {
+    // Something went wrong, but still start
+    startGame(profile.profileId);
     return;
   }
 
-  // Create/confirm letterbox membership in Supabase
-  const letterboxNumber = await ensureLetterboxNumber(neighbourhood.id, profileId);
-  if (!letterboxNumber) return;
+  // Save join info locally
+  localStorage.setItem(`studypups_neighbourhood_for_${profile.profileId}`, neighbourhood.id);
+  localStorage.setItem(`studypups_neighbourhood_code_for_${profile.profileId}`, code);
+  localStorage.setItem(`studypups_letterbox_for_${profile.profileId}`, String(letterboxNumber));
 
-  // Save join info locally (per profile)
-  localStorage.setItem(`studypups_neighbourhood_for_${profileId}`, neighbourhood.id);
-  localStorage.setItem(`studypups_neighbourhood_code_for_${profileId}`, cleaned);
-  localStorage.setItem(`studypups_letterbox_for_${profileId}`, String(letterboxNumber));
-
-  alert(`Joined class ${cleaned}!\n\nYour house number is #${letterboxNumber}.`);
-  updateWelcomeUI();
-
-  console.log("Joined neighbourhood id:", neighbourhood.id, "for profile:", profileId);
+  alert(`Welcome to ${code}!\n\nYour house number is #${letterboxNumber}.`);
+  startGame(profile.profileId);
 }
 
-async function leaveNeighbourhoodFlow() {
-  const profileId = localStorage.getItem("studypups_current_profile_id");
-  if (!profileId) {
-    alert("Please choose a profile first.");
-    return;
-  }
+function usePOBoxAndStart() {
+  // Create profile without neighbourhood
+  const profile = createProfileAndSetCurrent(pendingProfileName || "Player");
+  startGame(profile.profileId);
+}
 
-  const code = localStorage.getItem(`studypups_neighbourhood_code_for_${profileId}`);
-  const neighbourhoodId = localStorage.getItem(`studypups_neighbourhood_for_${profileId}`);
+// ============================================================
+// SETTINGS MODAL
+// ============================================================
 
-  if (!code || !neighbourhoodId) {
-    alert("You are not currently joined to a class.");
-    return;
-  }
+function openSettingsModal() {
+  updateSettingsDisplay();
+  showModal("settingsModal");
+}
 
-  const ok = confirm(`Leave class ${code}?\n\nThis removes your class link for this profile.`);
+function closeSettingsModal() {
+  hideModal("settingsModal");
+}
+
+function logout() {
+  const ok = confirm("Log out?\n\nThis will clear the current profile selection. Your profiles will still be saved on this device.");
   if (!ok) return;
 
-  const { error } = await supabase
-  .from("neighbourhood_members")
-  .update({ is_active: false })
-  .eq("neighbourhood_id", neighbourhoodId)
-  .eq("profile_id", profileId);
-
-  if (error) {
-    console.error(error);
-    alert("Could not leave class (check console).");
-    return;
-  }
-
-  // Clear local join info
-  localStorage.removeItem(`studypups_neighbourhood_for_${profileId}`);
-  localStorage.removeItem(`studypups_neighbourhood_code_for_${profileId}`);
-  localStorage.removeItem(`studypups_letterbox_for_${profileId}`);
-
-  alert("Left class.");
-  updateWelcomeUI();
+  localStorage.removeItem("studypups_current_profile_id");
+  updateStatusDisplay();
+  updateSettingsDisplay();
+  closeSettingsModal();
 }
 
-// TEMP: allow running from the browser console
-window.joinNeighbourhoodFlow = joinNeighbourhoodFlow;
-window.leaveNeighbourhoodFlow = leaveNeighbourhoodFlow;
+// ============================================================
+// VOLUME CONTROLS
+// ============================================================
 
-// ---- Wire up UI events ----
+function initVolumeControls() {
+  const musicSlider = document.getElementById("musicVolume");
+  const sfxSlider = document.getElementById("sfxVolume");
+  const musicValue = document.getElementById("musicValue");
+  const sfxValue = document.getElementById("sfxValue");
+
+  // Load saved values
+  const savedMusic = localStorage.getItem("studypups_music_volume") || "70";
+  const savedSfx = localStorage.getItem("studypups_sfx_volume") || "80";
+
+  if (musicSlider) {
+    musicSlider.value = savedMusic;
+    if (musicValue) musicValue.textContent = `${savedMusic}%`;
+
+    musicSlider.addEventListener("input", () => {
+      const val = musicSlider.value;
+      if (musicValue) musicValue.textContent = `${val}%`;
+      localStorage.setItem("studypups_music_volume", val);
+    });
+  }
+
+  if (sfxSlider) {
+    sfxSlider.value = savedSfx;
+    if (sfxValue) sfxValue.textContent = `${savedSfx}%`;
+
+    sfxSlider.addEventListener("input", () => {
+      const val = sfxSlider.value;
+      if (sfxValue) sfxValue.textContent = `${val}%`;
+      localStorage.setItem("studypups_sfx_volume", val);
+    });
+  }
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
 
 onReady(() => {
-  log("Menu loaded ✅");
+  log("Menu loaded (simplified navigation)");
 
-  const enterBtn = document.getElementById("enterBtn");
-  const settingsBtn = document.getElementById("settingsBtn");
-  const profileBtn = document.getElementById("profileBtn");
-  const postOfficeLabel = document.getElementById("joinedClassLabel");
-  const createClassBtn = document.getElementById("createClassBtn");
+  // --- Main Interactions ---
 
-  // Post Office click
-  postOfficeLabel?.addEventListener("click", async () => {
-    const profileId = localStorage.getItem("studypups_current_profile_id");
-    if (!profileId) {
-      alert("Please choose a profile first (click Profiles).");
+  // Backpack click - open profile modal
+  const backpack = document.getElementById("backpackContainer");
+  backpack?.addEventListener("click", () => {
+    openProfileModal();
+  });
+
+  // Status display click - open settings
+  const statusDisplay = document.getElementById("statusDisplay");
+  statusDisplay?.addEventListener("click", () => {
+    openSettingsModal();
+  });
+
+  // --- Profile Modal ---
+
+  const closeProfileBtn = document.getElementById("closeProfileModal");
+  closeProfileBtn?.addEventListener("click", closeProfileModal);
+
+  // Create new profile button
+  const createNewBtn = document.getElementById("createNewProfileBtn");
+  createNewBtn?.addEventListener("click", startCreateProfile);
+
+  // Shared device login button
+  const sharedDeviceBtn = document.getElementById("sharedDeviceBtn");
+  sharedDeviceBtn?.addEventListener("click", () => {
+    showStep("stepSharedLogin");
+  });
+
+  // Back buttons
+  document.getElementById("backToProfiles")?.addEventListener("click", () => {
+    showStep("stepSelectProfile");
+  });
+
+  document.getElementById("backToCreate")?.addEventListener("click", () => {
+    showStep("stepCreateProfile");
+  });
+
+  document.getElementById("backFromShared")?.addEventListener("click", () => {
+    showStep("stepSelectProfile");
+  });
+
+  // Profile name input
+  const nameInput = document.getElementById("newProfileName");
+  const confirmCreateBtn = document.getElementById("confirmCreateProfile");
+
+  nameInput?.addEventListener("input", () => {
+    const hasName = (nameInput.value || "").trim().length > 0;
+    if (confirmCreateBtn) {
+      confirmCreateBtn.disabled = !hasName;
+    }
+  });
+
+  confirmCreateBtn?.addEventListener("click", goToNeighbourhoodStep);
+
+  // Also allow Enter key
+  nameInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !confirmCreateBtn?.disabled) {
+      goToNeighbourhoodStep();
+    }
+  });
+
+  // Join neighbourhood
+  document.getElementById("joinNeighbourhoodBtn")?.addEventListener("click", joinNeighbourhoodAndStart);
+
+  // Use P.O. Box
+  document.getElementById("usePOBoxBtn")?.addEventListener("click", usePOBoxAndStart);
+
+  // Profile list click handling (event delegation)
+  const profileList = document.getElementById("profileList");
+  profileList?.addEventListener("click", (e) => {
+    const playBtn = e.target.closest("[data-action='play']");
+    if (playBtn) {
+      const profileId = playBtn.dataset.profileId;
+      startGame(profileId);
       return;
     }
 
-    const code = localStorage.getItem(`studypups_neighbourhood_code_for_${profileId}`);
-
-    if (!code) {
-      await joinNeighbourhoodFlow();
-      return;
-    }
-
-    const choice = prompt(
-      `📬 Post Office\n\nYou are in class: ${code}\n\n` +
-        `Type:\n` +
-        `1 = Open Post Office (Coming soon)\n` +
-        `2 = Leave class\n`,
-      "1"
-    );
-
-    if (!choice) return;
-
-    if (choice.trim() === "2") {
-      await leaveNeighbourhoodFlow();
-    } else {
-      alert("📬 Post Office\n\nComing soon!");
+    // Click on profile item selects it
+    const profileItem = e.target.closest(".profile-item");
+    if (profileItem) {
+      const profileId = profileItem.dataset.profileId;
+      startGame(profileId);
     }
   });
 
-  // Create Class (Teacher)
-  createClassBtn?.addEventListener("click", async () => {
-    const ok = confirm("Teacher only: create a new class code?");
-    if (!ok) return;
+  // --- Settings Modal ---
 
-    const code = generateClassCode();
+  document.getElementById("closeSettingsModal")?.addEventListener("click", closeSettingsModal);
+  document.getElementById("closeSettingsBtn")?.addEventListener("click", closeSettingsModal);
 
-    const { data, error } = await supabase
-      .from("neighbourhoods")
-      .insert([{ class_code: code }])
-      .select()
-      .single();
+  document.getElementById("switchProfileBtn")?.addEventListener("click", () => {
+    closeSettingsModal();
+    openProfileModal();
+  });
 
-    if (error) {
-      console.error(error);
-      alert("Could not create class. Check console for details.");
-      return;
+  document.getElementById("logoutBtn")?.addEventListener("click", logout);
+
+  // --- Login (stub) ---
+  const loginUsername = document.getElementById("loginUsername");
+  const loginPassword = document.getElementById("loginPassword");
+  const loginBtn = document.getElementById("loginBtn");
+
+  function checkLoginFields() {
+    const hasUsername = (loginUsername?.value || "").trim().length > 0;
+    const hasPassword = (loginPassword?.value || "").trim().length > 0;
+    if (loginBtn) {
+      loginBtn.disabled = !(hasUsername && hasPassword);
     }
+  }
 
-   alert(`✅ Class created!\n\nClass code: ${data.class_code}`);
+  loginUsername?.addEventListener("input", checkLoginFields);
+  loginPassword?.addEventListener("input", checkLoginFields);
 
-
+  loginBtn?.addEventListener("click", () => {
+    alert("Login feature coming soon!\n\nFor now, profiles are saved locally to this device.");
   });
 
-  // Buttons
-  enterBtn?.addEventListener("click", () => {
-    ensureProfileExists();
-    window.location.href = "tutorial.html";
-  });
+  // --- Volume Controls ---
+  initVolumeControls();
 
-  settingsBtn?.addEventListener("click", () => {
-    alert("Settings coming soon ✨");
-  });
+  // --- Initial UI Update ---
+  updateStatusDisplay();
 
-  profileBtn?.addEventListener("click", () => {
-    openProfilesMenu();
+  // Close modals when clicking outside
+  document.querySelectorAll(".modal-overlay").forEach(overlay => {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.hidden = true;
+      }
+    });
   });
-
-  // Initial UI
-  updateWelcomeUI();
 });

@@ -6,11 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/mobile.css">
-<link rel="stylesheet" href="css/hud.css">
-<link rel="stylesheet" href="css/index.css">
-<link rel="stylesheet" href="css/dialogue.css">
-<link rel="stylesheet" href="css/puzzle.css">
-
+  <link rel="stylesheet" href="css/hud.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dialogue.css">
+  <link rel="stylesheet" href="css/puzzle.css">
 </head>
 
 <body>
@@ -19,37 +18,160 @@
     class="fullscreen-bg"
     style="background-image: url('assets/images/backgrounds/scene1.png');"
   >
-    <!-- Top HUD -->
-    <div class="hud">
-      <div class="hud-title">🐕 StudyPups</div>
-       <div id="joinedClassLabel" class="neighbourhood-label"></div>
-      <button class="hud-skip btn" type="button" id="settingsBtn">⚙️</button>
+    <!-- Minimal top bar - just the title -->
+    <div class="welcome-header">
+      <div class="welcome-title">
+        <img src="assets/images/ui/paw-icon.png" alt="" class="title-paw" onerror="this.style.display='none'">
+        <span>StudyPups</span>
+      </div>
     </div>
 
-    <!-- Middle spacer (logo/character art can go here) -->
-    <div class="menu-center">
-      <img 
-  src="assets/images/ui/inventory-backpack.png" 
-  alt="Adventure backpack" 
-  class="welcome-backpack"
->
+    <!-- Main content area -->
+    <div class="welcome-content">
+      <!-- Clickable backpack - the main way to start -->
+      <div class="backpack-container" id="backpackContainer">
+        <img
+          src="assets/images/ui/inventory-backpack.png"
+          alt="Click to start your adventure!"
+          class="welcome-backpack"
+          id="startBackpack"
+        >
+        <div class="backpack-prompt">
+          <span class="prompt-text">Click to begin!</span>
+          <span class="prompt-arrow">▼</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Bottom panel (menu / dialogue-style) -->
-    <div class="dialogue">
-      <p id="menuText">
-        Welcome! Ready to start your magical maths adventure?
-      </p>
+    <!-- Bottom info bar - shows current status -->
+    <div class="welcome-footer">
+      <div class="status-display" id="statusDisplay">
+        <span class="status-icon">📬</span>
+        <span class="status-text" id="statusText">Welcome, adventurer!</span>
+      </div>
+      <a href="teacher.html" class="teacher-link" id="teacherLink">
+        <span class="teacher-icon">🏫</span>
+        <span class="teacher-text">Teacher Portal</span>
+      </a>
+    </div>
+  </div>
 
-      <div class="actions">
-        <button class="btn primary" type="button" id="enterBtn">Start Adventure!</button>
-        <button class="btn" type="button" id="profileBtn">👤 Profiles</button>
-        <button class="btn" type="button" id="createClassBtn">🏫 Create Class (Teacher)</button>
+  <!-- Profile Selection Modal -->
+  <div class="modal-overlay" id="profileModal" hidden>
+    <div class="modal-card profile-modal">
+      <button class="modal-close" id="closeProfileModal" type="button">&times;</button>
 
+      <!-- Step 1: Profile Selection -->
+      <div class="modal-step" id="stepSelectProfile">
+        <h2 class="modal-title">Choose Your Profile</h2>
+        <div class="profile-list" id="profileList">
+          <!-- Profiles inserted dynamically -->
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal btn-secondary" type="button" id="createNewProfileBtn">
+            <span class="btn-icon">✨</span> Create New Profile
+          </button>
+        </div>
+        <div class="modal-footer-actions">
+          <button class="btn-text" type="button" id="sharedDeviceBtn">Using a shared device? Log in here</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Create Profile -->
+      <div class="modal-step" id="stepCreateProfile" hidden>
+        <button class="modal-back" type="button" id="backToProfiles">← Back</button>
+        <h2 class="modal-title">Create Your Profile</h2>
+        <div class="form-group">
+          <label for="newProfileName">What should we call you?</label>
+          <input type="text" id="newProfileName" class="form-input" placeholder="Enter your name" maxlength="20">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal btn-primary" type="button" id="confirmCreateProfile" disabled>
+            Continue →
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Join Neighbourhood -->
+      <div class="modal-step" id="stepJoinNeighbourhood" hidden>
+        <button class="modal-back" type="button" id="backToCreate">← Back</button>
+        <h2 class="modal-title">Join a Neighbourhood?</h2>
+        <p class="modal-desc">If your teacher gave you a class code, enter it below to join their neighbourhood!</p>
+        <div class="form-group">
+          <label for="neighbourhoodCode">Class Code (optional)</label>
+          <input type="text" id="neighbourhoodCode" class="form-input" placeholder="e.g. SP-ABC123" maxlength="10">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal btn-primary" type="button" id="joinNeighbourhoodBtn">
+            Join Neighbourhood
+          </button>
+          <button class="btn-modal btn-secondary" type="button" id="usePOBoxBtn">
+            <span class="btn-icon">📮</span> Use a P.O. Box instead
+          </button>
+        </div>
+        <p class="modal-hint">Don't have a code? No worries! Use a P.O. Box and a parent/guardian can help manage your account.</p>
+      </div>
+
+      <!-- Step 4: Shared Device Login (stub) -->
+      <div class="modal-step" id="stepSharedLogin" hidden>
+        <button class="modal-back" type="button" id="backFromShared">← Back</button>
+        <h2 class="modal-title">Log In</h2>
+        <p class="modal-desc">For shared devices like school computers</p>
+        <div class="form-group">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="Your username">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Your password">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal btn-primary" type="button" id="loginBtn" disabled>
+            Log In
+          </button>
+        </div>
+        <p class="modal-hint">Login feature coming soon! For now, profiles are saved to this device.</p>
       </div>
     </div>
   </div>
- 
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal" hidden>
+    <div class="modal-card settings-modal">
+      <button class="modal-close" id="closeSettingsModal" type="button">&times;</button>
+      <h2 class="modal-title">Settings</h2>
+
+      <div class="settings-section">
+        <h3 class="settings-heading">Sound</h3>
+        <div class="setting-row">
+          <label for="musicVolume">Music</label>
+          <input type="range" id="musicVolume" min="0" max="100" value="70" class="volume-slider">
+          <span class="volume-value" id="musicValue">70%</span>
+        </div>
+        <div class="setting-row">
+          <label for="sfxVolume">Sound Effects</label>
+          <input type="range" id="sfxVolume" min="0" max="100" value="80" class="volume-slider">
+          <span class="volume-value" id="sfxValue">80%</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3 class="settings-heading">Profile</h3>
+        <div class="current-profile" id="currentProfileDisplay">
+          <span class="profile-name">Not logged in</span>
+          <span class="profile-neighbourhood">—</span>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-settings" type="button" id="switchProfileBtn">Switch Profile</button>
+          <button class="btn-settings btn-danger" type="button" id="logoutBtn">Log Out</button>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <button class="btn-modal btn-primary" type="button" id="closeSettingsBtn">Done</button>
+      </div>
+    </div>
+  </div>
 
 
 <script type="module" src="js/index.js"></script>

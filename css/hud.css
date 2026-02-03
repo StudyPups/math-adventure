@@ -1,5 +1,6 @@
 /* ============================================================
    10. HUD (Heads-Up Display) (z-index: 30)
+   Simplified Organic Design
    ============================================================ */
 
 .hud-layer {
@@ -12,8 +13,118 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
+  pointer-events: none; /* Allow clicking through to game */
 }
 
+.hud-layer > * {
+  pointer-events: auto; /* Re-enable for HUD elements */
+}
+
+/* --- Menu Button (Left) --- */
+.hud-menu-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  color: #5D4037;
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-menu-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.hud-menu-btn:active {
+  transform: scale(0.98);
+}
+
+.menu-icon {
+  font-weight: bold;
+}
+
+/* --- Status Display (Center) --- */
+.hud-status {
+  background: linear-gradient(135deg, #d4a55a, #b8923e);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.hud-location {
+  display: block;
+}
+
+/* --- Right Side Container --- */
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- Mailbox Button --- */
+.hud-mailbox {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-mailbox:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.mailbox-icon {
+  font-size: 1.3rem;
+}
+
+.mailbox-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #EF4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: badgePulse 1.5s ease-in-out infinite;
+}
+
+.mailbox-badge[hidden] {
+  display: none;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* --- Legacy HUD elements (kept for backwards compatibility) --- */
 .hud-title {
   background: linear-gradient(135deg, #d4a55a, #b8923e);
   color: white;
@@ -557,5 +668,351 @@
 .coming-soon {
   color: var(--text-light);
   font-style: italic;
+}
+
+
+/* ============================================================
+   GAME MENU OVERLAY (New Organic Design)
+   ============================================================ */
+
+.game-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.game-menu-overlay[hidden] {
+  display: none;
+}
+
+.game-menu-panel {
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  border-radius: 20px;
+  padding: 24px;
+  width: 320px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  position: relative;
+  animation: menuSlideIn 0.3s ease;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.game-menu-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #e8d5a3;
+  color: #5D4037;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-menu-close:hover {
+  background: #EF4444;
+  color: white;
+}
+
+/* --- Menu Header (Player Info) --- */
+.game-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8d5a3;
+  margin-bottom: 16px;
+}
+
+.menu-player-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: bold;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.3);
+}
+
+.menu-player-info {
+  flex: 1;
+}
+
+.menu-player-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #5D4037;
+}
+
+.menu-player-neighbourhood {
+  font-size: 0.85rem;
+  color: #8D6E63;
+}
+
+/* --- Menu Sections --- */
+.game-menu-section {
+  margin-bottom: 16px;
+}
+
+.game-menu-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8D6E63;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* --- Menu Items --- */
+.game-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 1rem;
+  width: 100%;
+  text-align: left;
+}
+
+.game-menu-item:hover:not(.locked) {
+  border-color: #8B5CF6;
+  transform: translateX(4px);
+}
+
+.game-menu-item.current {
+  border-color: #10B981;
+  background: #ECFDF5;
+}
+
+.game-menu-item.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.menu-item-icon {
+  font-size: 1.3rem;
+  width: 28px;
+  text-align: center;
+}
+
+.menu-item-text {
+  flex: 1;
+  font-weight: 500;
+  color: #5D4037;
+}
+
+.menu-item-badge {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: #e8d5a3;
+  color: #6D4C41;
+}
+
+.game-menu-item.current .menu-item-badge {
+  background: #10B981;
+  color: white;
+}
+
+/* --- Menu Footer --- */
+.game-menu-footer {
+  padding-top: 16px;
+  border-top: 2px solid #e8d5a3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.game-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #e8d5a3;
+  background: white;
+  color: #5D4037;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.game-menu-btn:hover {
+  background: #FFF9E6;
+  border-color: #d4a55a;
+}
+
+
+/* ============================================================
+   MAILBOX MODAL
+   ============================================================ */
+
+.mailbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.mailbox-overlay[hidden] {
+  display: none;
+}
+
+.mailbox-panel {
+  background: linear-gradient(145deg, #FFF9E6, #FFF3CD);
+  border-radius: 20px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  position: relative;
+  animation: modalSlideIn 0.3s ease;
+}
+
+.mailbox-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #e8d5a3;
+  color: #5D4037;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mailbox-close:hover {
+  background: #EF4444;
+  color: white;
+}
+
+.mailbox-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #5D4037;
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+.mailbox-content {
+  min-height: 150px;
+}
+
+.mailbox-empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: #8D6E63;
+}
+
+.mailbox-empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.mailbox-empty p {
+  margin: 0 0 8px;
+}
+
+.mailbox-hint {
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* --- Mail Item (for future) --- */
+.mail-item {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mail-item:hover {
+  border-color: #8B5CF6;
+}
+
+.mail-item.unread {
+  border-left: 4px solid #8B5CF6;
+  background: #faf5ff;
+}
+
+.mail-from {
+  font-weight: 600;
+  color: #5D4037;
+  margin-bottom: 4px;
+}
+
+.mail-preview {
+  font-size: 0.9rem;
+  color: #8D6E63;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mail-time {
+  font-size: 0.75rem;
+  color: #bcaaa4;
+  margin-top: 4px;
 }
 

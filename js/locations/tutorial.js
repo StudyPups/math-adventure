@@ -4,13 +4,16 @@
 // Two modes: dialogue-mode (floating card) vs scene-mode (just buttons)
 
 import { showHintOverlay, closeHintOverlay, resetHintLevel, setTeddyEncouragementEnabled } from '../core/hint-system.js';
-import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
+import { onReady, log, saveGameState, loadGameState, createNewGameState } from "../core/shared.js";
+import { initGameHUD, updateGemDisplay, updateGameMenuHeader } from "../core/game-hud.js";
 import { tutorialScenes, getScene, STARTING_SCENE } from "../../data/tutorial-scenes.js";
 
 onReady(() => {
   log("Tutorial Engine loaded ✅");
-  initGameMenu("tutorial");
-  
+
+  // Initialize the new organic HUD
+  initGameHUD();
+
   // Teddy can't talk yet - no collar!
   setTeddyEncouragementEnabled(false);
 
@@ -30,7 +33,6 @@ onReady(() => {
  const levelProgress = document.getElementById("levelProgress");
   const inputBox = document.getElementById("inputBox");
   const choicesContainer = document.getElementById("choicesContainer");
-  const skipBtn = document.getElementById("skipBtn");
 
   // --- Game State ---
   let gameState = loadGameState() || createNewGameState();
@@ -647,24 +649,6 @@ function updateLevelProgress() {
     }
   });
 }
-
-  //// Map/Menu button click handler
-const homeBtn = document.getElementById("homeBtn");
-homeBtn?.addEventListener("click", () => {
-  if (window.openGameMenu) {
-    window.openGameMenu();
-  } else {
-    console.warn("Game menu not initialized");
-  }
-});
-
-  skipBtn?.addEventListener("click", () => {
-    if (confirm("Skip the tutorial? You can always replay it later!")) {
-      gameState.tutorialComplete = true;
-      saveGameState(gameState);
-      window.location.href = "patterns.html";
-    }
-  });
 
   // --- Start ---
   showScene(STARTING_SCENE);
