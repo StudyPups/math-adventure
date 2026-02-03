@@ -12,30 +12,94 @@
   flex-direction: column;
 }
 
-/* --- Welcome Header (minimal top bar) --- */
+/* --- Welcome Header (login links) --- */
 .welcome-header {
-  padding: 20px;
+  padding: 16px 20px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   z-index: 10;
 }
 
-.welcome-title {
+.settings-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #d4a55a, #b8923e);
-  color: white;
-  padding: 12px 28px;
-  border-radius: 25px;
-  font-weight: bold;
-  font-size: 1.4rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.title-paw {
-  width: 28px;
-  height: 28px;
+.settings-btn:hover {
+  background: white;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.settings-btn:active {
+  transform: scale(0.98);
+}
+
+.settings-icon {
+  font-size: 1.4rem;
+}
+
+.login-links {
+  display: flex;
+  gap: 12px;
+}
+
+.login-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.login-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.login-link:active {
+  transform: scale(0.98);
+}
+
+.teacher-login {
+  background: rgba(255, 255, 255, 0.9);
+  color: #5D4037;
+}
+
+.teacher-login:hover {
+  background: white;
+}
+
+.parent-login {
+  background: rgba(255, 255, 255, 0.9);
+  color: #5D4037;
+}
+
+.parent-login:hover {
+  background: white;
+}
+
+.login-icon {
+  font-size: 1.1rem;
+}
+
+.login-text {
+  font-size: 0.9rem;
 }
 
 /* --- Main Content Area --- */
@@ -610,44 +674,42 @@
 /* Very small phones (iPhone SE, older devices) */
 @media (max-width: 375px) {
   .welcome-header {
-    padding: 12px;
+    padding: 10px;
   }
 
-  .welcome-title {
-    font-size: 1rem;
-    padding: 8px 16px;
+  .settings-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .settings-icon {
+    font-size: 1.2rem;
+  }
+
+  .login-links {
     gap: 6px;
   }
 
-  .title-paw {
-    width: 22px;
-    height: 22px;
+  .login-link {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+
+  .login-icon {
+    font-size: 0.9rem;
+  }
+
+  .login-text {
+    font-size: 0.75rem;
   }
 
   .welcome-backpack {
-    width: 120px;
+    width: 140px;
   }
 
   .prompt-text {
-    font-size: 0.9rem;
-    padding: 8px 14px;
-  }
-
-  .welcome-footer {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .status-display,
-  .teacher-link {
-    width: 100%;
-    justify-content: center;
-    padding: 10px 14px;
-  }
-
-  .status-text {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
+    padding: 8px 16px;
   }
 
   .modal-overlay {
@@ -742,33 +804,25 @@
 /* Small phones */
 @media (max-width: 480px) {
   .welcome-header {
-    padding: 16px;
+    padding: 12px 16px;
+    justify-content: center;
   }
 
-  .welcome-title {
-    font-size: 1.2rem;
-    padding: 10px 20px;
+  .login-links {
+    gap: 10px;
+  }
+
+  .login-link {
+    padding: 10px 14px;
   }
 
   .welcome-backpack {
-    width: 140px;
+    width: 160px;
   }
 
   .prompt-text {
     font-size: 1rem;
-    padding: 8px 18px;
-  }
-
-  .welcome-footer {
-    flex-direction: column;
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .status-display,
-  .teacher-link {
-    width: 100%;
-    justify-content: center;
+    padding: 10px 20px;
   }
 
   .modal-card {
@@ -812,6 +866,10 @@
 
 /* Larger screens (tablets landscape, laptops, monitors) */
 @media (min-width: 768px) {
+  .welcome-header {
+    padding: 20px 30px;
+  }
+
   .welcome-backpack {
     width: 220px;
   }
@@ -821,10 +879,6 @@
     padding: 12px 28px;
   }
 
-  .welcome-footer {
-    padding: 20px 40px;
-  }
-
   .modal-card {
     max-width: 420px;
   }
@@ -832,21 +886,21 @@
 
 /* Large screens (monitors) */
 @media (min-width: 1024px) {
+  .welcome-header {
+    padding: 24px 40px;
+  }
+
+  .login-link {
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+
   .welcome-backpack {
     width: 250px;
   }
 
-  .welcome-title {
-    font-size: 1.5rem;
-    padding: 14px 32px;
-  }
-
   .prompt-text {
     font-size: 1.3rem;
-  }
-
-  .welcome-footer {
-    padding: 24px 60px;
   }
 }
 
@@ -856,9 +910,9 @@
     padding: 8px 16px;
   }
 
-  .welcome-title {
-    font-size: 1rem;
-    padding: 8px 16px;
+  .login-link {
+    padding: 6px 12px;
+    font-size: 0.85rem;
   }
 
   .welcome-backpack {
@@ -872,17 +926,6 @@
   .prompt-text {
     font-size: 0.9rem;
     padding: 6px 14px;
-  }
-
-  .welcome-footer {
-    flex-direction: row;
-    padding: 8px 16px;
-  }
-
-  .status-display,
-  .teacher-link {
-    width: auto;
-    padding: 8px 14px;
   }
 
   .modal-card {
@@ -902,9 +945,9 @@
     margin: -20px;
   }
 
-  .status-display,
-  .teacher-link {
-    min-height: 48px;
+  .settings-btn,
+  .login-link {
+    min-height: 44px;
   }
 
   .profile-item,
@@ -927,13 +970,13 @@
     transform: scale(0.98);
   }
 
-  .status-display:hover,
-  .teacher-link:hover {
+  .settings-btn:hover,
+  .login-link:hover {
     transform: none;
   }
 
-  .status-display:active,
-  .teacher-link:active {
+  .settings-btn:active,
+  .login-link:active {
     transform: scale(0.98);
     opacity: 0.9;
   }
@@ -942,15 +985,9 @@
 /* Safe area support for notched devices */
 @supports (padding: env(safe-area-inset-top)) {
   .welcome-header {
-    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-top: calc(16px + env(safe-area-inset-top));
     padding-left: calc(20px + env(safe-area-inset-left));
     padding-right: calc(20px + env(safe-area-inset-right));
-  }
-
-  .welcome-footer {
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    padding-left: calc(24px + env(safe-area-inset-left));
-    padding-right: calc(24px + env(safe-area-inset-right));
   }
 
   .modal-overlay {
