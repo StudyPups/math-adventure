@@ -344,18 +344,18 @@ export const farmScenes = {
       style: "speech"
     },
     choices: [
-      { text: "🏠 Return to Complexa Meadows", next: "goto-hub", style: "primary-large" }
+      { text: "🛒 Visit Melody's Shop", next: "goto-shop", style: "primary-large" }
     ]
   },
 
   // ===================
-  // TRANSITION: Back to Hub
+  // TRANSITION: To Melody's Shop
   // ===================
-  "goto-hub": {
-    id: "goto-hub",
+  "goto-shop": {
+    id: "goto-shop",
     layout: "transition",
-    transitionText: "Heading back to Complexa Meadows...",
-    destination: "index.html" // For now - later this could be a hub/map screen
+    transitionText: "Heading to Melody's Shop...",
+    destination: "shop.html"
   }
 };
 
