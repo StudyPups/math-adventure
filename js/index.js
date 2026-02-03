@@ -55,8 +55,12 @@ function updateWelcomeUI() {
     menuText.textContent = player
       ? `Welcome back, ${player.playerName}! Ready to start your magical maths adventure?`
       : "Welcome! Ready to start your magical maths adventure?";
+      // Always update the Post Office label too
+renderJoinedClass();
+       
   }
 }
+
 
 function ensureProfileExists() {
   let player = getCurrentPlayer();
@@ -142,6 +146,29 @@ onReady(() => {
   const enterBtn = document.getElementById("enterBtn");
   const settingsBtn = document.getElementById("settingsBtn");
   const profileBtn = document.getElementById("profileBtn");
+
+    const postOfficeLabel = document.getElementById("joinedClassLabel");
+
+  postOfficeLabel?.addEventListener("click", async () => {
+    // Make sure a profile exists first
+    const profileId = localStorage.getItem("studypups_current_profile_id");
+    if (!profileId) {
+      alert("Please choose a profile first (click Profiles).");
+      return;
+    }
+
+    // Are we already joined?
+    const code = localStorage.getItem(`studypups_neighbourhood_code_for_${profileId}`);
+
+    if (!code) {
+      // Not joined yet → run the join flow
+      await joinNeighbourhoodFlow();
+    } else {
+      // Joined already → show a simple placeholder screen
+      alert(`📬 Post Office\n\nYou are in class: ${code}\n\n(Coming soon!)`);
+    }
+  });
+
 
   // Update UI on load
   updateWelcomeUI();
