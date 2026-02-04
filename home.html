@@ -165,11 +165,22 @@
 
     <!-- Teddy Helper (Tutorial & Tips) -->
     <div class="teddy-helper home-teddy" id="teddyHelper">
+      <!-- Animated Sprite Container (replaces static img) -->
+      <div class="sprite-container sprite-helper state-idle" id="teddySprite" data-sprite-id="teddy" data-state="idle" data-frame-count="4" data-fallback="🐕">
+        <!-- Base layer - Teddy body -->
+        <div class="sprite-layer sprite-base" id="teddySpriteBase" style="background-image: url('assets/images/characters/Teddy/teddy_idle_sheet.png');"></div>
+        <!-- Accessory layer - Neck (collar/bow) - dynamically added -->
+        <div class="sprite-layer sprite-accessory sprite-neck" id="teddySpriteNeck" style="display: none;"></div>
+        <!-- Accessory layer - Head (hat) - dynamically added -->
+        <div class="sprite-layer sprite-accessory sprite-head" id="teddySpriteHead" style="display: none;"></div>
+      </div>
+      <!-- Fallback static image (shown if sprite sheet fails) -->
       <img
         src="assets/images/characters/Teddy/teddy-sit.png"
         alt="Teddy"
-        class="teddy-sprite"
-        id="teddySprite"
+        class="teddy-sprite-fallback"
+        id="teddySpriteFallback"
+        style="display: none;"
         onerror="this.style.display='none'"
       >
       <div class="teddy-speech" id="teddySpeech">

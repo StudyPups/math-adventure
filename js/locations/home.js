@@ -26,9 +26,18 @@ import {
   getItemHint,
   getStudyPup,
   containsBannedWords,
-  createDefaultHomeState
+  createDefaultHomeState,
+  getAccessorySheetUrl
 } from "../../data/home-scenes.js";
 import { SHOP_ITEMS, getItem } from "../../data/shop-scenes.js";
+import {
+  createAnimatedSprite,
+  setSpriteState,
+  equipAccessory,
+  unequipAccessory,
+  preloadSpriteSheets,
+  initSpriteSystem
+} from "../core/sprite-animation.js";
 
 // ============================================================
 // HOME STATE
@@ -78,6 +87,9 @@ onReady(() => {
   log("Home Engine loaded");
   initGameMenu("home");
 
+  // Initialize sprite animation system
+  initSpriteSystem();
+
   // Cache DOM elements
   cacheElements();
 
@@ -91,6 +103,9 @@ onReady(() => {
     saveGameState(gameState);
   }
 
+  // Preload sprite sheets for smoother animations
+  preloadPupSpriteSheets();
+
   // Initialize UI
   initializeHome(gameState, player);
 
@@ -100,6 +115,9 @@ onReady(() => {
   // Update displays
   updateGemDisplay(gameState);
   updateFeedingDisplay(gameState.homeState.feeding);
+
+  // Initialize helper sprite with equipped accessories
+  initializeHelperSprite(gameState);
 
   // Check if first visit - show tutorial
   if (gameState.homeState.firstVisit) {
@@ -305,6 +323,134 @@ function createPlacedItemElement(item) {
 }
 
 // ============================================================
+// SPRITE SHEET PRELOADING
+// ============================================================
+
+/**
+ * Preloads sprite sheets for all unlocked pups
+ * This prevents flickering when animations start
+ */
+function preloadPupSpriteSheets() {
+  const sheetsToLoad = [];
+
+  // Collect all sprite sheet URLs from STUDYPUPS
+  Object.values(STUDYPUPS).forEach(pup => {
+    if (pup.spriteSheets) {
+      Object.values(pup.spriteSheets).forEach(config => {
+        if (config.sheet) {
+          sheetsToLoad.push(config.sheet);
+        }
+      });
+    }
+  });
+
+  // Preload all sheets (non-blocking)
+  if (sheetsToLoad.length > 0) {
+    preloadSpriteSheets(sheetsToLoad)
+      .then(() => log("Sprite sheets preloaded"))
+      .catch(err => log("Some sprite sheets failed to load:", err));
+  }
+}
+
+/**
+ * Initializes the helper sprite (Teddy in corner) with proper state and accessories
+ */
+function initializeHelperSprite(gameState) {
+  const spriteContainer = document.getElementById("teddySprite");
+  const fallbackImg = document.getElementById("teddySpriteFallback");
+
+  if (!spriteContainer) return;
+
+  // Get current helper pup (default to teddy)
+  const currentHelper = gameState.settings?.currentHelper || "teddy";
+  const pupData = getStudyPup(currentHelper);
+
+  if (!pupData || !pupData.spriteSheets?.idle) {
+    // Show fallback image if no sprite sheets
+    if (fallbackImg) {
+      fallbackImg.style.display = "";
+      spriteContainer.style.display = "none";
+    }
+    return;
+  }
+
+  // Update sprite container with correct sprite sheet
+  const baseLayer = spriteContainer.querySelector(".sprite-base");
+  if (baseLayer && pupData.spriteSheets.idle.sheet) {
+    baseLayer.style.backgroundImage = `url('${pupData.spriteSheets.idle.sheet}')`;
+    const frameCount = pupData.spriteSheets.idle.frameCount || 4;
+    baseLayer.style.backgroundSize = `${frameCount * 100}% 100%`;
+  }
+
+  // Apply equipped accessories for the helper
+  const equippedItems = gameState.inventory?.equippedItems?.[currentHelper] || {};
+
+  Object.entries(equippedItems).forEach(([slot, itemId]) => {
+    if (itemId) {
+      const accessoryUrl = getAccessorySheetUrl(itemId, "idle");
+      const slotLayer = spriteContainer.querySelector(`.sprite-${slot}`);
+
+      if (slotLayer && accessoryUrl) {
+        slotLayer.style.backgroundImage = `url('${accessoryUrl}')`;
+        slotLayer.style.display = "";
+        slotLayer.dataset.itemId = itemId;
+      }
+    }
+  });
+
+  // Hide fallback, show sprite
+  if (fallbackImg) {
+    fallbackImg.style.display = "none";
+  }
+  spriteContainer.style.display = "";
+
+  log("Helper sprite initialized with accessories");
+}
+
+/**
+ * Equips an accessory to the helper sprite
+ * @param {string} slot - Accessory slot (neck, head, etc.)
+ * @param {string} itemId - Shop item ID
+ */
+function equipHelperAccessory(slot, itemId) {
+  const spriteContainer = document.getElementById("teddySprite");
+  if (!spriteContainer) return;
+
+  const slotLayer = spriteContainer.querySelector(`.sprite-${slot}`);
+  if (!slotLayer) return;
+
+  if (itemId) {
+    const accessoryUrl = getAccessorySheetUrl(itemId, "idle");
+    if (accessoryUrl) {
+      slotLayer.style.backgroundImage = `url('${accessoryUrl}')`;
+      slotLayer.style.display = "";
+      slotLayer.dataset.itemId = itemId;
+    }
+  } else {
+    // Unequip
+    slotLayer.style.display = "none";
+    slotLayer.style.backgroundImage = "";
+    delete slotLayer.dataset.itemId;
+  }
+
+  // Save to game state
+  const gameState = loadGameState();
+  const currentHelper = gameState.settings?.currentHelper || "teddy";
+
+  if (!gameState.inventory) gameState.inventory = {};
+  if (!gameState.inventory.equippedItems) gameState.inventory.equippedItems = {};
+  if (!gameState.inventory.equippedItems[currentHelper]) {
+    gameState.inventory.equippedItems[currentHelper] = {};
+  }
+
+  gameState.inventory.equippedItems[currentHelper][slot] = itemId || null;
+  saveGameState(gameState);
+}
+
+// Make equip function globally accessible for UI
+window.equipHelperAccessory = equipHelperAccessory;
+
+// ============================================================
 // STUDYPUPS RENDERING & ANIMATION
 // ============================================================
 
@@ -335,15 +481,71 @@ function createPupElement(pupId, pupData, pupState) {
   el.style.top = `${pupState.position.y}%`;
   el.style.transform = "translate(-50%, -50%)";
 
-  // Sprite
-  el.innerHTML = `
-    <img
-      src="${pupData.sprite}"
-      alt="${pupData.name}"
-      class="home-pup-sprite"
-      onerror="this.parentElement.innerHTML='<span style=\\"font-size:60px\\">🐕</span>'"
-    >
-  `;
+  // Determine initial state
+  const initialState = pupState.energy < 20 ? "sleep" : "idle";
+
+  // Check if pup has sprite sheets configured
+  if (pupData.spriteSheets && pupData.spriteSheets[initialState]) {
+    const sheetConfig = pupData.spriteSheets[initialState];
+
+    // Create animated sprite container
+    const spriteContainer = document.createElement("div");
+    spriteContainer.className = `sprite-container sprite-home-pup state-${initialState}`;
+    spriteContainer.dataset.spriteId = pupId;
+    spriteContainer.dataset.state = initialState;
+    spriteContainer.dataset.frameCount = sheetConfig.frameCount || 4;
+    spriteContainer.dataset.fallback = pupData.fallbackEmoji || "🐕";
+
+    // Create base layer
+    const baseLayer = document.createElement("div");
+    baseLayer.className = "sprite-layer sprite-base";
+    baseLayer.style.backgroundImage = `url('${sheetConfig.sheet}')`;
+    // Adjust background-size based on frame count
+    baseLayer.style.backgroundSize = `${(sheetConfig.frameCount || 4) * 100}% 100%`;
+    spriteContainer.appendChild(baseLayer);
+
+    // Create accessory layers (initially hidden)
+    const accessorySlots = ["neck", "head", "back", "face"];
+    accessorySlots.forEach(slot => {
+      const accessoryLayer = document.createElement("div");
+      accessoryLayer.className = `sprite-layer sprite-accessory sprite-${slot}`;
+      accessoryLayer.dataset.slot = slot;
+      accessoryLayer.style.display = "none";
+      accessoryLayer.style.backgroundSize = `${(sheetConfig.frameCount || 4) * 100}% 100%`;
+      spriteContainer.appendChild(accessoryLayer);
+    });
+
+    el.appendChild(spriteContainer);
+
+    // Apply equipped accessories from game state
+    const gameState = loadGameState();
+    const equippedItems = gameState?.inventory?.equippedItems?.[pupId] || {};
+    Object.entries(equippedItems).forEach(([slot, itemId]) => {
+      if (itemId) {
+        const accessoryUrl = getAccessorySheetUrl(itemId, initialState);
+        if (accessoryUrl) {
+          const slotLayer = spriteContainer.querySelector(`.sprite-${slot}`);
+          if (slotLayer) {
+            slotLayer.style.backgroundImage = `url('${accessoryUrl}')`;
+            slotLayer.style.display = "";
+          }
+        }
+      }
+    });
+
+    // Store reference for animations
+    el._spriteContainer = spriteContainer;
+  } else {
+    // Fallback to static image
+    el.innerHTML = `
+      <img
+        src="${pupData.sprite}"
+        alt="${pupData.name}"
+        class="home-pup-sprite"
+        onerror="this.parentElement.innerHTML='<span style=\\"font-size:60px\\">${pupData.fallbackEmoji || '🐕'}</span>'"
+      >
+    `;
+  }
 
   // Check if sleeping (low energy)
   if (pupState.energy < 20) {
@@ -378,6 +580,15 @@ function schedulePupWander(pupId, pupState) {
     const newX = 25 + Math.random() * 50; // 25% to 75%
     const newY = 55 + Math.random() * 30; // 55% to 85% (floor area)
 
+    // Get pup data for sprite sheets
+    const pupData = getStudyPup(pupId);
+
+    // Change to walk state if using sprite sheets
+    const spriteContainer = pupEl._spriteContainer || pupEl.querySelector(".sprite-container");
+    if (spriteContainer && pupData?.spriteSheets?.walk) {
+      changePupSpriteState(spriteContainer, "walk", pupData);
+    }
+
     // Animate movement
     pupEl.classList.add("walking");
     pupEl.style.transition = "left 2s ease, top 2s ease";
@@ -391,6 +602,11 @@ function schedulePupWander(pupId, pupState) {
       pupEl.classList.remove("walking");
       pupEl.style.transition = "";
 
+      // Return to idle state
+      if (spriteContainer && pupData?.spriteSheets?.idle) {
+        changePupSpriteState(spriteContainer, "idle", pupData);
+      }
+
       // Save position
       const gameState = loadGameState();
       if (gameState?.homeState?.pups?.[pupId]) {
@@ -402,6 +618,57 @@ function schedulePupWander(pupId, pupState) {
       schedulePupWander(pupId, pupState);
     }, 2000);
   }, delay);
+}
+
+/**
+ * Changes the sprite state of a pup (idle, walk, sleep, etc.)
+ * Updates the sprite sheet and animation timing
+ */
+function changePupSpriteState(spriteContainer, newState, pupData) {
+  if (!spriteContainer || !pupData?.spriteSheets) return;
+
+  const stateConfig = pupData.spriteSheets[newState];
+  if (!stateConfig) return;
+
+  const currentState = spriteContainer.dataset.state;
+  if (currentState === newState) return;
+
+  spriteContainer.dataset.state = newState;
+
+  // Update state class
+  spriteContainer.classList.remove("state-idle", "state-walk", "state-wag", "state-sleep", "state-happy");
+  spriteContainer.classList.add(`state-${newState}`);
+
+  // Update base layer sprite sheet
+  const baseLayer = spriteContainer.querySelector(".sprite-base");
+  if (baseLayer && stateConfig.sheet) {
+    baseLayer.style.backgroundImage = `url('${stateConfig.sheet}')`;
+    baseLayer.style.backgroundSize = `${(stateConfig.frameCount || 4) * 100}% 100%`;
+
+    // Update animation timing
+    const duration = (stateConfig.frameCount || 4) * (stateConfig.frameDuration || 400);
+    baseLayer.style.animationDuration = `${duration}ms`;
+  }
+
+  // Update accessory layers to match state
+  const accessoryLayers = spriteContainer.querySelectorAll(".sprite-accessory");
+  accessoryLayers.forEach(layer => {
+    if (layer.style.display !== "none") {
+      // Get the item ID from data attribute (if stored)
+      const itemId = layer.dataset.itemId;
+      if (itemId) {
+        const accessoryUrl = getAccessorySheetUrl(itemId, newState);
+        if (accessoryUrl) {
+          layer.style.backgroundImage = `url('${accessoryUrl}')`;
+        }
+      }
+
+      // Update animation timing to match base
+      const duration = (stateConfig.frameCount || 4) * (stateConfig.frameDuration || 400);
+      layer.style.animationDuration = `${duration}ms`;
+      layer.style.backgroundSize = `${(stateConfig.frameCount || 4) * 100}% 100%`;
+    }
+  });
 }
 
 // ============================================================

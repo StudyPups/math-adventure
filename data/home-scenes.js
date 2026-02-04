@@ -276,18 +276,164 @@ export const STUDYPUPS = {
   teddy: {
     id: "teddy",
     name: "Teddy",
+
+    // Legacy static sprites (fallback)
     sprite: "assets/images/characters/Teddy/teddy-sit.png",
     walkSprite: "assets/images/characters/Teddy/teddy-walk.png",
     happySprite: "assets/images/characters/Teddy/teddy-happy.png",
     sleepSprite: "assets/images/characters/Teddy/teddy-sleep.png",
+
+    // NEW: Sprite sheet system
+    spriteSheets: {
+      idle: {
+        sheet: "assets/images/characters/Teddy/teddy_idle_sheet.png",
+        frameCount: 4,
+        frameDuration: 500 // ms per frame
+      },
+      walk: {
+        sheet: "assets/images/characters/Teddy/teddy_walk_sheet.png",
+        frameCount: 4,
+        frameDuration: 150
+      },
+      wag: {
+        sheet: "assets/images/characters/Teddy/teddy_wag_sheet.png",
+        frameCount: 4,
+        frameDuration: 200
+      },
+      sleep: {
+        sheet: "assets/images/characters/Teddy/teddy_sleep_sheet.png",
+        frameCount: 2,
+        frameDuration: 1000
+      },
+      happy: {
+        sheet: "assets/images/characters/Teddy/teddy_happy_sheet.png",
+        frameCount: 4,
+        frameDuration: 300
+      }
+    },
+
+    // Default sprite sheet to use
+    defaultSheet: "idle",
+
+    // Accessory anchor points (for layering)
+    accessoryAnchors: {
+      neck: { x: 50, y: 60 },  // Collar/bow position
+      head: { x: 50, y: 20 },  // Hat position
+      back: { x: 50, y: 40 },  // Cape/jacket position
+      face: { x: 50, y: 35 }   // Glasses position
+    },
+
     color: "#8B4513",
     personality: "friendly",
     favoriteSpot: "near-bed",
     walkSpeed: 2,
-    idleAnimations: ["sniff", "wag", "sit", "stretch"]
+    idleAnimations: ["sniff", "wag", "sit", "stretch"],
+
+    // Emoji fallback if sheets fail to load
+    fallbackEmoji: "🐕"
   }
   // More pups will be added here as they're created
 };
+
+// ============================================================
+// ACCESSORY SPRITE SHEETS
+// Maps shop accessory items to their sprite sheets
+// ============================================================
+
+export const ACCESSORY_SHEETS = {
+  // Neck accessories (collars, bows, bandanas)
+  "collar-magic": {
+    slot: "neck",
+    sheets: {
+      idle: "assets/images/accessories/collar_magic_idle_sheet.png",
+      walk: "assets/images/accessories/collar_magic_walk_sheet.png"
+    },
+    frameCount: 4
+  },
+  "collar-red": {
+    slot: "neck",
+    sheets: {
+      idle: "assets/images/accessories/collar_red_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+  "collar-blue": {
+    slot: "neck",
+    sheets: {
+      idle: "assets/images/accessories/collar_blue_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+  "collar-rainbow": {
+    slot: "neck",
+    sheets: {
+      idle: "assets/images/accessories/collar_rainbow_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+  "bow-pink": {
+    slot: "neck",
+    sheets: {
+      idle: "assets/images/accessories/bow_pink_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+  "bandana-star": {
+    slot: "neck",
+    sheets: {
+      idle: "assets/images/accessories/bandana_star_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+
+  // Head accessories (hats)
+  "hat-wizard": {
+    slot: "head",
+    sheets: {
+      idle: "assets/images/accessories/hat_wizard_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+  "hat-party": {
+    slot: "head",
+    sheets: {
+      idle: "assets/images/accessories/hat_party_idle_sheet.png"
+    },
+    frameCount: 4
+  },
+
+  // Face accessories (glasses)
+  "glasses-star": {
+    slot: "face",
+    sheets: {
+      idle: "assets/images/accessories/glasses_star_idle_sheet.png"
+    },
+    frameCount: 4
+  }
+};
+
+/**
+ * Get accessory sheet data by item ID
+ * @param {string} itemId - Shop item ID
+ * @returns {Object|null} Accessory sheet configuration
+ */
+export function getAccessorySheet(itemId) {
+  return ACCESSORY_SHEETS[itemId] || null;
+}
+
+/**
+ * Get accessory sheet URL for a specific state
+ * @param {string} itemId - Shop item ID
+ * @param {string} state - Animation state (idle, walk, etc.)
+ * @returns {string|null} URL to sprite sheet or null
+ */
+export function getAccessorySheetUrl(itemId, state = "idle") {
+  const accessory = ACCESSORY_SHEETS[itemId];
+  if (!accessory) return null;
+
+  // Try to get state-specific sheet, fall back to idle
+  return accessory.sheets[state] || accessory.sheets.idle || null;
+}
 
 // ============================================================
 // FEEDING SYSTEM

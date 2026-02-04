@@ -733,15 +733,35 @@
   z-index: 50;
 }
 
-.teddy-helper.home-teddy .teddy-sprite {
+/* Legacy static image support */
+.teddy-helper.home-teddy .teddy-sprite-fallback {
   width: 100px;
   height: auto;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
-.teddy-helper.home-teddy .teddy-sprite:hover {
+.teddy-helper.home-teddy .teddy-sprite-fallback:hover {
   transform: scale(1.1);
+}
+
+/* NEW: Animated sprite container */
+.teddy-helper.home-teddy .sprite-container {
+  width: clamp(80px, 12vw, 120px);
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.teddy-helper.home-teddy .sprite-container:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+/* Sprite layers within helper */
+.teddy-helper.home-teddy .sprite-layer {
+  border-radius: 8px; /* Soften edges if needed */
 }
 
 .teddy-speech {
@@ -1644,8 +1664,12 @@
     left: 10px;
   }
 
-  .teddy-helper.home-teddy .teddy-sprite {
+  .teddy-helper.home-teddy .teddy-sprite-fallback {
     width: 70px;
+  }
+
+  .teddy-helper.home-teddy .sprite-container {
+    width: clamp(60px, 15vw, 80px);
   }
 }
 
