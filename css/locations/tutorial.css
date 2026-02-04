@@ -142,3 +142,115 @@
   object-fit: contain;
   object-position: bottom center;
 }
+
+/* ============================================================
+   SPRITE SHEET ANIMATION SYSTEM
+   Future-proof system for layered sprite animations
+   All sprite layers anchor to a base image and scale together
+   ============================================================ */
+
+/* --- Sprite Scene Container ---
+   This container holds the base image and all sprite overlays.
+   Everything inside scales proportionally together.
+*/
+.sprite-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- Sprite Anchor ---
+   The anchor wraps the base image and all overlays.
+   Uses aspect-ratio to maintain 1:1 proportions (for 1024x1024 images).
+   All child sprites position relative to this anchor.
+*/
+.sprite-anchor {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-height: 80vh;
+  max-width: 80vw;
+  height: auto;
+  width: auto;
+}
+
+/* --- Base Image ---
+   The main character/scene image that sprites overlay on.
+*/
+.sprite-base {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* --- Sprite Overlay Layer ---
+   Generic class for any sprite sheet overlay.
+   Positioned absolutely within the anchor so it scales with base image.
+*/
+.sprite-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* --- Sprite Sheet Animation ---
+   The actual animated element using background-image sprite sheet.
+   Uses CSS custom properties for easy configuration per sprite type.
+*/
+.sprite-sheet {
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: calc(var(--sprite-frames, 6) * 100%) 100%;
+  animation: spritePlay calc(var(--sprite-duration, 1s)) steps(var(--sprite-frames, 6)) infinite;
+}
+
+/* Default sprite animation - cycles through frames left to right */
+@keyframes spritePlay {
+  from { background-position: 0% 0; }
+  to { background-position: 100% 0; }
+}
+
+/* ============================================================
+   WINGS SPRITE SHEET - Fairy wings animation
+   6 frames, 1024x1024 each, gentle flutter
+   ============================================================ */
+.sprite-wings {
+  --sprite-frames: 6;
+  --sprite-duration: 0.8s;  /* Gentle flutter speed */
+  background-image: url('../../assets/images/tutorial/wings_sheet.png');
+}
+
+/* Alternative speeds for different moods */
+.sprite-wings.flutter-slow {
+  --sprite-duration: 1.2s;
+}
+
+.sprite-wings.flutter-fast {
+  --sprite-duration: 0.4s;
+}
+
+/* Pause animation when needed */
+.sprite-sheet.paused {
+  animation-play-state: paused;
+}
+
+/* ============================================================
+   SPRITE POSITIONING OFFSETS
+   Use these to fine-tune where sprite overlays sit on the base.
+   Adjust percentages to move sprites relative to base image.
+   ============================================================ */
+.sprite-overlay.offset-wings {
+  /* Adjust these values to position wings on fairy's back */
+  top: 0%;
+  left: 0%;
+  /* Can also use transform for fine-tuning:
+     transform: translate(-5%, -10%); */
+}
