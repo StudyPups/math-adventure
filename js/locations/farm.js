@@ -3,6 +3,7 @@
 // NOW WITH: 3-tier progressive hints matching tutorial + Teddy encouragement! 🎉
 
 import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
+import { addGlimmers, getCurrentPlayer, setGlimmers } from "../core/player-data.js";
 import { farmScenes, getScene, STARTING_SCENE } from "../../data/farm-scenes.js";
 
 
@@ -714,9 +715,8 @@ onReady(() => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'R') {
       if (confirm('Reset gems?')) {
-        gameState.stats.totalGlimmers = 0;
+        setGlimmers(0);
         updateGemDisplay();
-        saveGameState(gameState);
       }
     }
   });
@@ -1056,10 +1056,8 @@ onReady(() => {
   // --- GEM SYSTEM ---
   
   function awardGems(amount) {
-    gameState.stats.totalGlimmers = (gameState.stats.totalGlimmers || 0) + amount;
-    saveGameState(gameState);
-    
-    log(`Awarded ${amount} gems! Total: ${gameState.stats.totalGlimmers}`);
+    const total = addGlimmers(amount) ?? 0;
+    log(`Awarded ${amount} gems! Total: ${total}`);
     
     updateGemDisplay();
     celebrateGems(amount);
@@ -1098,7 +1096,8 @@ onReady(() => {
   }
 
   function updateGemDisplay() {
-    const count = gameState.stats.totalGlimmers || 0;
+    const player = getCurrentPlayer();
+    const count = player?.glimmers || 0;
     if (gemCount) {
       gemCount.textContent = count;
     }

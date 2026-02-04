@@ -208,6 +208,36 @@ export function spendGlimmers(amount) {
   return { ok: true, balance: p.glimmers };
 }
 
+export function setGlimmers(amount) {
+  const p = getCurrentPlayer();
+  if (!p) return null;
+  const value = Math.max(0, Number(amount) || 0);
+  p.glimmers = value;
+  savePlayer(p);
+  return p.glimmers;
+}
+
+export function addInventoryItem(itemId, qty = 1, meta = {}) {
+  const p = getCurrentPlayer();
+  if (!p || !itemId) return null;
+  const amount = Math.max(0, Number(qty) || 0);
+  if (!p.inventory) p.inventory = [];
+
+  const existingItem = p.inventory.find(item => item.itemId === itemId);
+  if (existingItem) {
+    existingItem.qty = (Number(existingItem.qty) || 0) + amount;
+  } else {
+    p.inventory.push({
+      itemId,
+      qty: amount,
+      ...meta
+    });
+  }
+
+  savePlayer(p);
+  return p.inventory;
+}
+
 /**
  * Record a level attempt + award logic hooks
  * You can tune these rules without changing the rest of the game.
