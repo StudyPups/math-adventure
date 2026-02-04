@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="c"></canvas>
+
+<script>
+const frameCount = 6;
+const frameSize = 1024;
+
+const canvas = document.getElementById("c");
+canvas.width = frameSize * frameCount;
+canvas.height = frameSize;
+
+const ctx = canvas.getContext("2d");
+
+let loaded = 0;
+for (let i = 1; i <= frameCount; i++) {
+  const img = new Image();
+  img.src = `wings_0${i}.png`;
+  img.onload = () => {
+    ctx.drawImage(img, (i - 1) * frameSize, 0);
+    loaded++;
+    if (loaded === frameCount) {
+      console.log("Sprite sheet complete");
+    }
+  };
+}
+</script>
+</body>
+</html>
