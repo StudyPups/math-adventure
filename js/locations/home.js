@@ -58,6 +58,7 @@ let homeState = {
 
   // Selection
   selectedItem: null,
+  selectedPlacementItemId: null,
 
   // Edit panel
   activeTab: "interior",
@@ -113,7 +114,7 @@ onReady(() => {
   setupEventListeners(gameState);
 
   // Update displays
-  updateGemDisplay(gameState);
+  updateGemDisplay(player);
   updateFeedingDisplay(gameState.homeState.feeding);
 
   // Initialize helper sprite with equipped accessories
@@ -176,6 +177,7 @@ function cacheElements() {
     furnitureGrid: document.getElementById("furnitureGrid"),
     decorGrid: document.getElementById("decorGrid"),
     pupItemsGrid: document.getElementById("pupItemsGrid"),
+    profileInventoryList: document.getElementById("profileInventoryList"),
 
     // Teddy
     teddyHelper: document.getElementById("teddyHelper"),
@@ -206,7 +208,9 @@ function initializeHome(gameState, player) {
   applyFloorStyle(hs.floorStyle);
 
   // Render placed items
-  renderPlacedItems(hs.placedItems);
+  const profilePlacements = getProfilePlacements(player);
+  syncGameStatePlacements(gameState, profilePlacements);
+  renderPlacedItems(profilePlacements);
 
   // Render pups
   renderStudyPups(hs.pups, gameState);
@@ -214,7 +218,8 @@ function initializeHome(gameState, player) {
   // Build edit panel options
   buildWallOptions(hs);
   buildFloorOptions(hs);
-  buildInventoryGrids(gameState);
+  buildInventoryGrids(player, profilePlacements);
+  renderProfileInventoryList(player);
 
   // Update letterbox count
   updateLetterboxCount(hs.receivedMessages);
@@ -266,6 +271,48 @@ function darkenColor(hex, percent) {
 }
 
 // ============================================================
+// PROFILE PLACEMENTS
+// ============================================================
+
+function getProfilePlacements(player) {
+  if (!player) return [];
+  if (!player.homeLayout) player.homeLayout = {};
+  if (!Array.isArray(player.homeLayout.placedItems)) {
+    player.homeLayout.placedItems = [];
+  }
+  return player.homeLayout.placedItems;
+}
+
+function saveProfilePlacements(placements) {
+  const player = getCurrentPlayer();
+  if (!player) return;
+  if (!player.homeLayout) player.homeLayout = {};
+  player.homeLayout.placedItems = placements;
+  savePlayer(player);
+}
+
+function syncGameStatePlacements(gameState, placements) {
+  if (!gameState.homeState) {
+    gameState.homeState = createDefaultHomeState();
+  }
+  gameState.homeState.placedItems = placements.map(item => normalizePlacement(item));
+  saveGameState(gameState);
+}
+
+function normalizePlacement(item) {
+  if (!item) return item;
+  const x = item.x ?? item.position?.x ?? 50;
+  const y = item.y ?? item.position?.y ?? 50;
+  return {
+    ...item,
+    x,
+    y,
+    position: { x, y },
+    instanceId: item.instanceId || `${item.itemId}-${Math.floor(x * 100)}-${Math.floor(y * 100)}`
+  };
+}
+
+// ============================================================
 // PLACED ITEMS RENDERING
 // ============================================================
 
@@ -273,7 +320,7 @@ function renderPlacedItems(placedItems) {
   elements.placedItemsLayer.innerHTML = "";
 
   placedItems.forEach(item => {
-    const itemEl = createPlacedItemElement(item);
+    const itemEl = createPlacedItemElement(normalizePlacement(item));
     elements.placedItemsLayer.appendChild(itemEl);
   });
 }
@@ -771,9 +818,9 @@ function selectFloor(floorId) {
   showTeddySpeech("New floors! Time to do zoomies! 🐕");
 }
 
-function buildInventoryGrids(gameState) {
-  const inventory = gameState.inventory?.items || [];
-  const placedIds = new Set(gameState.homeState.placedItems.map(i => i.itemId));
+function buildInventoryGrids(player, placedItems) {
+  const inventory = player?.inventory || [];
+  const placedIds = new Set((placedItems || []).map(i => i.itemId));
 
   // Furniture (floor items with placement type furniture, pet-bed, etc.)
   const furnitureItems = inventory.filter(inv => {
@@ -836,6 +883,36 @@ function buildInventoryGrid(container, items, placedIds, emptyId) {
   });
 }
 
+function renderProfileInventoryList(player) {
+  if (!elements.profileInventoryList) return;
+  const inventory = player?.inventory || [];
+
+  elements.profileInventoryList.innerHTML = "";
+
+  if (inventory.length === 0) {
+    elements.profileInventoryList.textContent = "No items yet.";
+    return;
+  }
+
+  inventory.forEach(inv => {
+    const itemRow = document.createElement("button");
+    itemRow.type = "button";
+    itemRow.className = "inventory-list-item";
+    itemRow.dataset.itemId = inv.itemId;
+    itemRow.textContent = `${inv.itemId} x${inv.qty}`;
+
+    itemRow.addEventListener("click", () => {
+      homeState.selectedPlacementItemId = inv.itemId;
+      elements.profileInventoryList.querySelectorAll(".inventory-list-item").forEach(el => {
+        el.classList.toggle("selected", el.dataset.itemId === inv.itemId);
+      });
+      showTeddySpeech(`Selected ${inv.itemId}! Tap the room to place it.`);
+    });
+
+    elements.profileInventoryList.appendChild(itemRow);
+  });
+}
+
 // ============================================================
 // DRAG AND DROP SYSTEM
 // ============================================================
@@ -870,8 +947,8 @@ function handlePlacedItemDragStart(e, instanceId) {
 
   homeState.isDragging = true;
 
-  const gameState = loadGameState();
-  const placedItem = gameState.homeState.placedItems.find(i => i.instanceId === instanceId);
+  const player = getCurrentPlayer();
+  const placedItem = getProfilePlacements(player).find(i => i.instanceId === instanceId);
 
   if (placedItem) {
     homeState.draggedItem = { ...placedItem, isNew: false };
@@ -985,32 +1062,39 @@ function handleDrop(e) {
   }
 
   // Place item
-  const gameState = loadGameState();
+  const player = getCurrentPlayer();
+  if (!player) return;
+  const placements = getProfilePlacements(player).map(item => normalizePlacement(item));
 
   if (homeState.draggedItem.isNew) {
     // New item from inventory
     const instanceId = `${itemId}-${Date.now()}`;
-    gameState.homeState.placedItems.push({
+    placements.push({
       itemId,
       instanceId,
+      x,
+      y,
       position: { x, y },
       zone
     });
     showTeddySpeech("Nice! That looks great there! ✨");
   } else {
     // Moving existing item
-    const existing = gameState.homeState.placedItems.find(
+    const existing = placements.find(
       i => i.instanceId === homeState.draggedItem.instanceId
     );
     if (existing) {
+      existing.x = x;
+      existing.y = y;
       existing.position = { x, y };
       existing.zone = zone;
     }
   }
 
-  saveGameState(gameState);
-  renderPlacedItems(gameState.homeState.placedItems);
-  buildInventoryGrids(gameState);
+  saveProfilePlacements(placements);
+  syncGameStatePlacements(loadGameState() || createNewGameState(), placements);
+  renderPlacedItems(placements);
+  buildInventoryGrids(player, placements);
 
   handleDragEnd();
 }
@@ -1022,6 +1106,51 @@ function handleDragEnd() {
   elements.dropPreview.classList.remove("visible");
 
   document.querySelectorAll(".dragging").forEach(el => el.classList.remove("dragging"));
+}
+
+function handleRoomClick(e) {
+  if (!homeState.isEditMode || homeState.isDragging) return;
+  if (!homeState.selectedPlacementItemId) return;
+  if (e.target.closest(".placed-item") || e.target.closest(".home-pup")) return;
+
+  const roomRect = elements.roomContainer.getBoundingClientRect();
+  const x = ((e.clientX - roomRect.left) / roomRect.width) * 100;
+  const y = ((e.clientY - roomRect.top) / roomRect.height) * 100;
+  const zone = getZoneAtPosition(x, y);
+
+  const itemId = homeState.selectedPlacementItemId;
+  let itemType;
+  const starterItem = FREE_STARTER_ITEMS.find(i => i.id === itemId);
+  if (starterItem) {
+    itemType = starterItem.type;
+  } else {
+    const props = getHomeItemProperties(itemId);
+    if (props) itemType = props.type;
+  }
+
+  if (!canPlaceInZone(itemType, zone)) {
+    showTeddySpeech("That doesn't go there! Try a different spot.");
+    return;
+  }
+
+  const player = getCurrentPlayer();
+  if (!player) return;
+  const placements = getProfilePlacements(player).map(item => normalizePlacement(item));
+  const instanceId = `${itemId}-${Date.now()}`;
+
+  placements.push({
+    itemId,
+    instanceId,
+    x,
+    y,
+    position: { x, y },
+    zone
+  });
+
+  saveProfilePlacements(placements);
+  syncGameStatePlacements(loadGameState() || createNewGameState(), placements);
+  renderPlacedItems(placements);
+  buildInventoryGrids(player, placements);
 }
 
 // ============================================================
@@ -1214,9 +1343,11 @@ function petPup() {
 
 function giveTreat() {
   const gameState = loadGameState();
+  const player = getCurrentPlayer();
+  if (!player) return;
 
   // Check if player has treats
-  const treats = gameState.inventory?.items?.filter(i => {
+  const treats = player?.inventory?.filter(i => {
     const item = getItem(i.itemId);
     return item?.category === "food" && i.qty > 0;
   });
@@ -1230,7 +1361,7 @@ function giveTreat() {
   const treatInv = treats[0];
   treatInv.qty--;
   if (treatInv.qty <= 0) {
-    gameState.inventory.items = gameState.inventory.items.filter(i => i.itemId !== treatInv.itemId);
+    player.inventory = player.inventory.filter(i => i.itemId !== treatInv.itemId);
   }
 
   // Increase happiness
@@ -1242,6 +1373,7 @@ function giveTreat() {
   }
 
   saveGameState(gameState);
+  savePlayer(player);
 
   // Update UI
   if (pupId) {
@@ -1311,11 +1443,12 @@ function switchLetterboxTab(tab) {
 
   // Load tab content
   const gameState = loadGameState();
+  const player = getCurrentPlayer();
 
   if (tab === "inbox") {
     renderInbox(gameState.homeState.receivedMessages);
   } else if (tab === "send") {
-    renderSendTab(gameState);
+    renderSendTab(player);
   } else if (tab === "memory") {
     renderMemoryBook(gameState.homeState.memoryBook);
   }
@@ -1348,7 +1481,7 @@ function renderInbox(messages) {
   `).join("");
 }
 
-function renderSendTab(gameState) {
+function renderSendTab(player) {
   // Build presets
   const presetGrid = document.getElementById("presetGrid");
   presetGrid.innerHTML = PRESET_MESSAGES.map(preset => `
@@ -1361,7 +1494,7 @@ function renderSendTab(gameState) {
 
   // Build stationery from inventory
   const stationeryGrid = document.getElementById("stationeryGrid");
-  const stationery = gameState.inventory?.items?.filter(i => {
+  const stationery = player?.inventory?.filter(i => {
     const item = getItem(i.itemId);
     return item?.category === "stationery" && i.qty > 0;
   }) || [];
@@ -1579,6 +1712,7 @@ function setupEventListeners(gameState) {
   elements.roomContainer?.addEventListener("dragleave", () => {
     elements.dropPreview.classList.remove("visible");
   });
+  elements.roomContainer?.addEventListener("click", handleRoomClick);
 
   // Placed items click
   elements.placedItemsLayer?.addEventListener("click", handleItemClick);
@@ -1688,14 +1822,16 @@ function toggleEditMode(force = null) {
     showTeddySpeech("Drag items to move them! Click walls or floors to change them!");
 
     // Refresh inventory grids
-    const gameState = loadGameState();
-    buildInventoryGrids(gameState);
+    const player = getCurrentPlayer();
+    const placements = getProfilePlacements(player);
+    buildInventoryGrids(player, placements);
   } else {
     // Deselect any selected items
     document.querySelectorAll(".placed-item.selected").forEach(el => {
       el.classList.remove("selected");
     });
     homeState.selectedItem = null;
+    homeState.selectedPlacementItemId = null;
   }
 }
 
@@ -1703,8 +1839,8 @@ function toggleEditMode(force = null) {
 // UTILITY FUNCTIONS
 // ============================================================
 
-function updateGemDisplay(gameState) {
-  const count = gameState?.stats?.totalGlimmers || 0;
+function updateGemDisplay(player) {
+  const count = player?.glimmers || 0;
   if (elements.gemCount) {
     elements.gemCount.textContent = count;
   }

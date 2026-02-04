@@ -3,7 +3,7 @@
 // Features: Browse items, cart system, purchase, Now Hiring jobs menu
 
 import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
-import { getCurrentPlayer, savePlayer, spendGlimmers } from "../core/player-data.js";
+import { addInventoryItem, getCurrentPlayer, spendGlimmers } from "../core/player-data.js";
 import {
   CATEGORIES,
   SHOP_ITEMS,
@@ -56,7 +56,7 @@ onReady(() => {
   initializeShop(gameState, player);
 
   // Update displays
-  updateGemDisplay(gameState);
+  updateGemDisplay();
   updateCartDisplay();
 
   // Show initial Melody greeting
@@ -248,8 +248,8 @@ function clearCart() {
 }
 
 function updateCartDisplay() {
-  const gameState = loadGameState() || createNewGameState();
-  const playerGlimmers = gameState.stats?.totalGlimmers || 0;
+  const player = getCurrentPlayer();
+  const playerGlimmers = player?.glimmers || 0;
 
   // Update cart count badge
   const cartCount = document.getElementById("cartCount");
@@ -356,44 +356,43 @@ function updateItemCards() {
 // ============================================================
 
 function processPurchase() {
-  const gameState = loadGameState() || createNewGameState();
   const total = calculateCartTotal(shopState.cart);
+  const player = getCurrentPlayer();
+
+  if (!player) {
+    showMelodyDialogue("No profile found. Please create a profile first.");
+    return;
+  }
 
   // Verify affordability
-  if ((gameState.stats?.totalGlimmers || 0) < total.glimmers) {
+  const availableGlimmers = Number(player.glimmers) || 0;
+  if (availableGlimmers < total.glimmers) {
     showMelodyDialogue(formatDialogue(MELODY_DIALOGUES.notEnoughFunds, {
-      playerName: gameState.playerName || "friend",
-      needed: total.glimmers - (gameState.stats?.totalGlimmers || 0)
+      playerName: player.playerName || "friend",
+      needed: total.glimmers - availableGlimmers
     }));
     return;
   }
 
   // Deduct glimmers
-  gameState.stats.totalGlimmers -= total.glimmers;
-  gameState.stats.glimmersSpent = (gameState.stats.glimmersSpent || 0) + total.glimmers;
+  const spendResult = spendGlimmers(total.glimmers);
+  if (!spendResult.ok) {
+    showMelodyDialogue(formatDialogue(MELODY_DIALOGUES.notEnoughFunds, {
+      playerName: player.playerName || "friend",
+      needed: total.glimmers
+    }));
+    return;
+  }
 
   // Add items to inventory
   shopState.cart.forEach(cartItem => {
     const item = getItem(cartItem.itemId);
     if (!item) return;
 
-    // Add to inventory
-    const existingInv = gameState.inventory?.items?.find(i => i.itemId === cartItem.itemId);
-    if (existingInv) {
-      existingInv.qty += cartItem.quantity;
-    } else {
-      if (!gameState.inventory) gameState.inventory = { items: [], equippedItems: {} };
-      if (!gameState.inventory.items) gameState.inventory.items = [];
-      gameState.inventory.items.push({
-        itemId: cartItem.itemId,
-        qty: cartItem.quantity,
-        purchasedAt: new Date().toISOString()
-      });
-    }
+    addInventoryItem(cartItem.itemId, cartItem.quantity, {
+      purchasedAt: new Date().toISOString()
+    });
   });
-
-  // Save game state
-  saveGameState(gameState);
 
   // Show success modal
   showPurchaseSuccess(shopState.cart);
@@ -403,7 +402,7 @@ function processPurchase() {
   clearCart();
 
   // Update displays
-  updateGemDisplay(gameState);
+  updateGemDisplay();
 
   log("Purchase complete!", purchasedItems);
 }
@@ -687,20 +686,11 @@ function acceptGift() {
   if (shopState.giftsPending.length === 0) return;
 
   const giftData = shopState.giftsPending.shift();
-  const gameState = loadGameState() || createNewGameState();
 
-  // Add gift to inventory
-  if (!gameState.inventory) gameState.inventory = { items: [], equippedItems: {} };
-  if (!gameState.inventory.items) gameState.inventory.items = [];
-
-  gameState.inventory.items.push({
-    itemId: giftData.gift.id,
-    qty: 1,
+  addInventoryItem(giftData.gift.id, 1, {
     isGift: true,
     giftedAt: new Date().toISOString()
   });
-
-  saveGameState(gameState);
 
   // Close modal
   const modal = document.getElementById("giftModal");
@@ -816,8 +806,9 @@ function setupEventListeners(gameState, player) {
 // UTILITY FUNCTIONS
 // ============================================================
 
-function updateGemDisplay(gameState) {
-  const count = gameState?.stats?.totalGlimmers || 0;
+function updateGemDisplay() {
+  const player = getCurrentPlayer();
+  const count = player?.glimmers || 0;
   const gemCount = document.getElementById("gemCount");
   if (gemCount) {
     gemCount.textContent = count;
