@@ -130,6 +130,21 @@
         </div>
         <p class="modal-hint">Login feature coming soon! For now, profiles are saved to this device.</p>
       </div>
+
+      <!-- Step 5: Change Name -->
+      <div class="modal-step" id="stepChangeName" hidden>
+        <button class="modal-back" type="button" id="backFromChangeName">← Back</button>
+        <h2 class="modal-title">Change Your Name</h2>
+        <div class="form-group">
+          <label for="changeNameInput">What should we call you now?</label>
+          <input type="text" id="changeNameInput" class="form-input" placeholder="Enter your new name" maxlength="20">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal btn-primary" type="button" id="confirmChangeNameBtn" disabled>
+            Save Name
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -161,7 +176,9 @@
         </div>
         <div class="profile-actions">
           <button class="btn-settings" type="button" id="switchProfileBtn">Switch Profile</button>
+          <button class="btn-settings" type="button" id="changeNameBtn">Change Name</button>
           <button class="btn-settings btn-danger" type="button" id="logoutBtn">Log Out</button>
+          <button class="btn-settings btn-danger-outline" type="button" id="deleteProfileBtn">Delete Profile</button>
         </div>
       </div>
 
