@@ -149,9 +149,40 @@ export function deleteProfile(profileId) {
   const index = listProfiles().filter(p => p.profileId !== profileId);
   saveJSON(PROFILES_INDEX_KEY, index);
 
+  // remove associated neighbourhood data
+  localStorage.removeItem(`studypups_neighbourhood_for_${profileId}`);
+  localStorage.removeItem(`studypups_neighbourhood_code_for_${profileId}`);
+  localStorage.removeItem(`studypups_letterbox_for_${profileId}`);
+  localStorage.removeItem(`studypups_save_${profileId}`);
+
   // clear current if needed
   const current = localStorage.getItem(CURRENT_PROFILE_KEY);
   if (current === profileId) localStorage.removeItem(CURRENT_PROFILE_KEY);
+}
+
+/**
+ * Update a profile's player name
+ */
+export function updateProfileName(profileId, newName) {
+  const profile = loadJSON(profileKey(profileId), null);
+  if (!profile) return null;
+
+  profile.playerName = newName || "Player";
+  profile.lastPlayed = new Date().toISOString();
+
+  // Update profile data
+  saveJSON(profileKey(profileId), profile);
+
+  // Update index metadata
+  const index = listProfiles();
+  const i = index.findIndex(p => p.profileId === profileId);
+  if (i !== -1) {
+    index[i].playerName = profile.playerName;
+    index[i].lastPlayed = profile.lastPlayed;
+    saveJSON(PROFILES_INDEX_KEY, index);
+  }
+
+  return profile;
 }
 
 /**

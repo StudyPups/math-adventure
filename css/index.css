@@ -596,7 +596,8 @@
 }
 
 .profile-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
@@ -626,6 +627,17 @@
 .btn-settings.btn-danger:hover {
   background: #fef2f2;
   border-color: #EF4444;
+}
+
+.btn-settings.btn-danger-outline {
+  color: #DC2626;
+  border-color: #fecaca;
+  background: transparent;
+}
+
+.btn-settings.btn-danger-outline:hover {
+  background: #fef2f2;
+  border-color: #DC2626;
 }
 
 .settings-footer {
@@ -793,7 +805,7 @@
   }
 
   .profile-actions {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .btn-settings {

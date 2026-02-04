@@ -11,7 +11,8 @@ import {
   listProfiles,
   createProfileAndSetCurrent,
   setCurrentProfile,
-  deleteProfile
+  deleteProfile,
+  updateProfileName
 } from "./core/player-data.js";
 
 // ============================================================
@@ -369,6 +370,76 @@ function logout() {
 }
 
 // ============================================================
+// PROFILE MANAGEMENT
+// ============================================================
+
+function deleteCurrentProfile() {
+  const player = getCurrentPlayer();
+  if (!player) {
+    alert("No profile is currently selected.");
+    return;
+  }
+
+  const ok = confirm(
+    `Delete profile "${player.playerName}"?\n\n` +
+    "This will permanently remove all progress, inventory, and settings for this profile.\n\n" +
+    "This action cannot be undone!"
+  );
+
+  if (!ok) return;
+
+  deleteProfile(player.profileId);
+  updateStatusDisplay();
+  updateSettingsDisplay();
+  closeSettingsModal();
+
+  alert("Profile deleted successfully.");
+}
+
+function openChangeNameModal() {
+  const player = getCurrentPlayer();
+  if (!player) {
+    alert("No profile is currently selected.");
+    return;
+  }
+
+  // Pre-fill with current name
+  const changeNameInput = document.getElementById("changeNameInput");
+  if (changeNameInput) {
+    changeNameInput.value = player.playerName;
+  }
+
+  // Enable/disable the confirm button based on input
+  const confirmBtn = document.getElementById("confirmChangeNameBtn");
+  if (confirmBtn) {
+    confirmBtn.disabled = !player.playerName;
+  }
+
+  closeSettingsModal();
+  showStep("stepChangeName");
+  showModal("profileModal");
+}
+
+function confirmChangeName() {
+  const player = getCurrentPlayer();
+  if (!player) return;
+
+  const changeNameInput = document.getElementById("changeNameInput");
+  const newName = (changeNameInput?.value || "").trim();
+
+  if (!newName) {
+    alert("Please enter a name.");
+    return;
+  }
+
+  updateProfileName(player.profileId, newName);
+  updateStatusDisplay();
+
+  closeProfileModal();
+  alert(`Name changed to "${newName}"!`);
+}
+
+// ============================================================
 // VOLUME CONTROLS
 // ============================================================
 
@@ -454,6 +525,11 @@ onReady(() => {
     showStep("stepSelectProfile");
   });
 
+  document.getElementById("backFromChangeName")?.addEventListener("click", () => {
+    closeProfileModal();
+    openSettingsModal();
+  });
+
   // Profile name input
   const nameInput = document.getElementById("newProfileName");
   const confirmCreateBtn = document.getElementById("confirmCreateProfile");
@@ -471,6 +547,26 @@ onReady(() => {
   nameInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !confirmCreateBtn?.disabled) {
       goToNeighbourhoodStep();
+    }
+  });
+
+  // Change name input
+  const changeNameInput = document.getElementById("changeNameInput");
+  const confirmChangeNameBtn = document.getElementById("confirmChangeNameBtn");
+
+  changeNameInput?.addEventListener("input", () => {
+    const hasName = (changeNameInput.value || "").trim().length > 0;
+    if (confirmChangeNameBtn) {
+      confirmChangeNameBtn.disabled = !hasName;
+    }
+  });
+
+  confirmChangeNameBtn?.addEventListener("click", confirmChangeName);
+
+  // Allow Enter key for change name
+  changeNameInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !confirmChangeNameBtn?.disabled) {
+      confirmChangeName();
     }
   });
 
@@ -508,7 +604,11 @@ onReady(() => {
     openProfileModal();
   });
 
+  document.getElementById("changeNameBtn")?.addEventListener("click", openChangeNameModal);
+
   document.getElementById("logoutBtn")?.addEventListener("click", logout);
+
+  document.getElementById("deleteProfileBtn")?.addEventListener("click", deleteCurrentProfile);
 
   // --- Login (stub) ---
   const loginUsername = document.getElementById("loginUsername");
