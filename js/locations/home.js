@@ -8,7 +8,6 @@ import {
   WALL_STYLES,
   FLOOR_STYLES,
   FREE_STARTER_ITEMS,
-  HOME_ITEM_PROPERTIES,
   PLACEMENT_ZONES,
   STUDYPUPS,
   FEEDING_CONFIG,
@@ -58,6 +57,7 @@ let homeState = {
 
   // Selection
   selectedItem: null,
+  selectedPlacementItemId: null,
 
   // Edit panel
   activeTab: "interior",
@@ -113,7 +113,7 @@ onReady(() => {
   setupEventListeners(gameState);
 
   // Update displays
-  updateGemDisplay(gameState);
+  updateGemDisplay(player);
   updateFeedingDisplay(gameState.homeState.feeding);
 
   // Initialize helper sprite with equipped accessories
@@ -206,7 +206,9 @@ function initializeHome(gameState, player) {
   applyFloorStyle(hs.floorStyle);
 
   // Render placed items
-  renderPlacedItems(hs.placedItems);
+  const profilePlacements = getProfilePlacements(player);
+  syncGameStatePlacements(gameState, profilePlacements);
+  renderPlacedItems(profilePlacements);
 
   // Render pups
   renderStudyPups(hs.pups, gameState);
@@ -214,7 +216,7 @@ function initializeHome(gameState, player) {
   // Build edit panel options
   buildWallOptions(hs);
   buildFloorOptions(hs);
-  buildInventoryGrids(gameState);
+  buildInventoryGrids(player, profilePlacements);
 
   // Update letterbox count
   updateLetterboxCount(hs.receivedMessages);
@@ -266,6 +268,56 @@ function darkenColor(hex, percent) {
 }
 
 // ============================================================
+// PROFILE PLACEMENTS
+// ============================================================
+
+function getProfilePlacements(player) {
+  if (!player) return [];
+  if (!player.homeLayout) player.homeLayout = {};
+  if (!Array.isArray(player.homeLayout.placedItems)) {
+    player.homeLayout.placedItems = [];
+  }
+  return player.homeLayout.placedItems;
+}
+
+function saveProfilePlacements(placements) {
+  const player = getCurrentPlayer();
+  if (!player) return;
+  if (!player.homeLayout) player.homeLayout = {};
+  player.homeLayout.placedItems = placements;
+  savePlayer(player);
+}
+
+function syncGameStatePlacements(gameState, placements) {
+  if (!gameState.homeState) {
+    gameState.homeState = createDefaultHomeState();
+  }
+  gameState.homeState.placedItems = placements.map(item => normalizePlacement(item));
+  saveGameState(gameState);
+}
+
+function normalizePlacement(item) {
+  if (!item) return item;
+  const x = item.x ?? item.position?.x ?? 50;
+  const y = item.y ?? item.position?.y ?? 50;
+  return {
+    ...item,
+    x,
+    y,
+    position: { x, y },
+    instanceId: item.instanceId || `${item.itemId}-${Math.floor(x * 100)}-${Math.floor(y * 100)}`
+  };
+}
+
+function getHomeCatalogItems() {
+  return SHOP_ITEMS.map(item => {
+    const homeProps = getHomeItemProperties(item.id);
+    if (!homeProps) return null;
+    return { ...item, homeProps };
+  }).filter(Boolean);
+}
+
+// ============================================================
 // PLACED ITEMS RENDERING
 // ============================================================
 
@@ -273,7 +325,7 @@ function renderPlacedItems(placedItems) {
   elements.placedItemsLayer.innerHTML = "";
 
   placedItems.forEach(item => {
-    const itemEl = createPlacedItemElement(item);
+    const itemEl = createPlacedItemElement(normalizePlacement(item));
     elements.placedItemsLayer.appendChild(itemEl);
   });
 }
@@ -771,33 +823,31 @@ function selectFloor(floorId) {
   showTeddySpeech("New floors! Time to do zoomies! 🐕");
 }
 
-function buildInventoryGrids(gameState) {
-  const inventory = gameState.inventory?.items || [];
-  const placedIds = new Set(gameState.homeState.placedItems.map(i => i.itemId));
+function buildInventoryGrids(player, placedItems) {
+  const ownedCounts = new Map(
+    (player?.inventory || []).map(inv => [inv.itemId, inv.qty])
+  );
+  const placedIds = new Set((placedItems || []).map(i => i.itemId));
 
   // Furniture (floor items with placement type furniture, pet-bed, etc.)
-  const furnitureItems = inventory.filter(inv => {
-    const props = getHomeItemProperties(inv.itemId);
-    return props && ["furniture", "pet-bed", "rug"].includes(props.type);
-  });
-  buildInventoryGrid(elements.furnitureGrid, furnitureItems, placedIds, "emptyFurniture");
+  const homeCatalog = getHomeCatalogItems();
+  const furnitureItems = homeCatalog.filter(item =>
+    ["furniture", "pet-bed", "rug"].includes(item.homeProps?.type)
+  );
+  buildInventoryGrid(elements.furnitureGrid, furnitureItems, ownedCounts, placedIds, "emptyFurniture");
 
   // Decor (wall items, lights, etc.)
-  const decorItems = inventory.filter(inv => {
-    const props = getHomeItemProperties(inv.itemId);
-    return props && ["poster", "frame", "window", "lights", "wall-decor", "plant-floor"].includes(props.type);
-  });
-  buildInventoryGrid(elements.decorGrid, decorItems, placedIds, "emptyDecor");
+  const decorItems = homeCatalog.filter(item =>
+    ["poster", "frame", "window", "lights", "wall-decor", "plant-floor"].includes(item.homeProps?.type)
+  );
+  buildInventoryGrid(elements.decorGrid, decorItems, ownedCounts, placedIds, "emptyDecor");
 
   // Pup items (food, accessories for pups)
-  const pupItems = inventory.filter(inv => {
-    const shopItem = getItem(inv.itemId);
-    return shopItem && (shopItem.category === "food" || shopItem.forPups);
-  });
-  buildInventoryGrid(elements.pupItemsGrid, pupItems, placedIds, "emptyPupItems");
+  const pupItems = SHOP_ITEMS.filter(item => item.category === "food" || item.forPups);
+  buildInventoryGrid(elements.pupItemsGrid, pupItems, ownedCounts, placedIds, "emptyPupItems");
 }
 
-function buildInventoryGrid(container, items, placedIds, emptyId) {
+function buildInventoryGrid(container, items, ownedCounts, placedIds, emptyId) {
   container.innerHTML = "";
 
   const emptyEl = document.getElementById(emptyId);
@@ -809,28 +859,43 @@ function buildInventoryGrid(container, items, placedIds, emptyId) {
 
   if (emptyEl) emptyEl.style.display = "none";
 
-  items.forEach(inv => {
-    const shopItem = getItem(inv.itemId);
+  items.forEach(item => {
+    const shopItem = item.icon ? item : getItem(item.id);
     if (!shopItem) return;
+    const itemId = shopItem.id || item.itemId;
+    const qty = ownedCounts.get(itemId);
+    const isOwned = Number(qty) > 0;
 
     const itemEl = document.createElement("div");
     itemEl.className = "inventory-item";
-    itemEl.dataset.itemId = inv.itemId;
+    itemEl.dataset.itemId = itemId;
 
-    if (placedIds.has(inv.itemId)) {
+    if (placedIds.has(itemId)) {
       itemEl.classList.add("placed");
+    }
+    if (!isOwned) {
+      itemEl.classList.add("locked");
     }
 
     itemEl.innerHTML = `
       <span class="inventory-item-icon">${shopItem.icon}</span>
       <span class="inventory-item-name">${shopItem.name}</span>
-      ${inv.qty > 1 ? `<span class="inventory-item-qty">x${inv.qty}</span>` : ""}
+      ${isOwned && qty > 1 ? `<span class="inventory-item-qty">x${qty}</span>` : ""}
+      ${!isOwned ? `<span class="inventory-item-lock">🔒 Buy in Fairy Store</span>` : ""}
     `;
 
-    // Make draggable
-    itemEl.draggable = true;
-    itemEl.addEventListener("dragstart", (e) => handleInventoryDragStart(e, inv.itemId));
-    itemEl.addEventListener("dragend", handleDragEnd);
+    if (isOwned) {
+      itemEl.addEventListener("click", () => setSelectedPlacementItem(itemId));
+
+      // Make draggable
+      itemEl.draggable = true;
+      itemEl.addEventListener("dragstart", (e) => handleInventoryDragStart(e, itemId));
+      itemEl.addEventListener("dragend", handleDragEnd);
+    } else {
+      itemEl.addEventListener("click", () => {
+        showTeddySpeech("That item is locked. Buy it in the Fairy Store!");
+      });
+    }
 
     container.appendChild(itemEl);
   });
@@ -870,8 +935,8 @@ function handlePlacedItemDragStart(e, instanceId) {
 
   homeState.isDragging = true;
 
-  const gameState = loadGameState();
-  const placedItem = gameState.homeState.placedItems.find(i => i.instanceId === instanceId);
+  const player = getCurrentPlayer();
+  const placedItem = getProfilePlacements(player).find(i => i.instanceId === instanceId);
 
   if (placedItem) {
     homeState.draggedItem = { ...placedItem, isNew: false };
@@ -985,32 +1050,39 @@ function handleDrop(e) {
   }
 
   // Place item
-  const gameState = loadGameState();
+  const player = getCurrentPlayer();
+  if (!player) return;
+  const placements = getProfilePlacements(player).map(item => normalizePlacement(item));
 
   if (homeState.draggedItem.isNew) {
     // New item from inventory
     const instanceId = `${itemId}-${Date.now()}`;
-    gameState.homeState.placedItems.push({
+    placements.push({
       itemId,
       instanceId,
+      x,
+      y,
       position: { x, y },
       zone
     });
     showTeddySpeech("Nice! That looks great there! ✨");
   } else {
     // Moving existing item
-    const existing = gameState.homeState.placedItems.find(
+    const existing = placements.find(
       i => i.instanceId === homeState.draggedItem.instanceId
     );
     if (existing) {
+      existing.x = x;
+      existing.y = y;
       existing.position = { x, y };
       existing.zone = zone;
     }
   }
 
-  saveGameState(gameState);
-  renderPlacedItems(gameState.homeState.placedItems);
-  buildInventoryGrids(gameState);
+  saveProfilePlacements(placements);
+  syncGameStatePlacements(loadGameState() || createNewGameState(), placements);
+  renderPlacedItems(placements);
+  buildInventoryGrids(player, placements);
 
   handleDragEnd();
 }
@@ -1022,6 +1094,59 @@ function handleDragEnd() {
   elements.dropPreview.classList.remove("visible");
 
   document.querySelectorAll(".dragging").forEach(el => el.classList.remove("dragging"));
+}
+
+function setSelectedPlacementItem(itemId) {
+  homeState.selectedPlacementItemId = itemId;
+  document.querySelectorAll(".inventory-item").forEach(el => {
+    el.classList.toggle("selected", el.dataset.itemId === itemId);
+  });
+  showTeddySpeech(`Selected ${itemId}! Tap the room to place it.`);
+}
+
+function handleRoomClick(e) {
+  if (!homeState.isEditMode || homeState.isDragging) return;
+  if (!homeState.selectedPlacementItemId) return;
+  if (e.target.closest(".placed-item") || e.target.closest(".home-pup")) return;
+
+  const roomRect = elements.roomContainer.getBoundingClientRect();
+  const x = ((e.clientX - roomRect.left) / roomRect.width) * 100;
+  const y = ((e.clientY - roomRect.top) / roomRect.height) * 100;
+  const zone = getZoneAtPosition(x, y);
+
+  const itemId = homeState.selectedPlacementItemId;
+  let itemType;
+  const starterItem = FREE_STARTER_ITEMS.find(i => i.id === itemId);
+  if (starterItem) {
+    itemType = starterItem.type;
+  } else {
+    const props = getHomeItemProperties(itemId);
+    if (props) itemType = props.type;
+  }
+
+  if (!canPlaceInZone(itemType, zone)) {
+    showTeddySpeech("That doesn't go there! Try a different spot.");
+    return;
+  }
+
+  const player = getCurrentPlayer();
+  if (!player) return;
+  const placements = getProfilePlacements(player).map(item => normalizePlacement(item));
+  const instanceId = `${itemId}-${Date.now()}`;
+
+  placements.push({
+    itemId,
+    instanceId,
+    x,
+    y,
+    position: { x, y },
+    zone
+  });
+
+  saveProfilePlacements(placements);
+  syncGameStatePlacements(loadGameState() || createNewGameState(), placements);
+  renderPlacedItems(placements);
+  buildInventoryGrids(player, placements);
 }
 
 // ============================================================
@@ -1214,9 +1339,11 @@ function petPup() {
 
 function giveTreat() {
   const gameState = loadGameState();
+  const player = getCurrentPlayer();
+  if (!player) return;
 
   // Check if player has treats
-  const treats = gameState.inventory?.items?.filter(i => {
+  const treats = player?.inventory?.filter(i => {
     const item = getItem(i.itemId);
     return item?.category === "food" && i.qty > 0;
   });
@@ -1230,7 +1357,7 @@ function giveTreat() {
   const treatInv = treats[0];
   treatInv.qty--;
   if (treatInv.qty <= 0) {
-    gameState.inventory.items = gameState.inventory.items.filter(i => i.itemId !== treatInv.itemId);
+    player.inventory = player.inventory.filter(i => i.itemId !== treatInv.itemId);
   }
 
   // Increase happiness
@@ -1242,6 +1369,7 @@ function giveTreat() {
   }
 
   saveGameState(gameState);
+  savePlayer(player);
 
   // Update UI
   if (pupId) {
@@ -1311,11 +1439,12 @@ function switchLetterboxTab(tab) {
 
   // Load tab content
   const gameState = loadGameState();
+  const player = getCurrentPlayer();
 
   if (tab === "inbox") {
     renderInbox(gameState.homeState.receivedMessages);
   } else if (tab === "send") {
-    renderSendTab(gameState);
+    renderSendTab(player);
   } else if (tab === "memory") {
     renderMemoryBook(gameState.homeState.memoryBook);
   }
@@ -1348,7 +1477,7 @@ function renderInbox(messages) {
   `).join("");
 }
 
-function renderSendTab(gameState) {
+function renderSendTab(player) {
   // Build presets
   const presetGrid = document.getElementById("presetGrid");
   presetGrid.innerHTML = PRESET_MESSAGES.map(preset => `
@@ -1361,7 +1490,7 @@ function renderSendTab(gameState) {
 
   // Build stationery from inventory
   const stationeryGrid = document.getElementById("stationeryGrid");
-  const stationery = gameState.inventory?.items?.filter(i => {
+  const stationery = player?.inventory?.filter(i => {
     const item = getItem(i.itemId);
     return item?.category === "stationery" && i.qty > 0;
   }) || [];
@@ -1579,6 +1708,7 @@ function setupEventListeners(gameState) {
   elements.roomContainer?.addEventListener("dragleave", () => {
     elements.dropPreview.classList.remove("visible");
   });
+  elements.roomContainer?.addEventListener("click", handleRoomClick);
 
   // Placed items click
   elements.placedItemsLayer?.addEventListener("click", handleItemClick);
@@ -1688,14 +1818,16 @@ function toggleEditMode(force = null) {
     showTeddySpeech("Drag items to move them! Click walls or floors to change them!");
 
     // Refresh inventory grids
-    const gameState = loadGameState();
-    buildInventoryGrids(gameState);
+    const player = getCurrentPlayer();
+    const placements = getProfilePlacements(player);
+    buildInventoryGrids(player, placements);
   } else {
     // Deselect any selected items
     document.querySelectorAll(".placed-item.selected").forEach(el => {
       el.classList.remove("selected");
     });
     homeState.selectedItem = null;
+    homeState.selectedPlacementItemId = null;
   }
 }
 
@@ -1703,8 +1835,8 @@ function toggleEditMode(force = null) {
 // UTILITY FUNCTIONS
 // ============================================================
 
-function updateGemDisplay(gameState) {
-  const count = gameState?.stats?.totalGlimmers || 0;
+function updateGemDisplay(player) {
+  const count = player?.glimmers || 0;
   if (elements.gemCount) {
     elements.gemCount.textContent = count;
   }
