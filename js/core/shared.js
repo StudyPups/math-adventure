@@ -221,7 +221,7 @@ export function initGameMenu(currentPage = "") {
       name: "Cozy Cafe",
       desc: "Money & Decimals",
       badge: "🔒 Coming Soon",
-      locked: true,
+      locked: false,
     },
     {
       id: "restaurant",
