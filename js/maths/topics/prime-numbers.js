@@ -75,6 +75,15 @@ export const primeNumbers = {
   yearLevel: 5,
   displayName: "Prime Numbers",
   farmContext: "numbers",
+  intro: {
+    title: "Prime Numbers Refresher",
+    steps: [
+      { type: "teddyText", text: "Prime numbers have exactly TWO factors: 1 and itself." },
+      { type: "factorTest", number: 12 },
+      { type: "factorTest", number: 13 },
+      { type: "teddyText", text: "So 13 is prime because it has only two factors." }
+    ]
+  },
   generate() {
     return buildPrimePuzzle();
   }
