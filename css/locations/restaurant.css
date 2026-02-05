@@ -1,0 +1,36 @@
+#backgroundLayer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#characterLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.npc-zara {
+  position: absolute;
+  right: 8%;
+  bottom: 6%;
+  width: min(22vw, 280px);
+  height: auto;
+}
+
+.teddy-decor {
+  position: absolute;
+  left: 3%;
+  bottom: 3%;
+  width: min(18vw, 220px);
+  height: auto;
+  pointer-events: none;
+}
+
+.teddy-decor-sprite {
+  width: 100%;
+  height: auto;
+  display: block;
+}
