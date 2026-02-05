@@ -8,7 +8,6 @@ import {
   WALL_STYLES,
   FLOOR_STYLES,
   FREE_STARTER_ITEMS,
-  HOME_ITEM_PROPERTIES,
   PLACEMENT_ZONES,
   STUDYPUPS,
   FEEDING_CONFIG,
@@ -311,13 +310,11 @@ function normalizePlacement(item) {
 }
 
 function getHomeCatalogItems() {
-  return Object.entries(HOME_ITEM_PROPERTIES)
-    .map(([itemId, homeProps]) => {
-      const shopItem = getItem(itemId);
-      if (!shopItem) return null;
-      return { ...shopItem, homeProps };
-    })
-    .filter(Boolean);
+  return SHOP_ITEMS.map(item => {
+    const homeProps = getHomeItemProperties(item.id);
+    if (!homeProps) return null;
+    return { ...item, homeProps };
+  }).filter(Boolean);
 }
 
 // ============================================================
