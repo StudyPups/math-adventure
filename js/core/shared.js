@@ -229,12 +229,12 @@ export function initGameMenu(currentPage = "") {
     },
     {
       id: "restaurant",
-      href: "#",
+      href: "restaurant.html",
       icon: "🍽️",
       name: "Riverside Restaurant",
       desc: "Measurement",
-      badge: "🔒 Coming Soon",
-      locked: true
+      badge: "Available",
+      locked: false
     }
   ];  // <-- Array CLOSES here!
   
