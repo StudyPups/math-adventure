@@ -226,6 +226,18 @@ export function addInventoryItem(itemId, qty = 1, meta = {}) {
   const existingItem = p.inventory.find(item => item.itemId === itemId);
   if (existingItem) {
     existingItem.qty = (Number(existingItem.qty) || 0) + amount;
+    Object.entries(meta).forEach(([key, value]) => {
+      if (key === "seenInInventory") {
+        if (existingItem.seenInInventory === true) return;
+        if (existingItem.seenInInventory === undefined) {
+          existingItem.seenInInventory = value;
+        }
+        return;
+      }
+      if (existingItem[key] === undefined) {
+        existingItem[key] = value;
+      }
+    });
   } else {
     p.inventory.push({
       itemId,

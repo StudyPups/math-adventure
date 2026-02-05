@@ -618,6 +618,7 @@
   background: #f9f9f9;
   border-radius: 12px;
   border: 2px solid transparent;
+  position: relative;
   cursor: grab;
   transition: all 0.2s ease;
 }
@@ -635,6 +636,25 @@
 .inventory-item.placed {
   opacity: 0.6;
   background: #e8f5e9;
+}
+
+.inventory-item.is-new {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.inventory-item-new {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #facc15;
+  color: #7c2d12;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .inventory-item-icon {
