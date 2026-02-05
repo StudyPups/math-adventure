@@ -177,7 +177,6 @@ function cacheElements() {
     furnitureGrid: document.getElementById("furnitureGrid"),
     decorGrid: document.getElementById("decorGrid"),
     pupItemsGrid: document.getElementById("pupItemsGrid"),
-    profileInventoryList: document.getElementById("profileInventoryList"),
 
     // Teddy
     teddyHelper: document.getElementById("teddyHelper"),
@@ -219,7 +218,6 @@ function initializeHome(gameState, player) {
   buildWallOptions(hs);
   buildFloorOptions(hs);
   buildInventoryGrids(player, profilePlacements);
-  renderProfileInventoryList(player);
 
   // Update letterbox count
   updateLetterboxCount(hs.receivedMessages);
@@ -310,6 +308,16 @@ function normalizePlacement(item) {
     position: { x, y },
     instanceId: item.instanceId || `${item.itemId}-${Math.floor(x * 100)}-${Math.floor(y * 100)}`
   };
+}
+
+function getHomeCatalogItems() {
+  return Object.entries(HOME_ITEM_PROPERTIES)
+    .map(([itemId, homeProps]) => {
+      const shopItem = getItem(itemId);
+      if (!shopItem) return null;
+      return { ...shopItem, homeProps };
+    })
+    .filter(Boolean);
 }
 
 // ============================================================
@@ -819,32 +827,30 @@ function selectFloor(floorId) {
 }
 
 function buildInventoryGrids(player, placedItems) {
-  const inventory = player?.inventory || [];
+  const ownedCounts = new Map(
+    (player?.inventory || []).map(inv => [inv.itemId, inv.qty])
+  );
   const placedIds = new Set((placedItems || []).map(i => i.itemId));
 
   // Furniture (floor items with placement type furniture, pet-bed, etc.)
-  const furnitureItems = inventory.filter(inv => {
-    const props = getHomeItemProperties(inv.itemId);
-    return props && ["furniture", "pet-bed", "rug"].includes(props.type);
-  });
-  buildInventoryGrid(elements.furnitureGrid, furnitureItems, placedIds, "emptyFurniture");
+  const homeCatalog = getHomeCatalogItems();
+  const furnitureItems = homeCatalog.filter(item =>
+    ["furniture", "pet-bed", "rug"].includes(item.homeProps?.type)
+  );
+  buildInventoryGrid(elements.furnitureGrid, furnitureItems, ownedCounts, placedIds, "emptyFurniture");
 
   // Decor (wall items, lights, etc.)
-  const decorItems = inventory.filter(inv => {
-    const props = getHomeItemProperties(inv.itemId);
-    return props && ["poster", "frame", "window", "lights", "wall-decor", "plant-floor"].includes(props.type);
-  });
-  buildInventoryGrid(elements.decorGrid, decorItems, placedIds, "emptyDecor");
+  const decorItems = homeCatalog.filter(item =>
+    ["poster", "frame", "window", "lights", "wall-decor", "plant-floor"].includes(item.homeProps?.type)
+  );
+  buildInventoryGrid(elements.decorGrid, decorItems, ownedCounts, placedIds, "emptyDecor");
 
   // Pup items (food, accessories for pups)
-  const pupItems = inventory.filter(inv => {
-    const shopItem = getItem(inv.itemId);
-    return shopItem && (shopItem.category === "food" || shopItem.forPups);
-  });
-  buildInventoryGrid(elements.pupItemsGrid, pupItems, placedIds, "emptyPupItems");
+  const pupItems = SHOP_ITEMS.filter(item => item.category === "food" || item.forPups);
+  buildInventoryGrid(elements.pupItemsGrid, pupItems, ownedCounts, placedIds, "emptyPupItems");
 }
 
-function buildInventoryGrid(container, items, placedIds, emptyId) {
+function buildInventoryGrid(container, items, ownedCounts, placedIds, emptyId) {
   container.innerHTML = "";
 
   const emptyEl = document.getElementById(emptyId);
@@ -856,60 +862,45 @@ function buildInventoryGrid(container, items, placedIds, emptyId) {
 
   if (emptyEl) emptyEl.style.display = "none";
 
-  items.forEach(inv => {
-    const shopItem = getItem(inv.itemId);
+  items.forEach(item => {
+    const shopItem = item.icon ? item : getItem(item.id);
     if (!shopItem) return;
+    const itemId = shopItem.id || item.itemId;
+    const qty = ownedCounts.get(itemId);
+    const isOwned = Number(qty) > 0;
 
     const itemEl = document.createElement("div");
     itemEl.className = "inventory-item";
-    itemEl.dataset.itemId = inv.itemId;
+    itemEl.dataset.itemId = itemId;
 
-    if (placedIds.has(inv.itemId)) {
+    if (placedIds.has(itemId)) {
       itemEl.classList.add("placed");
+    }
+    if (!isOwned) {
+      itemEl.classList.add("locked");
     }
 
     itemEl.innerHTML = `
       <span class="inventory-item-icon">${shopItem.icon}</span>
       <span class="inventory-item-name">${shopItem.name}</span>
-      ${inv.qty > 1 ? `<span class="inventory-item-qty">x${inv.qty}</span>` : ""}
+      ${isOwned && qty > 1 ? `<span class="inventory-item-qty">x${qty}</span>` : ""}
+      ${!isOwned ? `<span class="inventory-item-lock">🔒 Buy in Fairy Store</span>` : ""}
     `;
 
-    // Make draggable
-    itemEl.draggable = true;
-    itemEl.addEventListener("dragstart", (e) => handleInventoryDragStart(e, inv.itemId));
-    itemEl.addEventListener("dragend", handleDragEnd);
+    if (isOwned) {
+      itemEl.addEventListener("click", () => setSelectedPlacementItem(itemId));
+
+      // Make draggable
+      itemEl.draggable = true;
+      itemEl.addEventListener("dragstart", (e) => handleInventoryDragStart(e, itemId));
+      itemEl.addEventListener("dragend", handleDragEnd);
+    } else {
+      itemEl.addEventListener("click", () => {
+        showTeddySpeech("That item is locked. Buy it in the Fairy Store!");
+      });
+    }
 
     container.appendChild(itemEl);
-  });
-}
-
-function renderProfileInventoryList(player) {
-  if (!elements.profileInventoryList) return;
-  const inventory = player?.inventory || [];
-
-  elements.profileInventoryList.innerHTML = "";
-
-  if (inventory.length === 0) {
-    elements.profileInventoryList.textContent = "No items yet.";
-    return;
-  }
-
-  inventory.forEach(inv => {
-    const itemRow = document.createElement("button");
-    itemRow.type = "button";
-    itemRow.className = "inventory-list-item";
-    itemRow.dataset.itemId = inv.itemId;
-    itemRow.textContent = `${inv.itemId} x${inv.qty}`;
-
-    itemRow.addEventListener("click", () => {
-      homeState.selectedPlacementItemId = inv.itemId;
-      elements.profileInventoryList.querySelectorAll(".inventory-list-item").forEach(el => {
-        el.classList.toggle("selected", el.dataset.itemId === inv.itemId);
-      });
-      showTeddySpeech(`Selected ${inv.itemId}! Tap the room to place it.`);
-    });
-
-    elements.profileInventoryList.appendChild(itemRow);
   });
 }
 
@@ -1106,6 +1097,14 @@ function handleDragEnd() {
   elements.dropPreview.classList.remove("visible");
 
   document.querySelectorAll(".dragging").forEach(el => el.classList.remove("dragging"));
+}
+
+function setSelectedPlacementItem(itemId) {
+  homeState.selectedPlacementItemId = itemId;
+  document.querySelectorAll(".inventory-item").forEach(el => {
+    el.classList.toggle("selected", el.dataset.itemId === itemId);
+  });
+  showTeddySpeech(`Selected ${itemId}! Tap the room to place it.`);
 }
 
 function handleRoomClick(e) {
