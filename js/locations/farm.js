@@ -3,7 +3,7 @@
 // NOW WITH: 3-tier progressive hints matching tutorial + Teddy encouragement! 🎉
 
 import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
-import { addGlimmers, getCurrentPlayer, setGlimmers } from "../core/player-data.js";
+import { addGlimmers, getCurrentPlayer, setGlimmers, setSchoolYearLevel } from "../core/player-data.js";
 import { farmScenes, getScene, STARTING_SCENE } from "../../data/farm-scenes.js";
 
 
@@ -25,6 +25,17 @@ let teddyHelper = {
 let currentPuzzleForHints = null;
 let currentPuzzleFactory = null;
 let currentSceneDialogueTemplate = "";
+
+// --- PRACTICE SESSION STATE ---
+const practiceSession = {
+  topicId: null,
+  yearLevel: 6,
+  setTarget: 8,
+  attempts: 0,
+  correct: 0,
+  currentStreak: 0,
+  bestStreak: 0
+};
 
 // Teddy's idle poses
 const TEDDY_IDLE_POSES = [
@@ -698,6 +709,52 @@ function stopIdleAnimation() {
   }
 }
 
+function normalizeYearLevel(yearLevel) {
+  return Math.max(3, Math.min(7, Number(yearLevel) || 6));
+}
+
+function resetPracticeSessionStats() {
+  practiceSession.setTarget = 8;
+  practiceSession.attempts = 0;
+  practiceSession.correct = 0;
+  practiceSession.currentStreak = 0;
+  practiceSession.bestStreak = 0;
+}
+
+function syncPracticeSession(topicId) {
+  const player = getCurrentPlayer();
+  practiceSession.yearLevel = normalizeYearLevel(player?.schoolYearLevel);
+  const nextTopicId = topicId || null;
+  if (practiceSession.topicId !== nextTopicId) {
+    practiceSession.topicId = nextTopicId;
+    resetPracticeSessionStats();
+  }
+}
+
+function recordPracticeAttempt(isCorrect) {
+  practiceSession.attempts += 1;
+  if (isCorrect) {
+    practiceSession.correct += 1;
+    practiceSession.currentStreak += 1;
+    practiceSession.bestStreak = Math.max(practiceSession.bestStreak, practiceSession.currentStreak);
+  } else {
+    practiceSession.currentStreak = 0;
+  }
+}
+
+function getCompletionRules(yearLevel) {
+  if (yearLevel <= 4) return { minCorrect: 5, minStreak: 2 };
+  if (yearLevel <= 6) return { minCorrect: 6, minStreak: 3 };
+  return { minCorrect: 6, minStreak: 3, masteryStreak: 4 };
+}
+
+function isSetComplete(session) {
+  const rules = getCompletionRules(session.yearLevel);
+  const isComplete = session.correct >= rules.minCorrect && session.bestStreak >= rules.minStreak;
+  const mastery = Boolean(rules.masteryStreak && session.bestStreak >= rules.masteryStreak);
+  return { isComplete, mastery };
+}
+
 
 // ============================================
 // MAIN GAME ENGINE
@@ -754,6 +811,10 @@ onReady(() => {
     clearUI();
     resetErrorTracking();
 
+    if (sceneId === "practice-loop") {
+      syncPracticeSession(window.__studypupsPracticeTopicId);
+    }
+
     if (scene.background) {
       backgroundLayer.style.backgroundImage = `url('${scene.background}')`;
     }
@@ -774,6 +835,9 @@ onReady(() => {
         break;
       case "practice-select":
         renderPracticeSelectLayout(scene);
+        break;
+      case "practice-results":
+        renderPracticeResultsLayout(scene);
         break;
       case "transition":
         renderTransition(scene);
@@ -888,6 +952,35 @@ onReady(() => {
       dialogueText.innerHTML = formatDialogue(scene.dialogue);
     }
 
+    const currentYear = normalizeYearLevel(getCurrentPlayer()?.schoolYearLevel);
+    practiceSession.yearLevel = currentYear;
+
+    const yearContainer = document.createElement("div");
+    yearContainer.className = "practice-year-level";
+
+    const yearLabel = document.createElement("div");
+    yearLabel.className = "practice-year-level-label";
+    yearLabel.textContent = `Year Level: ${currentYear}`;
+    yearContainer.appendChild(yearLabel);
+
+    const yearButtons = document.createElement("div");
+    yearButtons.className = "practice-year-level-buttons";
+
+    for (let year = 3; year <= 7; year += 1) {
+      const yearBtn = document.createElement("button");
+      yearBtn.className = "btn btn-choice";
+      yearBtn.textContent = `Year ${year}`;
+      yearBtn.addEventListener("click", () => {
+        const updated = setSchoolYearLevel(year);
+        practiceSession.yearLevel = normalizeYearLevel(updated);
+        yearLabel.textContent = `Year Level: ${practiceSession.yearLevel}`;
+      });
+      yearButtons.appendChild(yearBtn);
+    }
+
+    yearContainer.appendChild(yearButtons);
+    choicesContainer.appendChild(yearContainer);
+
     const topics = typeof scene.practiceTopics === "function"
       ? scene.practiceTopics()
       : scene.practiceTopics;
@@ -909,6 +1002,71 @@ onReady(() => {
 
       choicesContainer.appendChild(btn);
     });
+  }
+
+  function renderPracticeResultsLayout(scene) {
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = false;
+    puzzleBox.innerHTML = "";
+
+    if (scene.speaker && scene.speaker.image) {
+      renderCharacters([{
+        id: "speaker",
+        image: scene.speaker.image,
+        position: scene.speaker.position || "stage-left",
+        size: "medium"
+      }]);
+      speakerName.textContent = scene.speaker.name || "";
+    }
+
+    const { isComplete, mastery } = isSetComplete(practiceSession);
+    const titleText = isComplete ? "Set Complete!" : "Almost there!";
+    const teddyLine = isComplete
+      ? "Amazing work! Want to keep going or try a new topic?"
+      : "You’re so close — let’s keep practicing together!";
+
+    dialogueText.innerHTML = formatDialogue(teddyLine);
+
+    const results = document.createElement("div");
+    results.className = "practice-results";
+    results.innerHTML = `
+      <div class="practice-results-title">${titleText}</div>
+      <div class="practice-results-score">Score: ${practiceSession.correct}/${practiceSession.attempts}</div>
+      <div class="practice-results-streak">Best streak: ${practiceSession.bestStreak}</div>
+      ${mastery ? `<div class="practice-results-mastery">Mastery badge earned! 🏅</div>` : ""}
+    `;
+
+    puzzleBox.appendChild(results);
+
+    const continueBtn = document.createElement("button");
+    continueBtn.className = "btn btn-choice";
+    continueBtn.textContent = isComplete ? "Another set (+4)" : "Try 4 more (+4)";
+    continueBtn.addEventListener("click", () => {
+      practiceSession.setTarget += 4;
+      showScene("practice-loop");
+    });
+
+    const topicBtn = document.createElement("button");
+    topicBtn.className = "btn btn-choice";
+    topicBtn.textContent = isComplete ? "Pick a new topic" : "Switch topic";
+    topicBtn.addEventListener("click", () => {
+      resetPracticeSessionStats();
+      practiceSession.topicId = null;
+      showScene("practice-select");
+    });
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "btn btn-choice";
+    backBtn.textContent = isComplete ? "Back to farm" : "Take a break";
+    backBtn.addEventListener("click", () => {
+      resetPracticeSessionStats();
+      practiceSession.topicId = null;
+      showScene("arrival");
+    });
+
+    choicesContainer.appendChild(continueBtn);
+    choicesContainer.appendChild(topicBtn);
+    choicesContainer.appendChild(backBtn);
   }
 
   // --- PUZZLE LAYOUT ---
@@ -1182,6 +1340,7 @@ onReady(() => {
   function handlePuzzleAnswer(selectedId, puzzle, selectedBtn, optionsEl) {
     const isCorrect = selectedId === puzzle.correctId;
     const questionId = currentSceneId;
+    const isPracticeRound = currentSceneId === "practice-loop" && practiceSession.topicId;
 
     optionsEl.querySelectorAll("button").forEach((btn) => btn.disabled = true);
 
@@ -1196,11 +1355,24 @@ onReady(() => {
       }
       
       setTimeout(() => {
+        if (isPracticeRound) {
+          recordPracticeAttempt(true);
+          if (practiceSession.attempts >= practiceSession.setTarget) {
+            showScene("practice-results");
+          } else {
+            showScene("practice-loop");
+          }
+          return;
+        }
+
         if (puzzle.onCorrect) showScene(puzzle.onCorrect);
       }, 1500);
       
     } else {
       selectedBtn.classList.add("incorrect");
+      if (isPracticeRound) {
+        recordPracticeAttempt(false);
+      }
       const currentErrors = trackError(questionId);
       showWrongAnswerEncouragement();
 
