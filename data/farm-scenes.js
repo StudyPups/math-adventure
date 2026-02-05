@@ -1,4 +1,5 @@
 import { makeFarmMultiplicationPuzzle } from "../js/generators/multiplication.js";
+import { getDefaultPracticeTopics, getTopicById } from "../js/maths/topic-registry.js";
 
 // data/farm-scenes.js
 // Scene data for Buttercup's Farm location
@@ -26,7 +27,8 @@ export const farmScenes = {
     
     dialogue: null,
     choices: [
-      { text: "Hello! Are you Farmer Buttercup?", next: "buttercup-intro" }
+      { text: "Hello! Are you Farmer Buttercup?", next: "buttercup-intro" },
+      { text: "🧠 Practice Maths (Year 5)", next: "practice-select" }
     ]
   },
 
@@ -356,6 +358,82 @@ export const farmScenes = {
     layout: "transition",
     transitionText: "Heading to Melody's Shop...",
     destination: "shop.html"
+  },
+
+  // ===================
+  // PRACTICE MODE: Topic Selection
+  // ===================
+  "practice-select": {
+    id: "practice-select",
+    layout: "practice-select",
+    dialogue: "Pick something to practise! We can do as many as you want. 🐾",
+    practiceTopics: () => getDefaultPracticeTopics().map((topic) => ({
+      id: topic.id,
+      name: topic.displayName
+    })),
+    nextSceneAfterPick: "practice-topic-start"
+  },
+
+  // ===================
+  // PRACTICE MODE: Topic Start
+  // ===================
+  "practice-topic-start": {
+    id: "practice-topic-start",
+    layout: "practice-topic-start"
+  },
+
+  // ===================
+  // PRACTICE MODE: Puzzle Loop
+  // ===================
+  "practice-loop": {
+    id: "practice-loop",
+    layout: "puzzle",
+    speaker: {
+      name: "Teddy",
+      image: "assets/images/characters/Teddy/teddy-wait.png",
+      position: "left"
+    },
+    puzzle: () => {
+      const topicId = window.__studypupsPracticeTopicId;
+      const topic = getTopicById(topicId);
+      const generated = topic?.generate?.();
+
+      if (!generated) {
+        return {
+          type: "topic",
+          topicId: "fallback",
+          question: "Pick a topic to get started!",
+          options: [{ id: "a", text: "Okay!" }],
+          correctId: "a",
+          reward: 0,
+          onCorrect: "practice-select"
+        };
+      }
+
+      return {
+        ...generated,
+        onCorrect: "practice-correct"
+      };
+    }
+  },
+
+  // ===================
+  // PRACTICE MODE: Success
+  // ===================
+  "practice-correct": {
+    id: "practice-correct",
+    layout: "dialogue",
+    speaker: {
+      name: "Teddy",
+      image: "assets/images/characters/Teddy/teddy-tongue.png",
+      position: "left"
+    },
+    dialogue: "Nice work! Want another one?",
+    choices: [
+      { text: "Another one!", next: "practice-loop" },
+      { text: "Pick a different topic", next: "practice-select" },
+      { text: "Back to the farm story", next: "arrival" }
+    ]
   }
 };
 

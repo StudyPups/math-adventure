@@ -5,6 +5,7 @@
 import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
 import { addGlimmers, getCurrentPlayer, setGlimmers } from "../core/player-data.js";
 import { farmScenes, getScene, STARTING_SCENE } from "../../data/farm-scenes.js";
+import { getTopicById } from "../maths/topic-registry.js";
 
 
 // ============================================
@@ -54,12 +55,24 @@ const TEDDY_ENCOURAGEMENTS = [
   { text: "I'm cheering for you! 🐾", image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png" }
 ];
 
+const TEDDY_WRONG_ANSWER_LINES = [
+  "That one was tricky — let’s try different numbers!",
+  "Same idea, new number!",
+  "You’re learning — that’s what matters.",
+  "Nice try! Let’s have another go.",
+  "Shake it off — you can do this!"
+];
+
 /**
  * Get a random encouragement from Teddy
  */
 function getRandomEncouragement() {
   const index = Math.floor(Math.random() * TEDDY_ENCOURAGEMENTS.length);
   return TEDDY_ENCOURAGEMENTS[index];
+}
+
+function getRandomWrongAnswerLine() {
+  return TEDDY_WRONG_ANSWER_LINES[Math.floor(Math.random() * TEDDY_WRONG_ANSWER_LINES.length)];
 }
 
 /**
@@ -569,49 +582,9 @@ function createSparkles(container, count) {
  */
 function showTeddyEncouragement() {
   const encouragement = getRandomEncouragement();
-
   if (teddyHelper.isVisible && teddyHelper.element) {
-    const shown = showTeddySideBubble(encouragement);
-    if (shown) {
-      return;
-    }
+    showTeddySideBubble({ text: encouragement.text });
   }
-  
-  const popup = document.createElement("div");
-  popup.className = "teddy-encouragement-popup";
-  popup.id = "teddyEncouragement";
-  
-  popup.innerHTML = `
-    <div class="teddy-encouragement-content">
-      <img 
-        src="${encouragement.image}" 
-        alt="Teddy cheering" 
-        class="teddy-encouragement-sprite bounce-in"
-        onerror="this.style.display='none'"
-      >
-      <div class="teddy-encouragement-bubble pop-in">
-        <span class="teddy-encouragement-text">${encouragement.text}</span>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(popup);
-  
-  // Auto-dismiss
-  setTimeout(() => {
-    popup.classList.add("fade-out");
-    setTimeout(() => {
-      popup.remove();
-    }, 300);
-  }, 1500);
-  
-  // Click to dismiss
-  popup.addEventListener("click", () => {
-    popup.classList.add("fade-out");
-    setTimeout(() => {
-      popup.remove();
-    }, 300);
-  });
 }
 
 function showTeddySideBubble(encouragement) {
@@ -641,6 +614,11 @@ function showTeddySideBubble(encouragement) {
   });
 
   return true;
+}
+
+function showWrongAnswerEncouragement() {
+  if (!teddyHelper.isVisible || !teddyHelper.element) return;
+  showTeddySideBubble({ text: getRandomWrongAnswerLine() });
 }
 
 /**
@@ -744,6 +722,10 @@ onReady(() => {
   // --- Game State ---
   let gameState = loadGameState() || createNewGameState();
   let currentSceneId = STARTING_SCENE;
+  const practiceSession = {
+    topicId: null
+  };
+  let practiceIntroState = null;
   
   // --- ERROR TRACKING ---
   let currentQuestionId = null;
@@ -794,6 +776,12 @@ onReady(() => {
         break;
       case "puzzle":
         renderPuzzleLayout(scene);
+        break;
+      case "practice-select":
+        renderPracticeSelectLayout(scene);
+        break;
+      case "practice-topic-start":
+        renderPracticeTopicStartLayout();
         break;
       case "transition":
         renderTransition(scene);
@@ -899,6 +887,76 @@ onReady(() => {
     }
   }
 
+  function renderPracticeSelectLayout(scene) {
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = true;
+    puzzleBox.innerHTML = "";
+
+    if (scene.dialogue) {
+      dialogueText.innerHTML = formatDialogue(scene.dialogue);
+    }
+
+    const topics = typeof scene.practiceTopics === "function"
+      ? scene.practiceTopics()
+      : scene.practiceTopics;
+
+    if (!topics?.length) {
+      dialogueText.innerHTML = formatDialogue("No practice topics are available right now.");
+      return;
+    }
+
+    topics.forEach((topic) => {
+      const btn = document.createElement("button");
+      btn.className = "btn btn-choice";
+      btn.textContent = topic.name;
+
+      btn.addEventListener("click", () => {
+        window.__studypupsPracticeTopicId = topic.id;
+        practiceSession.topicId = topic.id;
+        showScene(scene.nextSceneAfterPick || "practice-loop");
+      });
+
+      choicesContainer.appendChild(btn);
+    });
+  }
+
+  function renderPracticeTopicStartLayout() {
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = true;
+    puzzleBox.innerHTML = "";
+
+    const topicId = practiceSession.topicId || window.__studypupsPracticeTopicId;
+    const topic = getTopicById(topicId);
+
+    const heading = topic
+      ? `Today’s topic: ${topic.displayName}`
+      : "Today’s topic";
+    const prompt = "Want to jump in or do a quick reminder first?";
+
+    dialogueText.innerHTML = formatDialogue(`${heading}<br><br>${prompt}`);
+
+    const jumpBtn = document.createElement("button");
+    jumpBtn.className = "btn btn-choice";
+    jumpBtn.textContent = "Jump straight in";
+    jumpBtn.addEventListener("click", () => {
+      showScene("practice-loop");
+    });
+
+    const remindBtn = document.createElement("button");
+    remindBtn.className = "btn btn-choice";
+    remindBtn.textContent = "Remind me first";
+    remindBtn.addEventListener("click", () => {
+      if (topic?.intro) {
+        startPracticeIntro(topic);
+      } else {
+        showScene("practice-loop");
+      }
+    });
+
+    choicesContainer.appendChild(jumpBtn);
+    choicesContainer.appendChild(remindBtn);
+  }
+
   // --- PUZZLE LAYOUT ---
   
  function renderPuzzleLayout(scene) {
@@ -949,6 +1007,160 @@ onReady(() => {
     setTimeout(() => {
       window.location.href = scene.destination || "index.html";
     }, 1500);
+  }
+
+  // --- PRACTICE INTRO ---
+
+  function startPracticeIntro(topic) {
+    practiceIntroState = {
+      stepIndex: 0,
+      discoveredFactors: []
+    };
+    renderPracticeIntroStep(topic);
+  }
+
+  function renderPracticeIntroStep(topic) {
+    const step = topic?.intro?.steps?.[practiceIntroState.stepIndex];
+    if (!step) {
+      renderPracticeIntroComplete();
+      return;
+    }
+
+    clearUI();
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = false;
+
+    if (!teddyHelper.isVisible) {
+      showTeddyHelper();
+    }
+
+    if (step.type === "teddyText") {
+      dialogueText.innerHTML = formatDialogue(step.text);
+      showTeddySideBubble({ text: step.text });
+      renderIntroNextButton();
+      return;
+    }
+
+    if (step.type === "factorTest") {
+      renderFactorTestStep(step.number);
+    }
+  }
+
+  function renderFactorTestStep(number) {
+    practiceIntroState.discoveredFactors = [];
+
+    dialogueText.innerHTML = formatDialogue(`Click all the factors of ${number}.`);
+
+    const prompt = document.createElement("div");
+    prompt.className = "puzzle-question";
+    prompt.textContent = `Click all the factors of ${number}`;
+    puzzleBox.appendChild(prompt);
+
+    const optionsEl = document.createElement("div");
+    optionsEl.className = "puzzle-options";
+
+    const candidates = buildFactorCandidates(number);
+    candidates.forEach((value) => {
+      const btn = document.createElement("button");
+      btn.className = "answer-btn factor-btn";
+      btn.textContent = String(value);
+      btn.addEventListener("click", () => handleFactorSelection(btn, number, value));
+      optionsEl.appendChild(btn);
+    });
+
+    puzzleBox.appendChild(optionsEl);
+
+    const checkBtn = document.createElement("button");
+    checkBtn.className = "btn btn-choice";
+    checkBtn.textContent = "Check";
+    checkBtn.addEventListener("click", () => {
+      const summary = evaluateFactorSelection(number);
+      showTeddySideBubble({ text: summary.message });
+      showIntroNextButtonAfterCheck(checkBtn);
+    });
+
+    choicesContainer.appendChild(checkBtn);
+  }
+
+  function buildFactorCandidates(number) {
+    const maxCandidate = Math.min(12, Math.floor(number / 2));
+    const candidates = [];
+    for (let value = 1; value <= maxCandidate; value += 1) {
+      candidates.push(value);
+    }
+    if (!candidates.includes(number)) {
+      candidates.push(number);
+    }
+    return candidates;
+  }
+
+  function handleFactorSelection(button, number, value) {
+    if (button.disabled) return;
+
+    if (number % value === 0) {
+      button.classList.add("correct");
+      button.disabled = true;
+      if (!practiceIntroState.discoveredFactors.includes(value)) {
+        practiceIntroState.discoveredFactors.push(value);
+      }
+    } else {
+      button.classList.add("incorrect");
+      showTeddySideBubble({ text: "Not quite — try one that divides evenly." });
+      setTimeout(() => {
+        button.classList.remove("incorrect");
+      }, 600);
+    }
+  }
+
+  function evaluateFactorSelection(number) {
+    const factors = practiceIntroState.discoveredFactors;
+    const hasOnlyTwo = factors.length === 2 && factors.includes(1) && factors.includes(number);
+
+    if (hasOnlyTwo) {
+      return { isPrime: true, message: "Only two factors! That’s prime." };
+    }
+
+    return { isPrime: false, message: "More than two factors. Not prime." };
+  }
+
+  function renderIntroNextButton() {
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "btn btn-choice";
+    nextBtn.textContent = "Next";
+    nextBtn.addEventListener("click", () => {
+      practiceIntroState.stepIndex += 1;
+      renderPracticeIntroStep(getTopicById(practiceSession.topicId));
+    });
+    choicesContainer.appendChild(nextBtn);
+  }
+
+  function showIntroNextButtonAfterCheck(checkBtn) {
+    checkBtn.disabled = true;
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "btn btn-choice";
+    nextBtn.textContent = "Next";
+    nextBtn.addEventListener("click", () => {
+      practiceIntroState.stepIndex += 1;
+      renderPracticeIntroStep(getTopicById(practiceSession.topicId));
+    });
+    choicesContainer.appendChild(nextBtn);
+  }
+
+  function renderPracticeIntroComplete() {
+    clearUI();
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = true;
+    dialogueText.innerHTML = formatDialogue("You’re ready! Let’s practise.");
+    showTeddySideBubble({ text: "You’re ready! Let’s practise." });
+
+    const startBtn = document.createElement("button");
+    startBtn.className = "btn btn-choice";
+    startBtn.textContent = "Let’s practise!";
+    startBtn.addEventListener("click", () => {
+      showScene("practice-loop");
+    });
+    choicesContainer.appendChild(startBtn);
   }
 
   // --- HELPERS ---
@@ -1033,7 +1245,9 @@ onReady(() => {
   function regeneratePuzzle(puzzle) {
     let newPuzzle = null;
 
-    if (typeof currentPuzzleFactory === "function") {
+    if (typeof puzzle?.regenerate === "function") {
+      newPuzzle = puzzle.regenerate();
+    } else if (typeof currentPuzzleFactory === "function") {
       newPuzzle = currentPuzzleFactory();
     } else {
       newPuzzle = buildFallbackMultiplicationPuzzle(puzzle);
@@ -1041,9 +1255,19 @@ onReady(() => {
 
     if (!newPuzzle) return puzzle;
 
+    newPuzzle = {
+      ...newPuzzle,
+      onCorrect: newPuzzle.onCorrect ?? puzzle.onCorrect,
+      reward: newPuzzle.reward ?? puzzle.reward,
+      regenerate: newPuzzle.regenerate ?? puzzle.regenerate
+    };
+
     currentPuzzleForHints = newPuzzle;
     updatePuzzleDialogue(newPuzzle);
     renderPuzzle(newPuzzle);
+    if (!teddyHelper.isVisible) {
+      showTeddyHelper();
+    }
 
     return newPuzzle;
   }
@@ -1178,6 +1402,7 @@ onReady(() => {
     } else {
       selectedBtn.classList.add("incorrect");
       const currentErrors = trackError(questionId);
+      showWrongAnswerEncouragement();
 
       setTimeout(() => {
         const refreshedPuzzle = regeneratePuzzle(puzzle);
