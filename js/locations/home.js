@@ -310,7 +310,8 @@ function normalizePlacement(item) {
 }
 
 function getHomeCatalogItems() {
-  return Object.values(SHOP_ITEMS).map(item => {
+  const shopItems = Object.values(SHOP_ITEMS);
+  return shopItems.map(item => {
     const homeProps = getHomeItemProperties(item.id);
     if (!homeProps) return null;
     return { ...item, homeProps };
