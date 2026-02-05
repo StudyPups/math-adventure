@@ -54,12 +54,24 @@ const TEDDY_ENCOURAGEMENTS = [
   { text: "I'm cheering for you! 🐾", image: "assets/images/characters/Teddy/tutorial-teddy-hopeful.png" }
 ];
 
+const TEDDY_WRONG_ANSWER_LINES = [
+  "That one was tricky — let’s try different numbers!",
+  "Same idea, new number!",
+  "You’re learning — that’s what matters.",
+  "Nice try! Let’s have another go.",
+  "Shake it off — you can do this!"
+];
+
 /**
  * Get a random encouragement from Teddy
  */
 function getRandomEncouragement() {
   const index = Math.floor(Math.random() * TEDDY_ENCOURAGEMENTS.length);
   return TEDDY_ENCOURAGEMENTS[index];
+}
+
+function getRandomWrongAnswerLine() {
+  return TEDDY_WRONG_ANSWER_LINES[Math.floor(Math.random() * TEDDY_WRONG_ANSWER_LINES.length)];
 }
 
 /**
@@ -569,49 +581,9 @@ function createSparkles(container, count) {
  */
 function showTeddyEncouragement() {
   const encouragement = getRandomEncouragement();
-
   if (teddyHelper.isVisible && teddyHelper.element) {
-    const shown = showTeddySideBubble(encouragement);
-    if (shown) {
-      return;
-    }
+    showTeddySideBubble({ text: encouragement.text });
   }
-  
-  const popup = document.createElement("div");
-  popup.className = "teddy-encouragement-popup";
-  popup.id = "teddyEncouragement";
-  
-  popup.innerHTML = `
-    <div class="teddy-encouragement-content">
-      <img 
-        src="${encouragement.image}" 
-        alt="Teddy cheering" 
-        class="teddy-encouragement-sprite bounce-in"
-        onerror="this.style.display='none'"
-      >
-      <div class="teddy-encouragement-bubble pop-in">
-        <span class="teddy-encouragement-text">${encouragement.text}</span>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(popup);
-  
-  // Auto-dismiss
-  setTimeout(() => {
-    popup.classList.add("fade-out");
-    setTimeout(() => {
-      popup.remove();
-    }, 300);
-  }, 1500);
-  
-  // Click to dismiss
-  popup.addEventListener("click", () => {
-    popup.classList.add("fade-out");
-    setTimeout(() => {
-      popup.remove();
-    }, 300);
-  });
 }
 
 function showTeddySideBubble(encouragement) {
@@ -641,6 +613,11 @@ function showTeddySideBubble(encouragement) {
   });
 
   return true;
+}
+
+function showWrongAnswerEncouragement() {
+  if (!teddyHelper.isVisible || !teddyHelper.element) return;
+  showTeddySideBubble({ text: getRandomWrongAnswerLine() });
 }
 
 /**
@@ -795,6 +772,9 @@ onReady(() => {
       case "puzzle":
         renderPuzzleLayout(scene);
         break;
+      case "practice-select":
+        renderPracticeSelectLayout(scene);
+        break;
       case "transition":
         renderTransition(scene);
         return;
@@ -897,6 +877,38 @@ onReady(() => {
     if (scene.choices) {
       renderChoices(scene.choices);
     }
+  }
+
+  function renderPracticeSelectLayout(scene) {
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = true;
+    puzzleBox.innerHTML = "";
+
+    if (scene.dialogue) {
+      dialogueText.innerHTML = formatDialogue(scene.dialogue);
+    }
+
+    const topics = typeof scene.practiceTopics === "function"
+      ? scene.practiceTopics()
+      : scene.practiceTopics;
+
+    if (!topics?.length) {
+      dialogueText.innerHTML = formatDialogue("No practice topics are available right now.");
+      return;
+    }
+
+    topics.forEach((topic) => {
+      const btn = document.createElement("button");
+      btn.className = "btn btn-choice";
+      btn.textContent = topic.name;
+
+      btn.addEventListener("click", () => {
+        window.__studypupsPracticeTopicId = topic.id;
+        showScene(scene.nextSceneAfterPick || "practice-loop");
+      });
+
+      choicesContainer.appendChild(btn);
+    });
   }
 
   // --- PUZZLE LAYOUT ---
@@ -1033,7 +1045,9 @@ onReady(() => {
   function regeneratePuzzle(puzzle) {
     let newPuzzle = null;
 
-    if (typeof currentPuzzleFactory === "function") {
+    if (typeof puzzle?.regenerate === "function") {
+      newPuzzle = puzzle.regenerate();
+    } else if (typeof currentPuzzleFactory === "function") {
       newPuzzle = currentPuzzleFactory();
     } else {
       newPuzzle = buildFallbackMultiplicationPuzzle(puzzle);
@@ -1041,9 +1055,19 @@ onReady(() => {
 
     if (!newPuzzle) return puzzle;
 
+    newPuzzle = {
+      ...newPuzzle,
+      onCorrect: newPuzzle.onCorrect ?? puzzle.onCorrect,
+      reward: newPuzzle.reward ?? puzzle.reward,
+      regenerate: newPuzzle.regenerate ?? puzzle.regenerate
+    };
+
     currentPuzzleForHints = newPuzzle;
     updatePuzzleDialogue(newPuzzle);
     renderPuzzle(newPuzzle);
+    if (!teddyHelper.isVisible) {
+      showTeddyHelper();
+    }
 
     return newPuzzle;
   }
@@ -1178,6 +1202,7 @@ onReady(() => {
     } else {
       selectedBtn.classList.add("incorrect");
       const currentErrors = trackError(questionId);
+      showWrongAnswerEncouragement();
 
       setTimeout(() => {
         const refreshedPuzzle = regeneratePuzzle(puzzle);
