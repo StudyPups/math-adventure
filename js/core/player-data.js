@@ -46,6 +46,7 @@ export function createNewPlayer(name = "") {
     // Progress
     tutorialComplete: false,
     currentLocation: "tutorial",
+    schoolYearLevel: 6,
 
     // Suggested save shape for your map/levels:
     unlockedLocations: ["tutorial"], // e.g. ["tutorial","farm","shop"]
@@ -215,6 +216,15 @@ export function setGlimmers(amount) {
   p.glimmers = value;
   savePlayer(p);
   return p.glimmers;
+}
+
+export function setSchoolYearLevel(yearLevel) {
+  const p = getCurrentPlayer();
+  if (!p) return null;
+  const normalized = Math.max(3, Math.min(7, Number(yearLevel) || 6));
+  p.schoolYearLevel = normalized;
+  savePlayer(p);
+  return p.schoolYearLevel;
 }
 
 export function addInventoryItem(itemId, qty = 1, meta = {}) {

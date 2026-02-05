@@ -410,6 +410,19 @@ export const farmScenes = {
   },
 
   // ===================
+  // PRACTICE MODE: Results
+  // ===================
+  "practice-results": {
+    id: "practice-results",
+    layout: "practice-results",
+    speaker: {
+      name: "Teddy",
+      image: "assets/images/characters/Teddy/teddy-tongue.png",
+      position: "left"
+    }
+  },
+
+  // ===================
   // PRACTICE MODE: Success
   // ===================
   "practice-correct": {
