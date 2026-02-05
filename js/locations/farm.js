@@ -5,6 +5,7 @@
 import { onReady, log, saveGameState, loadGameState, createNewGameState, initGameMenu } from "../core/shared.js";
 import { addGlimmers, getCurrentPlayer, setGlimmers, setSchoolYearLevel } from "../core/player-data.js";
 import { farmScenes, getScene, STARTING_SCENE } from "../../data/farm-scenes.js";
+import { getTopicById } from "../maths/topic-registry.js";
 
 
 // ============================================
@@ -36,6 +37,8 @@ const practiceSession = {
   currentStreak: 0,
   bestStreak: 0
 };
+
+let practiceIntroState = null;
 
 // Teddy's idle poses
 const TEDDY_IDLE_POSES = [
@@ -836,6 +839,12 @@ onReady(() => {
       case "practice-select":
         renderPracticeSelectLayout(scene);
         break;
+      case "practice-topic-start":
+        renderPracticeTopicStartLayout();
+        break;
+      case "practice-intro":
+        renderPracticeIntroLayout();
+        break;
       case "practice-results":
         renderPracticeResultsLayout(scene);
         break;
@@ -997,11 +1006,232 @@ onReady(() => {
 
       btn.addEventListener("click", () => {
         window.__studypupsPracticeTopicId = topic.id;
-        showScene(scene.nextSceneAfterPick || "practice-loop");
+        syncPracticeSession(topic.id);
+        showScene(scene.nextSceneAfterPick || "practice-topic-start");
       });
 
       choicesContainer.appendChild(btn);
     });
+  }
+
+  function renderPracticeTopicStartLayout() {
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = true;
+    puzzleBox.innerHTML = "";
+
+    const topicId = practiceSession.topicId || window.__studypupsPracticeTopicId;
+    const topic = getTopicById(topicId);
+
+    if (!topic) {
+      dialogueText.innerHTML = formatDialogue("Hmm, I can’t find that topic. Want to pick again?");
+      const backBtn = document.createElement("button");
+      backBtn.className = "btn btn-choice";
+      backBtn.textContent = "Pick a topic";
+      backBtn.addEventListener("click", () => showScene("practice-select"));
+      choicesContainer.appendChild(backBtn);
+      return;
+    }
+
+    dialogueText.innerHTML = formatDialogue(
+      `Today’s topic: ${topic.displayName}<br>Want to jump in or do a quick reminder first?`
+    );
+
+    const jumpBtn = document.createElement("button");
+    jumpBtn.className = "btn btn-choice";
+    jumpBtn.textContent = "Jump straight in";
+    jumpBtn.addEventListener("click", () => {
+      window.__studypupsPracticeTopicId = topic.id;
+      syncPracticeSession(topic.id);
+      showScene("practice-loop");
+    });
+
+    const remindBtn = document.createElement("button");
+    remindBtn.className = "btn btn-choice";
+    remindBtn.textContent = "Remind me first";
+    remindBtn.addEventListener("click", () => {
+      window.__studypupsPracticeTopicId = topic.id;
+      syncPracticeSession(topic.id);
+      if (topic.intro) {
+        showScene("practice-intro");
+      } else {
+        showScene("practice-loop");
+      }
+    });
+
+    choicesContainer.appendChild(jumpBtn);
+    choicesContainer.appendChild(remindBtn);
+  }
+
+  function renderPracticeIntroLayout() {
+    dialogueLayer.classList.add("dialogue-mode");
+    puzzleBox.hidden = false;
+    puzzleBox.innerHTML = "";
+    choicesContainer.innerHTML = "";
+
+    const topicId = practiceSession.topicId || window.__studypupsPracticeTopicId;
+    const topic = getTopicById(topicId);
+    const intro = topic?.intro;
+
+    if (!intro) {
+      showScene("practice-loop");
+      return;
+    }
+
+    if (!practiceIntroState || practiceIntroState.topicId !== topicId) {
+      practiceIntroState = {
+        topicId,
+        stepIndex: 0,
+        discoveredFactors: [],
+        teddyLine: "",
+        isChecked: false,
+        checkLine: ""
+      };
+    }
+
+    const step = intro.steps[practiceIntroState.stepIndex];
+    if (!step) {
+      const doneBtn = document.createElement("button");
+      doneBtn.className = "btn btn-choice";
+      doneBtn.textContent = "Let’s practise!";
+      doneBtn.addEventListener("click", () => showScene("practice-loop"));
+      dialogueText.innerHTML = formatDialogue("All set! Let’s practise.");
+      choicesContainer.appendChild(doneBtn);
+      return;
+    }
+
+    if (step.type === "teddyText") {
+      dialogueText.innerHTML = formatDialogue(step.text);
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "btn btn-choice";
+      nextBtn.textContent = "Next";
+      nextBtn.addEventListener("click", () => {
+        practiceIntroState.stepIndex += 1;
+        practiceIntroState.discoveredFactors = [];
+        practiceIntroState.teddyLine = "";
+        practiceIntroState.isChecked = false;
+        practiceIntroState.checkLine = "";
+        renderPracticeIntroLayout();
+      });
+      choicesContainer.appendChild(nextBtn);
+      return;
+    }
+
+    if (step.type === "factorTest") {
+      renderFactorTestStep(step.number);
+      return;
+    }
+
+    practiceIntroState.stepIndex += 1;
+    renderPracticeIntroLayout();
+  }
+
+  function renderFactorTestStep(number) {
+    dialogueText.innerHTML = formatDialogue(`Click all the factors of ${number}.`);
+
+    const prompt = document.createElement("div");
+    prompt.className = "puzzle-question";
+    prompt.textContent = `Click all the factors of ${number}`;
+    puzzleBox.appendChild(prompt);
+
+    const optionsEl = document.createElement("div");
+    optionsEl.className = "puzzle-options";
+
+    const candidates = buildFactorCandidates(number);
+    const selected = new Set(practiceIntroState.discoveredFactors);
+
+    candidates.forEach((value) => {
+      const btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.textContent = String(value);
+      if (selected.has(value)) {
+        btn.classList.add("correct");
+      }
+      btn.disabled = practiceIntroState.isChecked;
+      btn.addEventListener("click", () => {
+        handleFactorPick(number, value, btn);
+      });
+      optionsEl.appendChild(btn);
+    });
+
+    puzzleBox.appendChild(optionsEl);
+
+    if (practiceIntroState.teddyLine) {
+      const teddyLine = document.createElement("div");
+      teddyLine.className = "practice-intro-teddy-line";
+      teddyLine.textContent = practiceIntroState.teddyLine;
+      puzzleBox.appendChild(teddyLine);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "practice-intro-actions";
+
+    const checkBtn = document.createElement("button");
+    checkBtn.className = "btn btn-choice";
+    checkBtn.textContent = "Check";
+    checkBtn.disabled = practiceIntroState.isChecked;
+    checkBtn.addEventListener("click", () => {
+      const factorSet = new Set(practiceIntroState.discoveredFactors);
+      const isPrimeFactors = factorSet.size === 2 && factorSet.has(1) && factorSet.has(number);
+      practiceIntroState.isChecked = true;
+      practiceIntroState.checkLine = isPrimeFactors
+        ? "Only two factors! That’s prime."
+        : "More than two factors. Not prime.";
+      practiceIntroState.teddyLine = "";
+      renderPracticeIntroLayout();
+    });
+    actions.appendChild(checkBtn);
+
+    if (practiceIntroState.isChecked) {
+      const checkLine = document.createElement("div");
+      checkLine.className = "practice-intro-check-line";
+      checkLine.textContent = practiceIntroState.checkLine;
+      puzzleBox.appendChild(checkLine);
+
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "btn btn-choice";
+      nextBtn.textContent = "Next";
+      nextBtn.addEventListener("click", () => {
+        practiceIntroState.stepIndex += 1;
+        practiceIntroState.discoveredFactors = [];
+        practiceIntroState.teddyLine = "";
+        practiceIntroState.isChecked = false;
+        practiceIntroState.checkLine = "";
+        renderPracticeIntroLayout();
+      });
+      actions.appendChild(nextBtn);
+    }
+
+    choicesContainer.appendChild(actions);
+  }
+
+  function handleFactorPick(number, value, btn) {
+    if (practiceIntroState.isChecked) return;
+    const isFactor = number % value === 0;
+
+    if (isFactor) {
+      btn.classList.add("correct");
+      if (!practiceIntroState.discoveredFactors.includes(value)) {
+        practiceIntroState.discoveredFactors.push(value);
+      }
+      practiceIntroState.teddyLine = "";
+    } else {
+      btn.classList.add("incorrect");
+      practiceIntroState.teddyLine = "Not quite — try one that divides evenly.";
+      setTimeout(() => {
+        btn.classList.remove("incorrect");
+      }, 600);
+    }
+
+    renderPracticeIntroLayout();
+  }
+
+  function buildFactorCandidates(number) {
+    const candidates = new Set([1, number]);
+    const maxCandidate = Math.min(6, number - 1);
+    for (let value = 2; value <= maxCandidate; value += 1) {
+      candidates.add(value);
+    }
+    return Array.from(candidates).sort((a, b) => a - b);
   }
 
   function renderPracticeResultsLayout(scene) {

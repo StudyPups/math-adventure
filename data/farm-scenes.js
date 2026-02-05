@@ -371,7 +371,23 @@ export const farmScenes = {
       id: topic.id,
       name: topic.displayName
     })),
-    nextSceneAfterPick: "practice-loop"
+    nextSceneAfterPick: "practice-topic-start"
+  },
+
+  // ===================
+  // PRACTICE MODE: Topic Start
+  // ===================
+  "practice-topic-start": {
+    id: "practice-topic-start",
+    layout: "practice-topic-start"
+  },
+
+  // ===================
+  // PRACTICE MODE: Topic Intro
+  // ===================
+  "practice-intro": {
+    id: "practice-intro",
+    layout: "practice-intro"
   },
 
   // ===================
