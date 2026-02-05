@@ -6,9 +6,54 @@
   <title>Detective Agency - StudyPups</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/mobile.css">
-<link rel="stylesheet" href="css/hud.css">
-<link rel="stylesheet" href="css/dialogue.css">
-<link rel="stylesheet" href="css/puzzle.css">
-<link rel="stylesheet" href="css/hint-system.css">
-<link rel="stylesheet" href="css/studypup.css">
-<link rel="stylesheet" href="css/detective-agency.css">
+  <link rel="stylesheet" href="css/hud.css">
+  <link rel="stylesheet" href="css/dialogue.css">
+  <link rel="stylesheet" href="css/puzzle.css">
+  <link rel="stylesheet" href="css/hint-system.css">
+  <link rel="stylesheet" href="css/studypup.css">
+  <link rel="stylesheet" href="css/locations/detective-agency.css">
+</head>
+<body>
+  <!-- 
+    DETECTIVE AGENCY LOCATION
+    Math focus: Logic & Word Problems
+  -->
+  <div class="game-screen" id="gameScreen">
+    <!-- LAYER 1: Background -->
+    <div class="background-layer" id="backgroundLayer"></div>
+
+    <!-- LAYER 2: Characters -->
+    <div class="character-layer" id="characterLayer">
+      <!-- Characters inserted dynamically -->
+    </div>
+
+    <!-- LAYER 3: Dialogue Box -->
+    <div class="dialogue-layer" id="dialogueLayer">
+      <!-- Speaker info -->
+      <div class="speaker-info" id="speakerInfo">
+        <span class="speaker-name" id="speakerName"></span>
+      </div>
+
+      <!-- Main dialogue text -->
+      <div class="dialogue-text" id="dialogueText"></div>
+
+      <!-- Puzzle box (for math questions) -->
+      <div class="puzzle-box" id="puzzleBox" hidden></div>
+
+      <!-- Choice buttons -->
+      <div class="choices-container" id="choicesContainer"></div>
+    </div>
+
+    <!-- LAYER 4: HUD -->
+    <div class="hud-layer">
+      <button class="hud-title hud-home-btn" id="homeBtn" title="Open map">🗺️ Detective Agency</button>
+      <div class="gem-display" id="gemDisplay">
+        <span class="gem-icon">💎</span>
+        <span class="gem-count" id="gemCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/locations/detective-agency.js"></script>
+</body>
+</html>
