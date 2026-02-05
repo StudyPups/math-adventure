@@ -389,9 +389,12 @@ function processPurchase() {
     const item = getItem(cartItem.itemId);
     if (!item) return;
 
-    addInventoryItem(cartItem.itemId, cartItem.quantity, {
-      purchasedAt: new Date().toISOString()
-    });
+    const purchaseMeta = {
+      purchasedAt: new Date().toISOString(),
+      seenInInventory: false
+    };
+
+    addInventoryItem(cartItem.itemId, cartItem.quantity, purchaseMeta);
   });
 
   // Show success modal
