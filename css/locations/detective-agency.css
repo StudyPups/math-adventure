@@ -1,0 +1,40 @@
+#backgroundLayer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#characterLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.teddy-helper {
+  position: absolute;
+  right: 4%;
+  bottom: 4%;
+  width: min(18vw, 200px);
+  height: auto;
+  pointer-events: none;
+}
+
+.teddy-helper-sprite {
+  width: 100%;
+  height: auto;
+  display: block;
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+  animation: teddyIdle 1.2s steps(4) infinite;
+}
+
+@keyframes teddyIdle {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: -300%;
+  }
+}
