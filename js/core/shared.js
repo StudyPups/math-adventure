@@ -10,7 +10,7 @@ async function syncStatsToBackend(state) {
 
   // Only sync if the profile is in a class (teacher analytics)
   const neighbourhoodId = localStorage.getItem(
-    `studypups_neighbourhood_for_${profileId}`
+    `studypups_neighbourhood_for_${profileId}`,
   );
   if (!neighbourhoodId) return;
 
@@ -18,7 +18,7 @@ async function syncStatsToBackend(state) {
     profile_id: profileId,
     neighbourhood_id: neighbourhoodId,
     stats: state.stats ?? {},
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
   };
 
   const { error } = await supabase
@@ -63,7 +63,6 @@ export function getSaveKey() {
   return profileId ? `${SAVE_KEY_BASE}_${profileId}` : SAVE_KEY_BASE;
 }
 
-
 /**
  * Create a fresh game state
  */
@@ -72,38 +71,36 @@ export function createNewGameState() {
     playerName: "",
     tutorialComplete: false,
     currentSection: "tutorial",
-    
+
     progress: {
       sectionsCompleted: [],
       questionsCompleted: [],
-      studyPupsUnlocked: []
+      studyPupsUnlocked: [],
     },
-    
+
     stats: {
       totalGlimmers: 0,
       glimmersSpent: 0,
       totalCorrect: 0,
       totalAttempts: 0,
       hintsUsed: 0,
-      timeSpentMinutes: 0
+      timeSpentMinutes: 0,
     },
-    
+
     inventory: {
       items: [],
-      equippedItems: {}
+      equippedItems: {},
     },
-    
+
     settings: {
       soundEnabled: true,
-      musicEnabled: true
+      musicEnabled: true,
     },
-    
+
     lastPlayed: new Date().toISOString(),
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
 }
-
-
 
 /**
  * Save game state to localStorage
@@ -137,7 +134,6 @@ export function loadGameState() {
     return null;
   }
 }
-
 
 /**
  * Clear saved game (for testing/reset)
@@ -173,13 +169,13 @@ export function isNewPlayer() {
 /**
  * Initialize the game menu on any page
  * Call this in your onReady() or at page load
- * 
+ *
  * @param {string} currentPage - The current page identifier (e.g., "farm", "tutorial")
  */
 export function initGameMenu(currentPage = "") {
   // Don't add menu if it already exists
   if (document.getElementById("menuOverlay")) return;
-  
+
   // Define all game locations
   const locations = [
     {
@@ -189,7 +185,7 @@ export function initGameMenu(currentPage = "") {
       name: "My Home",
       desc: "Decorate & Play with Pups",
       badge: "Available",
-      locked: false
+      locked: false,
     },
     {
       id: "tutorial",
@@ -198,7 +194,7 @@ export function initGameMenu(currentPage = "") {
       name: "Whispering Woods",
       desc: "Patterns & Sequences",
       badge: "Tutorial",
-      locked: false
+      locked: false,
     },
     {
       id: "farm",
@@ -207,7 +203,7 @@ export function initGameMenu(currentPage = "") {
       name: "Buttercup's Farm",
       desc: "Multiplication & Grouping",
       badge: "Available",
-      locked: false
+      locked: false,
     },
     {
       id: "shop",
@@ -216,7 +212,7 @@ export function initGameMenu(currentPage = "") {
       name: "Melody's Shop",
       desc: "Spend Glimmers & Get Items",
       badge: "Available",
-      locked: false
+      locked: false,
     },
     {
       id: "cafe",
@@ -225,7 +221,7 @@ export function initGameMenu(currentPage = "") {
       name: "Cozy Cafe",
       desc: "Money & Decimals",
       badge: "🔒 Coming Soon",
-      locked: true
+      locked: false,
     },
     {
       id: "restaurant",
@@ -233,25 +229,28 @@ export function initGameMenu(currentPage = "") {
       icon: "🍽️",
       name: "Riverside Restaurant",
       desc: "Measurement",
-      badge: "Available",
-      locked: false
-    }
-  ];  // <-- Array CLOSES here!
-  
+      badge: "🔒 Coming Soon",
+      locked: false,
+    },
+  ]; // <-- Array CLOSES here!
+
   // Build location HTML
-  const locationsHTML = locations.map(loc => {
-    const isCurrent = loc.id === currentPage;
-    const classes = [
-      "menu-location",
-      isCurrent ? "current" : "",
-      loc.locked ? "locked" : ""
-    ].filter(Boolean).join(" ");
-    
-    const tag = loc.locked ? "div" : "a";
-    const href = loc.locked ? "" : `href="${loc.href}"`;
-    const badge = isCurrent ? "You are here" : loc.badge;
-    
-    return `
+  const locationsHTML = locations
+    .map((loc) => {
+      const isCurrent = loc.id === currentPage;
+      const classes = [
+        "menu-location",
+        isCurrent ? "current" : "",
+        loc.locked ? "locked" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const tag = loc.locked ? "div" : "a";
+      const href = loc.locked ? "" : `href="${loc.href}"`;
+      const badge = isCurrent ? "You are here" : loc.badge;
+
+      return `
       <${tag} ${href} class="${classes}">
         <span class="menu-location-icon">${loc.icon}</span>
         <div class="menu-location-info">
@@ -261,13 +260,12 @@ export function initGameMenu(currentPage = "") {
         <span class="menu-location-badge">${badge}</span>
       </${tag}>
     `;
-  }).join("");
-  
+    })
+    .join("");
+
   // Create menu button (hamburger icon in top-left)
   const menuBtn = document.createElement("button");
-  
 
-  
   // Create menu overlay
   const menuOverlay = document.createElement("div");
   menuOverlay.id = "menuOverlay";
@@ -294,36 +292,34 @@ export function initGameMenu(currentPage = "") {
 </div>
 
   `;
-  
+
   // Add to page
   document.body.appendChild(menuBtn);
   document.body.appendChild(menuOverlay);
-  
+
   // Event listeners
   menuBtn.addEventListener("click", () => {
     menuOverlay.classList.add("open");
   });
-  
+
   menuOverlay.querySelector("#menuClose").addEventListener("click", () => {
     menuOverlay.classList.remove("open");
   });
-  
+
   // Click outside to close
   menuOverlay.addEventListener("click", (e) => {
     if (e.target === menuOverlay) {
       menuOverlay.classList.remove("open");
     }
   });
-  
+
   // Escape key to close
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && menuOverlay.classList.contains("open")) {
       menuOverlay.classList.remove("open");
     }
-
-   
   });
-  
+
   // =============================================
   // EXPOSE MENU TOGGLE FOR EXTERNAL BUTTONS
   // This lets the homeBtn open the menu!
@@ -336,11 +332,10 @@ export function initGameMenu(currentPage = "") {
     menuOverlay.classList.remove("open");
   };
 
-   const backBtn = document.getElementById("backToWelcomeBtn");
-backBtn?.addEventListener("click", () => {
-  window.location.href = "index.html";
-});
+  const backBtn = document.getElementById("backToWelcomeBtn");
+  backBtn?.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
 
-  
   log("Game menu initialized ✅");
 }
