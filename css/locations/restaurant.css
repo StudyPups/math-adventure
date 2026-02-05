@@ -26,15 +26,25 @@
 
   background-size: 1536px 1024px;
 
-  animation: zaraIdle 1.1s steps(4) infinite;
+  animation: zaraIdle 1.1s linear infinite;
 }
 
 @keyframes zaraIdle {
-  from {
+  0%,
+  24.999% {
     background-position-x: 0px;
   }
-  to {
-    background-position-x: -1536px;
+  25%,
+  49.999% {
+    background-position-x: -384px;
+  }
+  50%,
+  74.999% {
+    background-position-x: -768px;
+  }
+  75%,
+  100% {
+    background-position-x: -1152px;
   }
 }
 
