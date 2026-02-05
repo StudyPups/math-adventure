@@ -207,8 +207,25 @@ function initializeHome(gameState, player) {
 
   // Render placed items
   const profilePlacements = getProfilePlacements(player);
-  syncGameStatePlacements(gameState, profilePlacements);
-  renderPlacedItems(profilePlacements);
+  const gsPlacements = gameState?.homeState?.placedItems || [];
+  let placementsToUse = [];
+
+  if (Array.isArray(profilePlacements) && profilePlacements.length > 0) {
+    placementsToUse = profilePlacements;
+  } else if (Array.isArray(gsPlacements) && gsPlacements.length > 0) {
+    placementsToUse = gsPlacements;
+    saveProfilePlacements(placementsToUse);
+  } else {
+    const defaults = createDefaultHomeState().placedItems || [];
+    placementsToUse = defaults;
+    saveProfilePlacements(placementsToUse);
+    syncGameStatePlacements(gameState, placementsToUse);
+  }
+
+  placementsToUse = placementsToUse.map(item => normalizePlacement(item));
+  renderPlacedItems(placementsToUse);
+  homeState.placedItems = placementsToUse;
+  syncGameStatePlacements(gameState, placementsToUse);
 
   // Render pups
   renderStudyPups(hs.pups, gameState);
@@ -216,7 +233,7 @@ function initializeHome(gameState, player) {
   // Build edit panel options
   buildWallOptions(hs);
   buildFloorOptions(hs);
-  buildInventoryGrids(player, profilePlacements);
+  buildInventoryGrids(player, placementsToUse);
 
   // Update letterbox count
   updateLetterboxCount(hs.receivedMessages);
@@ -294,6 +311,15 @@ function syncGameStatePlacements(gameState, placements) {
   }
   gameState.homeState.placedItems = placements.map(item => normalizePlacement(item));
   saveGameState(gameState);
+}
+
+function savePlacementsNow() {
+  const player = getCurrentPlayer();
+  if (!player) return;
+  const placements = homeState.placedItems || getProfilePlacements(player);
+  saveProfilePlacements(placements);
+  const gameState = loadGameState() || createNewGameState();
+  syncGameStatePlacements(gameState, placements);
 }
 
 function normalizePlacement(item) {
@@ -1106,8 +1132,8 @@ function handleDrop(e) {
     }
   }
 
-  saveProfilePlacements(placements);
-  syncGameStatePlacements(loadGameState() || createNewGameState(), placements);
+  homeState.placedItems = placements;
+  savePlacementsNow();
   renderPlacedItems(placements);
   buildInventoryGrids(player, placements);
 
@@ -1170,8 +1196,8 @@ function handleRoomClick(e) {
     zone
   });
 
-  saveProfilePlacements(placements);
-  syncGameStatePlacements(loadGameState() || createNewGameState(), placements);
+  homeState.placedItems = placements;
+  savePlacementsNow();
   renderPlacedItems(placements);
   buildInventoryGrids(player, placements);
 }
