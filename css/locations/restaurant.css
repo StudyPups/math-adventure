@@ -20,21 +20,21 @@
   /* display size (tweak later if you want) */
   width: min(38vw, 520px);
 
-  height: auto; /* height comes from aspect-ratio set in JS */
+  aspect-ratio: 384 / 1024;
+  height: auto;
   background-repeat: no-repeat;
 
-  /* stretch sheet to 4x width so each frame lines up */
-  background-size: 400% 100%;
+  background-size: 1536px 1024px;
 
   animation: zaraIdle 1.1s steps(4) infinite;
 }
 
 @keyframes zaraIdle {
   from {
-    background-position: 0% 0;
+    background-position-x: 0px;
   }
   to {
-    background-position: 100% 0;
+    background-position-x: -1536px;
   }
 }
 
