@@ -168,6 +168,54 @@
   animation: bubbleFade 0.3s ease forwards;
 }
 
+/* --- TEDDY SPEECH BUBBLE (helper side bubble) --- */
+.teddy-side-bubble {
+  position: absolute;
+  right: calc(100% + 12px);
+  bottom: 50%;
+  transform: translateY(50%);
+  background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+  border: 3px solid #8B4513;
+  border-radius: 16px;
+  padding: 10px 16px;
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5D4037;
+  max-width: 240px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: bubblePop 0.3s ease;
+  z-index: 20;
+}
+
+.teddy-side-bubble::after {
+  content: '';
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid #8B4513;
+}
+
+.teddy-side-bubble::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid #fff9e6;
+  z-index: 1;
+}
+
+.teddy-side-bubble.fade-out {
+  animation: bubbleFade 0.3s ease forwards;
+}
+
 /* --- C) TEDDY SIDEBAR (Practice page) --- */
 .teddy-sidebar {
   background: none;

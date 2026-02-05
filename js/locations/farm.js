@@ -21,6 +21,11 @@ let teddyHelper = {
   hasAttempted: false,
 };
 
+// --- PUZZLE REGEN STATE ---
+let currentPuzzleForHints = null;
+let currentPuzzleFactory = null;
+let currentSceneDialogueTemplate = "";
+
 // Teddy's idle poses
 const TEDDY_IDLE_POSES = [
   "teddy-wait.png",
@@ -161,7 +166,7 @@ function hideDecorativeTeddy() {
 /**
  * Show Teddy helper beside the puzzle box (clickable for hints)
  */
-function showTeddyHelper(puzzle) {
+function showTeddyHelper() {
   hideTeddyHelper();
   
   // Also hide the decorative one - helper takes over
@@ -198,8 +203,8 @@ function showTeddyHelper(puzzle) {
   
   // Click handler
   teddyContainer.addEventListener("click", () => {
-    if (puzzle) {
-      showProgressiveHintOverlay(puzzle);
+    if (currentPuzzleForHints) {
+      showProgressiveHintOverlay(currentPuzzleForHints);
     }
   });
   
@@ -564,6 +569,13 @@ function createSparkles(container, count) {
  */
 function showTeddyEncouragement() {
   const encouragement = getRandomEncouragement();
+
+  if (teddyHelper.isVisible && teddyHelper.element) {
+    const shown = showTeddySideBubble(encouragement);
+    if (shown) {
+      return;
+    }
+  }
   
   const popup = document.createElement("div");
   popup.className = "teddy-encouragement-popup";
@@ -600,6 +612,35 @@ function showTeddyEncouragement() {
       popup.remove();
     }, 300);
   });
+}
+
+function showTeddySideBubble(encouragement) {
+  if (!teddyHelper.element) return false;
+
+  const existingBubble = teddyHelper.element.querySelector(".teddy-side-bubble");
+  if (existingBubble) existingBubble.remove();
+
+  const bubble = document.createElement("div");
+  bubble.className = "teddy-side-bubble";
+  bubble.textContent = encouragement.text;
+  teddyHelper.element.appendChild(bubble);
+
+  setTimeout(() => {
+    bubble.classList.add("fade-out");
+    setTimeout(() => {
+      bubble.remove();
+    }, 300);
+  }, 1500);
+
+  bubble.addEventListener("click", (event) => {
+    event.stopPropagation();
+    bubble.classList.add("fade-out");
+    setTimeout(() => {
+      bubble.remove();
+    }, 300);
+  });
+
+  return true;
 }
 
 /**
@@ -877,6 +918,10 @@ onReady(() => {
     ? scene.puzzle()
     : scene.puzzle;
 
+  currentPuzzleFactory = (typeof scene.puzzle === "function") ? scene.puzzle : null;
+  currentSceneDialogueTemplate = scene.dialogue || puzzleData?.dialogue || "";
+  currentPuzzleForHints = puzzleData;
+
   if (scene.dialogue || puzzleData?.dialogue) {
     const text = scene.dialogue || puzzleData.dialogue;
     dialogueText.innerHTML = formatDialogue(text);
@@ -884,7 +929,7 @@ onReady(() => {
 
   if (scene.puzzle) {
     renderPuzzle(puzzleData);
-    showTeddyHelper(puzzleData);
+    showTeddyHelper();
   }
 }
 
@@ -952,7 +997,8 @@ onReady(() => {
   function renderPuzzle(puzzle) {
     puzzleBox.hidden = false;
 
-     puzzleBox.innerHTML = "";
+    puzzleBox.innerHTML = "";
+    currentPuzzleForHints = puzzle;
 
     const questionEl = document.createElement("div");
     questionEl.className = "puzzle-question";
@@ -975,6 +1021,136 @@ onReady(() => {
     });
 
     puzzleBox.appendChild(optionsEl);
+  }
+
+  function updatePuzzleDialogue(puzzle) {
+    const text = puzzle?.dialogue || currentSceneDialogueTemplate;
+    if (text) {
+      dialogueText.innerHTML = formatDialogue(text);
+    }
+  }
+
+  function regeneratePuzzle(puzzle) {
+    let newPuzzle = null;
+
+    if (typeof currentPuzzleFactory === "function") {
+      newPuzzle = currentPuzzleFactory();
+    } else {
+      newPuzzle = buildFallbackMultiplicationPuzzle(puzzle);
+    }
+
+    if (!newPuzzle) return puzzle;
+
+    currentPuzzleForHints = newPuzzle;
+    updatePuzzleDialogue(newPuzzle);
+    renderPuzzle(newPuzzle);
+
+    return newPuzzle;
+  }
+
+  function buildFallbackMultiplicationPuzzle(puzzle) {
+    if (!puzzle?.question) return puzzle;
+
+    const parsed = parseMultiplicationQuestion(puzzle.question);
+    if (!parsed) return puzzle;
+
+    const { left, right, leftLabel, rightLabel } = parsed;
+    const { a, b } = getNewMultiplicationNumbers(left, right);
+    const options = buildMultiplicationOptions(a, b);
+    const correctAnswer = a * b;
+    const correctIndex = options.indexOf(correctAnswer);
+    const updatedDialogue = buildDialogueFromTemplate(currentSceneDialogueTemplate, a, b);
+
+    const questionParts = [
+      `${a}`,
+      leftLabel,
+      "×",
+      `${b}`,
+      rightLabel
+    ].filter(Boolean);
+
+    return {
+      ...puzzle,
+      question: `${questionParts.join(" ")} = ?`,
+      dialogue: updatedDialogue || puzzle.dialogue,
+      options: options.map((value, index) => ({
+        id: String.fromCharCode(97 + index),
+        text: String(value)
+      })),
+      correctId: String.fromCharCode(97 + correctIndex),
+      hintOnWrong: `Try counting by ${b}s, ${a} times.`
+    };
+  }
+
+  function parseMultiplicationQuestion(question) {
+    const match = question.match(/(\d+)\s*([^×x\d]*)[×x]\s*(\d+)\s*([^=]*)=/i);
+    if (!match) return null;
+
+    return {
+      left: parseInt(match[1], 10),
+      leftLabel: match[2]?.trim(),
+      right: parseInt(match[3], 10),
+      rightLabel: match[4]?.trim()
+    };
+  }
+
+  function buildDialogueFromTemplate(template, a, b) {
+    if (!template) return "";
+
+    let count = 0;
+    return template.replace(/\d+/g, (match) => {
+      count += 1;
+      if (count === 1) return String(a);
+      if (count === 2) return String(b);
+      return match;
+    });
+  }
+
+  function getNewMultiplicationNumbers(previousA, previousB) {
+    let a = previousA;
+    let b = previousB;
+    let attempts = 0;
+
+    while (attempts < 12 && a === previousA && b === previousB) {
+      a = Math.floor(Math.random() * 9) + 2;
+      b = Math.floor(Math.random() * 9) + 2;
+      attempts += 1;
+    }
+
+    return { a, b };
+  }
+
+  function buildMultiplicationOptions(a, b) {
+    const correct = a * b;
+    const options = new Set([correct]);
+    const candidates = [
+      a + b,
+      correct + b,
+      correct - b,
+      correct + a,
+      correct - a,
+      (a + 1) * b,
+      (a - 1) * b,
+      a * (b + 1),
+      a * (b - 1),
+      correct + 1,
+      correct - 1,
+      correct + 2,
+      correct - 2
+    ];
+
+    for (const value of candidates) {
+      if (options.size >= 4) break;
+      if (value > 0) options.add(value);
+    }
+
+    while (options.size < 4) {
+      const offset = Math.floor(Math.random() * 5) + 1;
+      const candidate = Math.random() > 0.5 ? correct + offset : correct - offset;
+      if (candidate > 0) options.add(candidate);
+    }
+
+    return Array.from(options).sort(() => Math.random() - 0.5);
   }
 
   // --- PUZZLE ANSWER HANDLER ---
@@ -1002,22 +1178,17 @@ onReady(() => {
     } else {
       selectedBtn.classList.add("incorrect");
       const currentErrors = trackError(questionId);
-      
-      if (currentErrors === 1) {
-        // First error: offer hint
-        showHintOffer(puzzle);
-      } else if (currentErrors >= 3) {
-        // Third error: show hint automatically
-        showProgressiveHintOverlay(puzzle);
-      }
-      
+
       setTimeout(() => {
-        optionsEl.querySelectorAll("button").forEach((btn) => {
-          if (!btn.classList.contains("incorrect")) {
-            btn.disabled = false;
-          }
-        });
-      }, 1000);
+        const refreshedPuzzle = regeneratePuzzle(puzzle);
+        if (currentErrors === 1) {
+          // First error: offer hint (after regeneration)
+          showHintOffer(refreshedPuzzle);
+        } else if (currentErrors >= 3) {
+          // Third error: show hint automatically (after regeneration)
+          showProgressiveHintOverlay(refreshedPuzzle);
+        }
+      }, 1500);
     }
   }
   
