@@ -390,7 +390,8 @@ function processPurchase() {
     if (!item) return;
 
     addInventoryItem(cartItem.itemId, cartItem.quantity, {
-      purchasedAt: new Date().toISOString()
+      purchasedAt: new Date().toISOString(),
+      seenInInventory: false
     });
   });
 

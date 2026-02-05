@@ -310,7 +310,7 @@ function normalizePlacement(item) {
 }
 
 function getHomeCatalogItems() {
-  return SHOP_ITEMS.map(item => {
+  return Object.values(SHOP_ITEMS).map(item => {
     const homeProps = getHomeItemProperties(item.id);
     if (!homeProps) return null;
     return { ...item, homeProps };
@@ -824,9 +824,9 @@ function selectFloor(floorId) {
 }
 
 function buildInventoryGrids(player, placedItems) {
-  const ownedCounts = new Map(
-    (player?.inventory || []).map(inv => [inv.itemId, inv.qty])
-  );
+  const inventory = player?.inventory || [];
+  const invById = new Map(inventory.map(inv => [inv.itemId, inv]));
+  const ownedCounts = new Map(inventory.map(inv => [inv.itemId, inv.qty]));
   const placedIds = new Set((placedItems || []).map(i => i.itemId));
 
   // Furniture (floor items with placement type furniture, pet-bed, etc.)
@@ -834,20 +834,20 @@ function buildInventoryGrids(player, placedItems) {
   const furnitureItems = homeCatalog.filter(item =>
     ["furniture", "pet-bed", "rug"].includes(item.homeProps?.type)
   );
-  buildInventoryGrid(elements.furnitureGrid, furnitureItems, ownedCounts, placedIds, "emptyFurniture");
+  buildInventoryGrid(elements.furnitureGrid, furnitureItems, invById, ownedCounts, placedIds, "emptyFurniture");
 
   // Decor (wall items, lights, etc.)
   const decorItems = homeCatalog.filter(item =>
     ["poster", "frame", "window", "lights", "wall-decor", "plant-floor"].includes(item.homeProps?.type)
   );
-  buildInventoryGrid(elements.decorGrid, decorItems, ownedCounts, placedIds, "emptyDecor");
+  buildInventoryGrid(elements.decorGrid, decorItems, invById, ownedCounts, placedIds, "emptyDecor");
 
   // Pup items (food, accessories for pups)
-  const pupItems = SHOP_ITEMS.filter(item => item.category === "food" || item.forPups);
-  buildInventoryGrid(elements.pupItemsGrid, pupItems, ownedCounts, placedIds, "emptyPupItems");
+  const pupItems = Object.values(SHOP_ITEMS).filter(item => item.category === "food" || item.forPups);
+  buildInventoryGrid(elements.pupItemsGrid, pupItems, invById, ownedCounts, placedIds, "emptyPupItems");
 }
 
-function buildInventoryGrid(container, items, ownedCounts, placedIds, emptyId) {
+function buildInventoryGrid(container, items, invById, ownedCounts, placedIds, emptyId) {
   container.innerHTML = "";
 
   const emptyEl = document.getElementById(emptyId);
@@ -859,12 +859,34 @@ function buildInventoryGrid(container, items, ownedCounts, placedIds, emptyId) {
 
   if (emptyEl) emptyEl.style.display = "none";
 
-  items.forEach(item => {
+  const sortedItems = items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const aItem = a.item.icon ? a.item : getItem(a.item.id);
+      const bItem = b.item.icon ? b.item : getItem(b.item.id);
+      const aId = aItem?.id || a.item.itemId;
+      const bId = bItem?.id || b.item.itemId;
+      const aQty = ownedCounts.get(aId) || 0;
+      const bQty = ownedCounts.get(bId) || 0;
+      const aOwned = Number(aQty) > 0;
+      const bOwned = Number(bQty) > 0;
+      const aNew = aOwned && invById.get(aId)?.seenInInventory === false;
+      const bNew = bOwned && invById.get(bId)?.seenInInventory === false;
+
+      if (aNew !== bNew) return aNew ? -1 : 1;
+      if (aOwned !== bOwned) return aOwned ? -1 : 1;
+      return a.index - b.index;
+    })
+    .map(entry => entry.item);
+
+  sortedItems.forEach(item => {
     const shopItem = item.icon ? item : getItem(item.id);
     if (!shopItem) return;
     const itemId = shopItem.id || item.itemId;
     const qty = ownedCounts.get(itemId);
     const isOwned = Number(qty) > 0;
+    const invEntry = invById.get(itemId);
+    const isNew = isOwned && invEntry?.seenInInventory === false;
 
     const itemEl = document.createElement("div");
     itemEl.className = "inventory-item";
@@ -876,8 +898,12 @@ function buildInventoryGrid(container, items, ownedCounts, placedIds, emptyId) {
     if (!isOwned) {
       itemEl.classList.add("locked");
     }
+    if (isNew) {
+      itemEl.classList.add("is-new");
+    }
 
     itemEl.innerHTML = `
+      ${isNew ? '<span class="inventory-item-new">NEW!</span>' : ""}
       <span class="inventory-item-icon">${shopItem.icon}</span>
       <span class="inventory-item-name">${shopItem.name}</span>
       ${isOwned && qty > 1 ? `<span class="inventory-item-qty">x${qty}</span>` : ""}
@@ -1821,6 +1847,18 @@ function toggleEditMode(force = null) {
     const player = getCurrentPlayer();
     const placements = getProfilePlacements(player);
     buildInventoryGrids(player, placements);
+    if (player?.inventory?.length) {
+      let changed = false;
+      player.inventory.forEach(item => {
+        if (item.seenInInventory === false) {
+          item.seenInInventory = true;
+          changed = true;
+        }
+      });
+      if (changed) {
+        savePlayer(player);
+      }
+    }
   } else {
     // Deselect any selected items
     document.querySelectorAll(".placed-item.selected").forEach(el => {
