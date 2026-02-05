@@ -12,11 +12,26 @@ onReady(() => {
   if (!characters) return;
 
   // Zara NPC
-  const zara = document.createElement("img");
-  zara.src = "assets/images/characters/Chef-Zara/zara-neutral.png";
-  zara.alt = "Chef Zara";
-  zara.className = "npc-zara";
+  const zara = document.createElement("div");
+  zara.className = "zara-sprite";
+  zara.setAttribute("aria-label", "Chef Zara");
   characters.appendChild(zara);
+
+  const sheetSrc = "assets/images/characters/Chef-Zara/zara-neutral.png";
+  const img = new Image();
+  img.onload = () => {
+    const frames = 4;
+    const frameW = img.naturalWidth / frames;
+    const frameH = img.naturalHeight;
+    zara.style.setProperty("--frames", frames);
+    zara.style.setProperty("--sheetW", img.naturalWidth);
+    zara.style.setProperty("--sheetH", img.naturalHeight);
+    zara.style.setProperty("--frameW", frameW);
+    zara.style.setProperty("--frameH", frameH);
+    zara.style.backgroundImage = `url("${sheetSrc}")`;
+    zara.style.aspectRatio = `${frameW} / ${frameH}`;
+  };
+  img.src = sheetSrc;
 
   // Teddy helper (decor)
   const teddyWrap = document.createElement("div");
