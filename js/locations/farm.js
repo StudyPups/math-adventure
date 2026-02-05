@@ -6,6 +6,7 @@ import { onReady, log, saveGameState, loadGameState, createNewGameState, initGam
 import { addGlimmers, getCurrentPlayer, setGlimmers, setSchoolYearLevel } from "../core/player-data.js";
 import { farmScenes, getScene, STARTING_SCENE } from "../../data/farm-scenes.js";
 import { getTopicById } from "../maths/topic-registry.js";
+import { addTeddyHelperSprite } from "./teddy-helper.js";
 
 
 // ============================================
@@ -16,7 +17,6 @@ import { getTopicById } from "../maths/topic-registry.js";
 let teddyHelper = {
   element: null,
   isVisible: false,
-  currentPose: 0,
   idleInterval: null,
   currentHintLevel: 0,  // Track hint level (0, 1, 2)
   hasAttempted: false,
@@ -39,24 +39,6 @@ const practiceSession = {
 };
 
 let practiceIntroState = null;
-
-// Teddy's idle poses
-const TEDDY_IDLE_POSES = [
-  "teddy-wait.png",
-  "teddy-listen.png",
-  "teddy-hopeful.png",
-  "teddy-lookup.png"
-];
-
-// Teddy's helping pose
-const TEDDY_HELPING_POSE = "teddy-focus-up.png";
-
-// Teddy's celebration poses
-const TEDDY_CELEBRATION_POSES = [
-  "teddy-leap-joy.png",
-  "teddy-jump-excited.png",
-  "teddy-tongue.png"
-];
 
 // Encouraging messages when player chooses "Got it!" with more hints available
 const TEDDY_ENCOURAGEMENTS = [
@@ -123,21 +105,17 @@ function showDecorativeTeddy() {
   teddyContainer.id = "teddyDecor";
   teddyContainer.className = "teddy-decor";
   
-  const teddyImg = document.createElement("img");
-  teddyImg.src = "assets/images/characters/Teddy/teddy-wait.png";
-  teddyImg.alt = "Teddy";
-  teddyImg.className = "teddy-decor-sprite";
-  teddyImg.draggable = false;
+  const teddySprite = addTeddyHelperSprite({
+    className: "teddy-decor-sprite teddy-helper-sprite",
+    alt: "Teddy",
+    width: "var(--teddy-decor-size)",
+  });
   
-  teddyImg.onerror = () => {
-    console.error("❌ Failed to load decorative Teddy");
-  };
-  
-  teddyContainer.appendChild(teddyImg);
+  teddyContainer.appendChild(teddySprite);
   
   // Click handler for fun responses!
   teddyContainer.addEventListener("click", () => {
-    showTeddyFunResponse(teddyImg);
+    showTeddyFunResponse(teddySprite);
   });
   
   document.getElementById("gameScreen").appendChild(teddyContainer);
@@ -148,14 +126,12 @@ function showDecorativeTeddy() {
 /**
  * Show a fun response when Teddy is clicked (not during puzzles)
  */
-function showTeddyFunResponse(teddyImg) {
+function showTeddyFunResponse(teddySprite) {
   // Pick a random response
   const response = TEDDY_FUN_RESPONSES[Math.floor(Math.random() * TEDDY_FUN_RESPONSES.length)];
   
-  // Change Teddy's pose
-  const originalPose = teddyImg.src;
-  teddyImg.src = `assets/images/characters/Teddy/${response.pose}`;
-  teddyImg.classList.add("teddy-excited");
+  // Animate Teddy
+  teddySprite.classList.add("teddy-excited");
   
   // Remove existing speech bubble if any
   const existingBubble = document.querySelector(".teddy-fun-bubble");
@@ -175,8 +151,7 @@ function showTeddyFunResponse(teddyImg) {
     bubble.classList.add("fade-out");
     setTimeout(() => {
       bubble.remove();
-      teddyImg.src = originalPose;
-      teddyImg.classList.remove("teddy-excited");
+      teddySprite.classList.remove("teddy-excited");
     }, 300);
   }, 2000);
 }
@@ -200,21 +175,16 @@ function showTeddyHelper() {
   
   // Reset state for new puzzle
   resetHintLevel();
-  teddyHelper.currentPose = 0;
   
   const teddyContainer = document.createElement("div");
   teddyContainer.id = "teddyHelper";
   teddyContainer.className = "teddy-helper";
   
-  const teddyImg = document.createElement("img");
-  teddyImg.src = `assets/images/characters/Teddy/${TEDDY_IDLE_POSES[0]}`;
-  teddyImg.alt = "Teddy - Click for help!";
-  teddyImg.className = "teddy-helper-sprite";
-  teddyImg.draggable = false;
-  
-  teddyImg.onerror = () => {
-    console.error("❌ Failed to load Teddy:", teddyImg.src);
-  };
+  const teddySprite = addTeddyHelperSprite({
+    className: "teddy-helper-sprite",
+    alt: "Teddy - Click for help!",
+    width: "var(--teddy-helper-size)",
+  });
   
   const label = document.createElement("div");
   label.className = "teddy-helper-label";
@@ -224,7 +194,7 @@ function showTeddyHelper() {
   glow.className = "teddy-collar-glow";
   
   teddyContainer.appendChild(glow);
-  teddyContainer.appendChild(teddyImg);
+  teddyContainer.appendChild(teddySprite);
   teddyContainer.appendChild(label);
   
   // Click handler
@@ -236,13 +206,11 @@ function showTeddyHelper() {
   
   // Hover effects
   teddyContainer.addEventListener("mouseenter", () => {
-    teddyImg.src = `assets/images/characters/Teddy/teddy-tongue.png`;
     label.querySelector(".label-text").textContent = "I can help!";
   });
   
   teddyContainer.addEventListener("mouseleave", () => {
     if (!document.querySelector(".hint-overlay")) {
-      teddyImg.src = `assets/images/characters/Teddy/${TEDDY_IDLE_POSES[teddyHelper.currentPose]}`;
       label.querySelector(".label-text").textContent = "Tap me!";
     }
   });
@@ -287,10 +255,7 @@ function showProgressiveHintOverlay(puzzle) {
   stopIdleAnimation();
   
   // Update Teddy's appearance
-  const teddyImg = teddyHelper.element?.querySelector(".teddy-helper-sprite");
-  if (teddyImg) {
-    teddyImg.src = `assets/images/characters/Teddy/${TEDDY_HELPING_POSE}`;
-  }
+  teddyHelper.element?.classList.add("teddy-helping");
   
   // Create overlay
   const overlay = document.createElement("div");
@@ -652,10 +617,7 @@ function closeHintOverlay(showEncouragement = false) {
       
       // Return Teddy to idle
       startIdleAnimation();
-      const teddyImg = teddyHelper.element?.querySelector(".teddy-helper-sprite");
-      if (teddyImg) {
-        teddyImg.src = `assets/images/characters/Teddy/${TEDDY_IDLE_POSES[0]}`;
-      }
+      teddyHelper.element?.classList.remove("teddy-helping");
       const label = teddyHelper.element?.querySelector(".label-text");
       if (label) {
         label.textContent = "Tap me!";
@@ -670,12 +632,6 @@ function closeHintOverlay(showEncouragement = false) {
 function onCorrectAnswer() {
   stopIdleAnimation();
   
-  const teddyImg = teddyHelper.element?.querySelector(".teddy-helper-sprite");
-  if (teddyImg) {
-    const celebrationPose = TEDDY_CELEBRATION_POSES[Math.floor(Math.random() * TEDDY_CELEBRATION_POSES.length)];
-    teddyImg.src = `assets/images/characters/Teddy/${celebrationPose}`;
-  }
-  
   const label = teddyHelper.element?.querySelector(".label-text");
   if (label) {
     label.textContent = "You did it! 🎉";
@@ -689,20 +645,7 @@ function onCorrectAnswer() {
 // ============================================
 
 function startIdleAnimation() {
-  teddyHelper.idleInterval = setInterval(() => {
-    if (!teddyHelper.isVisible) return;
-    
-    teddyHelper.currentPose = (teddyHelper.currentPose + 1) % TEDDY_IDLE_POSES.length;
-    
-    const teddyImg = teddyHelper.element?.querySelector(".teddy-helper-sprite");
-    if (teddyImg && !document.getElementById("hintOverlay")) {
-      teddyImg.style.opacity = "0.8";
-      setTimeout(() => {
-        teddyImg.src = `assets/images/characters/Teddy/${TEDDY_IDLE_POSES[teddyHelper.currentPose]}`;
-        teddyImg.style.opacity = "1";
-      }, 150);
-    }
-  }, 4000);
+  teddyHelper.idleInterval = null;
 }
 
 function stopIdleAnimation() {

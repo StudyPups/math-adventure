@@ -34,8 +34,8 @@
 .teddy-decor-sprite {
   width: var(--teddy-decor-size);
   height: auto;
+  display: block;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  animation: teddyIdle 3s ease-in-out infinite;
   transition: transform 0.2s ease;
 }
 
@@ -62,10 +62,23 @@
 }
 
 .teddy-helper-sprite {
-  width: var(--teddy-helper-size);
+  width: 100%;
   height: auto;
+  display: block;
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+  animation: teddyIdle 1.2s steps(4) infinite;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
   transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+@keyframes teddyIdle {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
 }
 
 .teddy-helper:hover .teddy-helper-sprite {

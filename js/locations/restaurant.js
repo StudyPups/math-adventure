@@ -1,4 +1,5 @@
 import { onReady } from "../core/shared.js";
+import { addTeddyHelperSprite } from "./teddy-helper.js";
 
 onReady(() => {
   const bg = document.getElementById("backgroundLayer");
@@ -37,10 +38,10 @@ onReady(() => {
   const teddyWrap = document.createElement("div");
   teddyWrap.className = "teddy-decor";
 
-  const teddy = document.createElement("img");
-  teddy.src = "assets/images/characters/Teddy/teddy-wait.png";
-  teddy.alt = "Teddy";
-  teddy.className = "teddy-decor-sprite";
+  const teddy = addTeddyHelperSprite({
+    className: "teddy-decor-sprite teddy-helper-sprite",
+    alt: "Teddy",
+  });
 
   teddyWrap.appendChild(teddy);
   characters.appendChild(teddyWrap);
