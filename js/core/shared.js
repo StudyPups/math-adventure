@@ -225,7 +225,7 @@ export function initGameMenu(currentPage = "") {
     },
     {
       id: "restaurant",
-      href: "#",
+      href: "restaurant.html",
       icon: "🍽️",
       name: "Riverside Restaurant",
       desc: "Measurement",
